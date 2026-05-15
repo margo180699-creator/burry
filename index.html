@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BURRY</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pk:#e8919e;--pkd:#c26b78;--pkl:#fce8ec;--pkm:#f5c6d0;
+  --cr:#fdf6f0;--be:#f0e8df;--bed:#e5d8cc;
+  --br:#8b5e52;--tx:#3d2b26;--sf:#7a5a54;
+  --wh:#fff;--gr:#7bbf8a;--grb:#edf7f0;--rd:#e07070;
+  --sh:rgba(194,107,120,.13);--shl:rgba(194,107,120,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--tx);min-height:100vh;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ── LOGIN ── */
+#s-login{align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf0f3,var(--cr) 55%,#f5ede6);}
+.login-box{background:var(--wh);border-radius:28px;padding:48px 44px;width:380px;max-width:95vw;box-shadow:0 20px 60px rgba(194,107,120,.15);text-align:center;}
+.l-logo{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;letter-spacing:8px;color:var(--pkd);margin-bottom:4px;}
+.l-logo em{font-weight:300;font-style:italic;}
+.l-sub{font-size:11px;color:var(--sf);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:38px;}
+.l-hint{font-size:12px;font-weight:600;color:var(--sf);letter-spacing:.4px;margin-bottom:16px;}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:30px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--pkm);background:var(--wh);transition:all .2s;}
+.pin-dot.on{background:var(--pk);border-color:var(--pk);}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:18px;}
+.nb{height:62px;border:1.5px solid var(--pkm);border-radius:16px;background:var(--wh);font-size:22px;font-weight:500;color:var(--tx);cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;}
+.nb:hover{background:var(--pkl);border-color:var(--pk);}
+.nb:active{transform:scale(.95);background:var(--pkm);}
+.nb.del{font-size:18px;color:var(--sf);}
+.nb.go{background:linear-gradient(135deg,var(--pk),var(--pkd));color:var(--wh);border:none;font-size:14px;font-weight:600;letter-spacing:.5px;box-shadow:0 4px 16px rgba(194,107,120,.3);}
+.nb.go:hover{box-shadow:0 6px 22px rgba(194,107,120,.4);transform:translateY(-1px);}
+.l-err{color:var(--rd);font-size:13px;font-weight:500;min-height:20px;}
+.l-loading{color:var(--sf);font-size:12px;min-height:18px;margin-top:6px;}
+.shake{animation:shk .4s ease;}
+@keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+/* ── HEADER ── */
+.app-hdr{background:var(--wh);border-bottom:1px solid var(--pkm);padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px var(--sh);flex-shrink:0;}
+.h-logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;letter-spacing:5px;color:var(--pkd);}
+.h-logo em{font-weight:300;font-style:italic;}
+.h-user{display:flex;align-items:center;gap:12px;}
+.h-av{width:36px;height:36px;border-radius:50%;background:var(--pk);color:var(--wh);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.h-nm{font-size:13px;font-weight:600;color:var(--br);}
+.h-rl{font-size:11px;color:var(--sf);}
+.btn-out{padding:7px 16px;border-radius:20px;border:1.5px solid var(--pkm);background:var(--wh);color:var(--sf);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-out:hover{border-color:var(--rd);color:var(--rd);}
+
+/* ── COOK TABS ── */
+.cook-tabs{display:flex;gap:0;margin-bottom:22px;background:var(--wh);border:1px solid var(--pkm);border-radius:14px;overflow:hidden;}
+.cook-tab{flex:1;padding:12px 10px;border:none;background:transparent;font-family:"DM Sans",sans-serif;font-size:13.5px;font-weight:500;color:var(--sf);cursor:pointer;transition:all .2s;border-right:1px solid var(--pkm);}
+.cook-tab:last-child{border-right:none;}
+.cook-tab.act{background:linear-gradient(135deg,var(--pkl),#fdf0f2);color:var(--pkd);font-weight:700;}
+.cook-tab:hover:not(.act){background:var(--be);}
+.cook-view{display:none;}
+.cook-view.act{display:block;}
+
+/* ── STATS ── */
+.stat-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.stat-box{background:var(--wh);border:1px solid var(--pkm);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-box::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pkm),var(--pk));}
+.stat-box.full{grid-column:1/-1;}
+.stat-box.green::after{background:linear-gradient(90deg,#a8d8b0,var(--gr));}
+.stat-box.gold::after{background:linear-gradient(90deg,#e8c97a,var(--gold,#d4a96a));}
+.sb-lbl{font-size:10.5px;font-weight:700;color:var(--sf);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;}
+.sb-val{font-family:"Cormorant Garamond",serif;font-size:34px;font-weight:600;color:var(--br);line-height:1;}
+.sb-val.green{color:#3a8a50;}
+.sb-val.gold{color:#b8832a;}
+.sb-sub{font-size:12px;color:var(--sf);margin-top:4px;}
+.sb-note{font-size:12.5px;color:var(--sf);margin-top:6px;}
+
+/* progress bar */
+.prog-wrap{margin-top:18px;}
+.prog-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.prog-title{font-size:12px;font-weight:700;color:var(--br);text-transform:uppercase;letter-spacing:.5px;}
+.prog-nums{font-size:13px;font-weight:600;color:var(--sf);}
+.prog-track{height:14px;background:var(--be);border-radius:8px;overflow:visible;position:relative;}
+.prog-fill{height:100%;border-radius:8px;transition:width .8s cubic-bezier(.34,1.2,.64,1);position:relative;}
+.prog-fill.under{background:linear-gradient(90deg,var(--pk),var(--pkd));}
+.prog-fill.over{background:linear-gradient(90deg,#7bbf8a,#4a9a5a);box-shadow:0 0 0 3px rgba(123,191,138,.25);}
+.prog-fill.over::after{content:"🌟";position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:16px;}
+.prog-msg{margin-top:10px;font-size:13px;font-weight:600;border-radius:10px;padding:8px 14px;text-align:center;}
+.prog-msg.under{background:var(--pkl);color:var(--pkd);}
+.prog-msg.over{background:var(--grb);color:#2d7a3a;}
+
+/* kpi ring */
+.kpi-wrap{display:flex;align-items:center;gap:20px;}
+.kpi-ring{position:relative;width:80px;height:80px;flex-shrink:0;}
+.kpi-svg{transform:rotate(-90deg);}
+.kpi-circle-bg{fill:none;stroke:var(--be);stroke-width:8;}
+.kpi-circle{fill:none;stroke:var(--pk);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.34,1.2,.64,1);}
+.kpi-circle.high{stroke:#7bbf8a;}
+.kpi-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:var(--br);}
+.kpi-info{flex:1;}
+.kpi-desc{font-size:12.5px;color:var(--sf);line-height:1.5;margin-top:4px;}
+
+/* shifts mini-cal */
+.shifts-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.shift-chip{background:var(--pkl);border:1px solid var(--pkm);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;color:var(--pkd);}
+.no-data{text-align:center;padding:40px 20px;color:var(--sf);font-size:13px;}
+.no-data-icon{font-size:36px;margin-bottom:10px;}
+
+/* ── BFAST CALENDAR ── */
+.bf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
+.bf-cell{background:var(--be);border:1.5px solid var(--bed);border-radius:12px;padding:10px 12px;cursor:pointer;transition:all .18s;position:relative;}
+.bf-cell:hover{border-color:var(--pk);background:var(--pkl);}
+.bf-cell.has-data{background:var(--wh);border-color:var(--pkm);}
+.bf-cell.has-data .bf-count{color:var(--pkd);font-weight:700;}
+.bf-day{font-size:11px;color:var(--sf);margin-bottom:4px;}
+.bf-count{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--bed);line-height:1;}
+.bf-unit{font-size:10px;color:var(--sf);}
+
+/* ── BONUS BADGE ── */
+.bonus-chip{background:#fff8e8;border:1px solid #e8c97a;border-radius:8px;padding:2px 8px;font-size:11.5px;font-weight:700;color:#b8832a;}
+.total-chip{background:var(--pkl);border:1px solid var(--pkm);border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700;color:var(--pkd);}
+
+/* ── MONTHLY PLAN FORM ── */
+.mplan-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--be);gap:16px;}
+.mplan-row:last-child{border-bottom:none;}
+.mplan-month{font-size:14px;font-weight:600;color:var(--br);min-width:100px;}
+.mplan-input{width:80px;padding:8px;border:1.5px solid var(--pkm);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--pkd);text-align:center;outline:none;transition:border-color .2s;}
+.mplan-input:focus{border-color:var(--pk);}
+.mplan-note{font-size:11.5px;color:var(--sf);}
+
+/* ── COOK ── */
+.cook-body{flex:1;padding:24px 28px;max-width:820px;width:100%;margin:0 auto;}
+.greet-card{background:linear-gradient(135deg,var(--pkl),#fdf0f2);border:1px solid var(--pkm);border-radius:20px;padding:22px 26px;margin-bottom:22px;}
+.greet-hi{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--br);}
+.greet-dt{font-size:13px;color:var(--sf);margin-top:4px;}
+
+.card{background:var(--wh);border:1px solid var(--pkm);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,var(--pkl),#fdf5f7);border-bottom:1px solid var(--pkm);}
+.card-ttl{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--br);}
+.card-body{padding:20px;}
+.time-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:10.5px;font-weight:700;color:var(--sf);letter-spacing:.5px;text-transform:uppercase;}
+.fi,.fs{padding:10px 14px;border:1.5px solid var(--pkm);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;}
+.fi:focus,.fs:focus{border-color:var(--pk);}
+.hrs-pill{background:var(--pkl);color:var(--pkd);padding:10px 16px;border-radius:10px;font-weight:700;font-size:15px;border:1.5px solid var(--pkm);min-width:110px;text-align:center;white-space:nowrap;}
+
+.cat-hdr{padding:9px 20px;background:var(--be);font-size:11px;font-weight:700;color:var(--br);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--bed);}
+.t-row{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--be);gap:12px;transition:background .15s;}
+.t-row:last-child{border-bottom:none;}
+.t-row:hover{background:#fdf8f9;}
+.t-row.act{background:linear-gradient(135deg,#fff7f9,var(--wh));}
+.t-info{flex:1;min-width:0;}
+.t-name{font-size:13.5px;color:var(--tx);line-height:1.4;}
+.t-meta{font-size:11px;color:var(--sf);margin-top:2px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.min-b{background:var(--be);border:1px solid var(--bed);border-radius:6px;padding:1px 6px;font-size:10.5px;color:var(--br);}
+.h-earn{font-size:11px;font-weight:700;color:var(--gr);background:var(--grb);border-radius:6px;padding:1px 7px;transition:opacity .2s;}
+.h-earn.hid{opacity:0;pointer-events:none;}
+
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--pkm);border-radius:22px;overflow:hidden;}
+.sb{width:34px;height:34px;border:none;background:transparent;color:var(--pkd);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;line-height:1;}
+.sb:hover{background:var(--pkl);}
+.sv{min-width:34px;text-align:center;font-size:15px;font-weight:700;color:var(--tx);}
+.sv.nz{color:var(--pkd);}
+
+.sub-bar{padding:18px 20px;border-top:1px solid var(--pkl);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,#fff9fa,var(--wh));}
+.sub-sum{font-size:13px;color:var(--sf);}
+.sub-sum strong{color:var(--br);}
+.btn-sub{padding:13px 36px;border-radius:26px;border:none;background:linear-gradient(135deg,var(--pk),var(--pkd));color:var(--wh);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(194,107,120,.3);transition:all .25s;letter-spacing:.3px;}
+.btn-sub:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(194,107,120,.4);}
+.btn-sub:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+
+/* ── ADMIN ── */
+#s-admin{background:var(--cr);}
+.admin-body{flex:1;display:flex;min-height:0;overflow:hidden;}
+.a-sidebar{width:218px;background:var(--wh);border-right:1px solid var(--be);padding:22px 0;flex-shrink:0;}
+.a-slbl{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--pk);padding:0 18px 10px;display:block;}
+.a-ni{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;color:var(--sf);font-size:13.5px;border-left:3px solid transparent;transition:all .18s;}
+.a-ni:hover,.a-ni.act{background:var(--pkl);color:var(--pkd);border-left-color:var(--pk);}
+.a-main{flex:1;padding:26px 30px;overflow-y:auto;}
+.av{display:none;}
+.av.act{display:block;}
+
+.pg-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:14px;flex-wrap:wrap;}
+.pg-ttl{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--br);}
+.pg-sub{font-size:13px;color:var(--sf);margin-top:3px;}
+
+.mb{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.mbtn{padding:7px 18px;border-radius:20px;border:1.5px solid var(--pkm);background:var(--wh);color:var(--sf);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.mbtn.act{background:var(--pk);border-color:var(--pk);color:var(--wh);font-weight:600;}
+.mbtn:hover:not(.act){border-color:var(--pk);color:var(--pkd);}
+
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px;}
+.sc{background:var(--wh);border:1px solid var(--pkm);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pkm),var(--pk));}
+.sc-l{font-size:10.5px;color:var(--sf);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.sc-v{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--br);margin:5px 0 2px;}
+.sc-s{font-size:11.5px;color:var(--pkd);}
+
+.srow{display:flex;gap:13px;margin-bottom:20px;flex-wrap:wrap;}
+.scard{background:var(--wh);border:1.5px solid var(--pkm);border-radius:16px;padding:18px 20px;flex:1;min-width:155px;cursor:pointer;transition:all .2s;}
+.scard:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--sh);}
+.sc-nm{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--br);}
+.sc-rl{font-size:11px;color:var(--sf);margin-bottom:12px;}
+.sc-st{display:flex;justify-content:space-between;font-size:12px;color:var(--sf);margin-top:4px;}
+.sc-st b{color:var(--tx);}
+.prog{height:5px;background:var(--be);border-radius:3px;overflow:hidden;margin-top:10px;}
+.pf{height:100%;background:linear-gradient(90deg,var(--pk),var(--pkd));border-radius:3px;transition:width .5s;}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;margin-top:8px;}
+.bg-g{background:var(--grb);color:#3a8a50;}
+.bg-r{background:#fdeaea;color:#c04040;}
+.bg-n{background:var(--be);color:var(--br);}
+
+.tc{background:var(--wh);border:1px solid var(--pkm);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.tc-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:linear-gradient(135deg,var(--pkl),#fdf5f7);border-bottom:1px solid var(--pkm);}
+.tc-ttl{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--br);}
+.bsm{padding:7px 15px;border-radius:18px;border:none;font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;}
+.bpk{background:var(--pk);color:var(--wh);}
+.bpk:hover{background:var(--pkd);}
+.bgh{background:var(--be);color:var(--sf);}
+.bgh:hover{background:var(--pkl);color:var(--pkd);}
+
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{background:var(--pkl);color:var(--br);padding:9px 14px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--pkm);white-space:nowrap;}
+.dt td{padding:9px 14px;border-bottom:1px solid var(--be);vertical-align:middle;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:#fdf5f7;}
+.ctr td{background:var(--be)!important;font-weight:700;font-size:12px;color:var(--br);padding:7px 14px;}
+.hg{font-weight:700;color:var(--gr);font-size:12.5px;}
+
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;margin-bottom:22px;}
+.rc{background:var(--wh);border:1px solid var(--pkm);border-radius:16px;padding:22px;cursor:pointer;transition:all .2s;}
+.rc:hover{box-shadow:0 8px 28px var(--sh);transform:translateY(-3px);}
+.ri{font-size:28px;margin-bottom:10px;}
+.rn{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--br);}
+.rd{font-size:12.5px;color:var(--sf);margin-top:4px;line-height:1.5;}
+
+.sr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--be);gap:12px;}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:#fdf8f9;}
+.srnm{font-size:14px;font-weight:500;color:var(--tx);}
+.srmt{font-size:12px;color:var(--sf);margin-top:2px;}
+.bdel{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--pkm);background:var(--wh);color:var(--rd);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.bdel:hover{background:var(--rd);color:var(--wh);border-color:var(--rd);}
+
+.pr{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--be);gap:16px;}
+.pr:last-child{border-bottom:none;}
+.pi{width:90px;padding:9px;border:1.5px solid var(--pkm);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:var(--pkd);text-align:center;outline:none;transition:border-color .2s;}
+.pi:focus{border-color:var(--pk);}
+
+.chart-rw{margin-bottom:20px;}
+.chart-nr{display:flex;justify-content:space-between;margin-bottom:7px;}
+.chart-nm{font-size:13px;font-weight:600;color:var(--br);}
+.chart-pc{font-size:12px;color:var(--sf);}
+.chart-bg{background:var(--be);border-radius:8px;height:24px;position:relative;overflow:hidden;}
+.chart-pl{position:absolute;top:0;left:0;bottom:0;background:var(--pkm);opacity:.4;border-radius:8px;}
+.chart-fa{position:absolute;top:3px;left:0;bottom:3px;background:linear-gradient(90deg,var(--pk),var(--pkd));border-radius:6px;display:flex;align-items:center;padding:0 10px;min-width:44px;}
+.chart-lb{font-size:11.5px;font-weight:700;color:var(--wh);white-space:nowrap;}
+
+/* ── MODAL ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(61,43,38,.3);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.md{background:var(--wh);border-radius:22px;padding:34px;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.15);animation:mi .25s ease;}
+@keyframes mi{from{transform:translateY(22px);opacity:0;}to{transform:none;opacity:1;}}
+.md-ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--br);margin-bottom:20px;}
+.fr{margin-bottom:15px;}
+.fl2{font-size:11.5px;font-weight:700;color:var(--sf);margin-bottom:6px;display:block;letter-spacing:.3px;}
+.fi2,.fs2{width:100%;padding:10px 14px;border:1.5px solid var(--pkm);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;}
+.fi2:focus,.fs2:focus{border-color:var(--pk);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.mac{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+.btn{padding:10px 22px;border-radius:20px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btnp{background:var(--pk);color:var(--wh);}
+.btnp:hover{background:var(--pkd);}
+.btns{background:var(--be);color:var(--sf);}
+.btns:hover{background:var(--pkl);color:var(--pkd);}
+
+/* ── TOAST / LOADING ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--br);color:var(--wh);padding:13px 22px;border-radius:14px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.ldo{display:none;position:fixed;inset:0;background:rgba(253,246,240,.88);backdrop-filter:blur(3px);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.ldo.show{display:flex;}
+.spin{width:38px;height:38px;border:3px solid var(--pkm);border-top-color:var(--pk);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.ldtx{font-size:14px;color:var(--sf);}
+
+@media(max-width:700px){
+  .sg{grid-template-columns:1fr 1fr;}
+  .a-sidebar{display:none;}
+  .cook-body,.a-main{padding:16px;}
+  .time-row{gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<div class="ldo" id="ldo"><div class="spin"></div><div class="ldtx" id="ldtx">Загружаем данные...</div></div>
+<div class="toast" id="toast"></div>
+<div class="mo" id="mo" onclick="if(event.target===this)closeMo()"><div class="md"><div id="mc"></div></div></div>
+
+<!-- ════ LOGIN ════ -->
+<div id="s-login" class="screen active">
+  <div class="login-box">
+    <div class="l-logo">BURR<em>y</em></div>
+    <div class="l-sub">Система учёта смен</div>
+    <div class="l-hint">Введите ваш ПИН-код</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="numpad">
+      <button class="nb" onclick="pp('1')">1</button><button class="nb" onclick="pp('2')">2</button><button class="nb" onclick="pp('3')">3</button>
+      <button class="nb" onclick="pp('4')">4</button><button class="nb" onclick="pp('5')">5</button><button class="nb" onclick="pp('6')">6</button>
+      <button class="nb" onclick="pp('7')">7</button><button class="nb" onclick="pp('8')">8</button><button class="nb" onclick="pp('9')">9</button>
+      <button class="nb del" onclick="pd()">⌫</button><button class="nb" onclick="pp('0')">0</button><button class="nb go" onclick="pe()">Войти</button>
+    </div>
+    <div class="l-err" id="l-err"></div>
+    <div class="l-loading" id="l-load">⏳ Загрузка пользователей...</div>
+  </div>
+</div>
+
+<!-- ════ COOK ════ -->
+<div id="s-cook" class="screen">
+  <header class="app-hdr">
+    <div class="h-logo">BURR<em>y</em></div>
+    <div class="h-user">
+      <div class="h-av" id="c-av">?</div>
+      <div><div class="h-nm" id="c-nm">—</div><div class="h-rl">Повар</div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <div class="cook-body">
+    <!-- Greeting -->
+    <div class="greet-card">
+      <div class="greet-hi" id="c-hi">Привет! Твоя смена сегодня 🌸</div>
+      <div class="greet-dt" id="c-dt"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="cook-tabs">
+      <button class="cook-tab act" onclick="cookTab('report',this)">✏️ Отчёт за смену</button>
+      <button class="cook-tab" onclick="cookTab('stats',this)">📊 Моя статистика</button>
+    </div>
+
+    <!-- VIEW: REPORT -->
+    <div id="cv-report" class="cook-view act">
+      <div class="card">
+        <div class="card-hdr"><div class="card-ttl">📅 Дата и время смены</div></div>
+        <div class="card-body">
+          <div class="time-row">
+            <div class="fg"><div class="fl">Дата</div><input class="fi" type="date" id="c-date"></div>
+            <div class="fg"><div class="fl">Приход</div><input class="fi" type="time" id="c-in" value="09:00" oninput="calcH()"></div>
+            <div class="fg"><div class="fl">Уход</div><input class="fi" type="time" id="c-out" value="17:30" oninput="calcH()"></div>
+            <div class="fg"><div class="fl">Итого</div><div class="hrs-pill" id="c-hrs">8 ч 30 мин</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-ttl">📋 Задачи смены</div>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--sf);cursor:pointer">
+            <input type="checkbox" id="c-bfast" onchange="renderCookTasks()" style="accent-color:var(--pk)"> Завтраки
+          </label>
+        </div>
+        <div id="c-tasks"></div>
+        <div class="sub-bar">
+          <div class="sub-sum" id="c-sum">Отметьте выполненные задачи</div>
+          <button class="btn-sub" id="c-btn" onclick="cookSend()">✨ Отправить отчёт</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: STATS -->
+    <div id="cv-stats" class="cook-view">
+      <div id="stats-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ ADMIN ════ -->
+<div id="s-admin" class="screen">
+  <header class="app-hdr">
+    <div class="h-logo">BURR<em>y</em></div>
+    <div class="h-user">
+      <div class="h-av" style="background:var(--br)" id="a-av">M</div>
+      <div><div class="h-nm" id="a-nm">—</div><div class="h-rl">Администратор</div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <div class="admin-body">
+    <nav class="a-sidebar">
+      <span class="a-slbl">Меню</span>
+      <div class="a-ni act" onclick="aN('dash',this)"><span>📊</span> Дашборд</div>
+      <div class="a-ni" onclick="aN('rep',this)"><span>📋</span> Отчёты</div>
+      <div class="a-ni" onclick="aN('bfast',this)"><span>🥐</span> Завтраки</div>
+      <div class="a-ni" onclick="aN('staff',this)"><span>👥</span> Сотрудники</div>
+      <div class="a-ni" onclick="aN('tasks',this)"><span>✅</span> Задачи</div>
+      <div class="a-ni" onclick="aN('sett',this)"><span>⚙️</span> Настройки</div>
+    </nav>
+    <div class="a-main">
+
+      <!-- DASH -->
+      <div id="av-dash" class="av act">
+        <div class="pg-hdr"><div><div class="pg-ttl">Дашборд</div><div class="pg-sub">Сводка за выбранный месяц</div></div><button class="bsm bgh" onclick="showToast('📊 Данные в Google Sheets — откройте таблицу для экспорта')">⬇ Экспорт</button></div>
+        <div class="mb" id="a-mb"></div>
+        <div class="sg">
+          <div class="sc"><div class="sc-l">Сотрудников</div><div class="sc-v" id="ds-s">—</div><div class="sc-s">активных</div></div>
+          <div class="sc"><div class="sc-l">Записей</div><div class="sc-v" id="ds-r">—</div><div class="sc-s">за месяц</div></div>
+          <div class="sc"><div class="sc-l">Нормо-часов</div><div class="sc-v" id="ds-h">—</div><div class="sc-s">фактически</div></div>
+          <div class="sc"><div class="sc-l">Лидер смены</div><div class="sc-v" style="font-size:18px" id="ds-t">—</div><div class="sc-s">больше всех</div></div>
+        </div>
+        <div class="srow" id="a-scards"></div>
+        <!-- Global summary table -->
+        <div class="tc" style="margin-bottom:20px">
+          <div class="tc-hdr"><div class="tc-ttl">🏆 Сводная таблица сотрудников</div></div>
+          <table class="dt"><thead><tr>
+            <th>Имя</th>
+            <th style="text-align:center">Отработано ч</th>
+            <th style="text-align:center">Базовые н/ч</th>
+            <th style="text-align:center">Бонус завтраки</th>
+            <th style="text-align:center">Итого н/ч</th>
+            <th style="text-align:center">КПД %</th>
+          </tr></thead><tbody id="summary-tbody"></tbody></table>
+        </div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">🍰 Десерты — план/факт</div></div>
+          <table class="dt"><thead><tr id="dth"></tr></thead><tbody id="dtb"></tbody></table></div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">🥐 Завтраки — план/факт</div></div>
+          <table class="dt"><thead><tr id="bth"></tr></thead><tbody id="btb"></tbody></table></div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="av-rep" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Отчёты</div><div class="pg-sub">Аналитика по сотрудникам</div></div></div>
+        <div class="rg">
+          <div class="rc" onclick="aRep('eff')"><div class="ri">⚡</div><div class="rn">Эффективность</div><div class="rd">% выполнения плана, часы по каждому сотруднику</div></div>
+          <div class="rc" onclick="aRep('hrs')"><div class="ri">⏱</div><div class="rn">Нормо-часы</div><div class="rd">Визуальное сравнение план vs факт</div></div>
+          <div class="rc" onclick="aRep('top')"><div class="ri">🏆</div><div class="rn">Топ задач</div><div class="rd">Самые выполняемые задачи за месяц</div></div>
+        </div>
+        <div id="rep-out" style="display:none">
+          <div class="tc"><div class="tc-hdr"><div class="tc-ttl" id="rep-ttl">—</div><button class="bsm bgh" onclick="document.getElementById('rep-out').style.display='none'">✕</button></div>
+          <div id="rep-body"></div></div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div id="av-staff" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Сотрудники</div><div class="pg-sub">Список из Google Sheets → лист Settings</div></div><button class="bsm bpk" onclick="openAddUser()">+ Добавить</button></div>
+        <div class="tc"><div id="a-slist"></div></div>
+        <p style="font-size:12px;color:var(--sf);margin-top:10px">💡 Для постоянного добавления — внесите строку в лист <b>Settings</b> (Name, Pin, Role) и обновите страницу.</p>
+      </div>
+
+      <!-- TASKS -->
+      <div id="av-tasks" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Задачи</div><div class="pg-sub">Управление списком задач</div></div></div>
+        <div class="tc" style="margin-bottom:18px"><div class="tc-hdr"><div class="tc-ttl">🍰 Десерты</div><button class="bsm bpk" onclick="openAddTask('d')">+ Добавить</button></div><div id="a-td"></div></div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">🥐 Завтраки</div><button class="bsm bpk" onclick="openAddTask('b')">+ Добавить</button></div><div id="a-tb"></div></div>
+      </div>
+
+      <!-- BREAKFASTS -->
+      <div id="av-bfast" class="av">
+        <div class="pg-hdr">
+          <div><div class="pg-ttl">Завтраки — ежедневный учёт</div><div class="pg-sub">Введите количество проданных завтраков за каждый день</div></div>
+          <button class="bsm bpk" onclick="saveBfastDay()">💾 Сохранить</button>
+        </div>
+        <!-- Quick entry -->
+        <div class="tc" style="margin-bottom:20px">
+          <div class="tc-hdr"><div class="tc-ttl">➕ Быстрый ввод</div></div>
+          <div style="padding:20px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+            <div class="fg"><div class="fl">Дата</div><input class="fi" type="date" id="bf-date" style="width:160px"></div>
+            <div class="fg"><div class="fl">Завтраков продано (шт)</div>
+              <input class="fi" type="number" id="bf-count" min="0" max="999" placeholder="35" style="width:130px"></div>
+            <button class="bsm bpk" onclick="saveBfastDay()" style="height:42px;padding:0 22px">Сохранить</button>
+          </div>
+        </div>
+        <!-- Calendar view -->
+        <div class="tc">
+          <div class="tc-hdr"><div class="tc-ttl" id="bf-cal-title">📅 Данные за месяц</div>
+            <div style="display:flex;gap:8px" id="bf-month-btns"></div>
+          </div>
+          <div id="bf-cal-grid" style="padding:20px"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="av-sett" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Настройки плана</div><div class="pg-sub">Норма нормо-часов на смену + план по месяцам</div></div><button class="bsm bpk" onclick="savePlans()">💾 Сохранить всё</button></div>
+
+        <!-- Per-shift plan -->
+        <div class="tc" style="margin-bottom:20px">
+          <div class="tc-hdr"><div class="tc-ttl">⏱ Норма нормо-часов на смену</div></div>
+          <div style="padding:20px"><div id="a-plans"></div></div>
+        </div>
+
+        <!-- Monthly plan targets -->
+        <div class="tc">
+          <div class="tc-hdr"><div class="tc-ttl">📅 Целевой план по месяцам</div></div>
+          <div style="padding:20px">
+            <p style="font-size:13px;color:var(--sf);margin-bottom:16px">Установите целевую норму часов на смену для каждого месяца. Это позволяет планировать вперёд.</p>
+            <div id="monthly-plan-form"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbyxCBOBPm3NsxqjP-zGmi0xSCfH-4iQFXr81vl9hlhtzmlghUtN3-HTMgQFmcGr3Dc6/exec';
+const SESS_KEY    = 'burry_sess';
+const SESS_TTL    = 12*60*60*1000; // 12h
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let users       = [];
+let curUser     = null;
+let curMonth    = new Date().toLocaleString('ru-RU',{month:'long'}).charAt(0).toUpperCase()+new Date().toLocaleString('ru-RU',{month:'long'}).slice(1);
+let cCounters   = {};
+let DB          = {};
+let cookShifts  = {};  // {staffName: [{date, workedH, normH, hasBfast}]}
+let dailyStats  = {};  // {'2026-05-15': {bfastCount: 35}}
+let monthPlans  = {};  // {monthName: normPerShift}
+const MONTHS    = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+// ══════════════════════════════════════════
+//  TASKS
+// ══════════════════════════════════════════
+const TD = [
+  {c:'Кексы',      n:'Замес кексов морковь',       h:1.5, m:'4 шт'},
+  {c:'Кексы',      n:'Замес кексов банан веган',    h:1.5, m:'4 шт'},
+  {c:'Кексы',      n:'Замес кексов лимон',          h:1.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Замес чизкейков',             h:1.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Заливка чизкейков',           h:0.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Нарезка чизкейков',           h:1.0, m:'4 шт'},
+  {c:'Чизкейки',   n:'Глазировка чизкейков',        h:0.5, m:null},
+  {c:'Трюфели',    n:'Замес трюфелей',              h:0.5, m:'2 шт'},
+  {c:'Трюфели',    n:'Накатка трюфелей',            h:1.5, m:'2 шт'},
+  {c:'Трюфели',    n:'Декор трюфелей шоколадом',    h:0.5, m:'2 шт'},
+  {c:'Кейк-попсы', n:'Замес на кейк-попсы',         h:0.5, m:'1 шт'},
+  {c:'Кейк-попсы', n:'Накатка кейк-попсов',         h:1.5, m:'1 шт'},
+  {c:'Торты',      n:'Замес бисквитов для тортов',  h:0.5, m:'4 шт'},
+  {c:'Торты',      n:'Карамель',                    h:0.5, m:'1 шт'},
+  {c:'Торты',      n:'Сборка торта бисквитного',    h:0.5, m:'1 шт'},
+  {c:'Торты',      n:'Выравнивание и декор торта',  h:0.5, m:'1 шт'},
+  {c:'Муссовые',   n:'Крамбл классический',         h:1.0, m:'5 шт'},
+  {c:'Муссовые',   n:'Бисквиты с хрустящим слоем',  h:2.5, m:'3 шт'},
+  {c:'Муссовые',   n:'Нарезка муссовых',            h:1.0, m:'3 шт'},
+  {c:'Муссовые',   n:'Глазировка и декор муссовых', h:0.3, m:null},
+  {c:'Тарталетки', n:'Замес ганаша',                h:0.5, m:'3 шт'},
+  {c:'Тарталетки', n:'Выпечка тарталеток',          h:1.0, m:'3 шт'},
+  {c:'Тарталетки', n:'Отсадка крема на тарталетки', h:1.0, m:'3 шт'},
+  {c:'Бенто',      n:'Бенто бисквит фисташка',      h:1.0, m:'4 шт'},
+  {c:'Бенто',      n:'Ганаш для бенто',             h:0.5, m:'4 шт'},
+  {c:'Бенто',      n:'Сборка бенто',                h:1.0, m:'4 шт'},
+];
+const TB = [
+  {n:'Нарезка рыбы',           h:0.25,m:'1 уп'},
+  {n:'Вафля шпинатная п/ф',    h:0.25,m:null},
+  {n:'Вафля сырная п/ф',       h:0.25,m:null},
+  {n:'Нарезка вяленых томатов',h:0.25,m:null},
+  {n:'Соус песто',             h:0.25,m:null},
+  {n:'Замачивание гречи',      h:0.25,m:null},
+  {n:'Замачивание овсянки',    h:0.25,m:null},
+  {n:'Соленая карамель п/ф',   h:0.25,m:'1 шт'},
+  {n:'Малиновое кули п/ф',     h:0.25,m:'1 шт'},
+  {n:'Сырники ПФ',             h:0.25,m:'3 п'},
+  {n:'Тофу п/ф',               h:0.25,m:null},
+  {n:'Творожный сыр с зеленью',h:0.25,m:null},
+  {n:'Мусс из авокадо',        h:0.25,m:null},
+  {n:'Лимонный сок п/ф',       h:0.50,m:null},
+];
+const allT=()=>[...TD,...TB];
+const cEmoji=c=>({Кексы:'🧁',Чизкейки:'🎂',Трюфели:'🍫',Торты:'🎀',Тарталетки:'🍮',Муссовые:'❄️','Кейк-попсы':'🍭',Бенто:'📦'}[c]||'🍽');
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+(async function init(){
+  // Try restore session
+  const sess=getSession();
+  if(sess){ curUser=sess; }
+
+  showLd('Загружаем пользователей...');
+  try{
+    const r=await fetch(SHEETS_URL+'?action=getUsers');
+    const d=await r.json();
+    if(d&&d.users&&d.users.length) users=d.users;
+  }catch(e){
+    // fallback
+    if(!users.length) users=[
+      {name:'Margo',    pin:'1111',role:'Admin', planPerShift:8},
+      {name:'Светлана', pin:'2222',role:'Povar', planPerShift:7},
+      {name:'Екатерина',pin:'3333',role:'Povar', planPerShift:7},
+      {name:'Катя',     pin:'4444',role:'Povar', planPerShift:7},
+    ];
+  }
+  hideLd();
+  document.getElementById('l-load').textContent='';
+
+  if(curUser){
+    const fresh=users.find(u=>u.pin===curUser.pin);
+    if(fresh){curUser=fresh; enterApp(); return;}
+  }
+  showScr('login');
+})();
+
+// ══════════════════════════════════════════
+//  SESSION
+// ══════════════════════════════════════════
+function saveSession(u){ localStorage.setItem(SESS_KEY,JSON.stringify({...u,ts:Date.now()})); }
+function getSession(){ try{ const d=JSON.parse(localStorage.getItem(SESS_KEY)||'null'); if(!d)return null; if(Date.now()-d.ts>SESS_TTL){localStorage.removeItem(SESS_KEY);return null;} return d; }catch(e){return null;} }
+function clearSession(){ localStorage.removeItem(SESS_KEY); }
+
+// ══════════════════════════════════════════
+//  PIN PAD
+// ══════════════════════════════════════════
+let pinV='';
+function pp(d){ if(pinV.length>=4)return; pinV+=d; updDots(); if(pinV.length===4)setTimeout(pe,150); }
+function pd(){ pinV=pinV.slice(0,-1); updDots(); document.getElementById('l-err').textContent=''; }
+function updDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('on',i<pinV.length); }
+function pe(){
+  if(pinV.length<4){ setErr('Введите 4 цифры'); return; }
+  const u=users.find(u=>String(u.pin)===pinV);
+  if(!u){
+    setErr('Неверный ПИН-код ❌');
+    document.getElementById('pin-dots').classList.add('shake');
+    setTimeout(()=>document.getElementById('pin-dots').classList.remove('shake'),400);
+    pinV=''; updDots(); return;
+  }
+  curUser=u; saveSession(u); enterApp();
+}
+function setErr(m){ document.getElementById('l-err').textContent=m; }
+
+// ══════════════════════════════════════════
+//  ROUTING
+// ══════════════════════════════════════════
+function showScr(n){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('s-'+n).classList.add('active'); }
+function enterApp(){
+  const r=(curUser.role||'').toLowerCase();
+  if(r==='admin'){ setupAdmin(); showScr('admin'); }
+  else { setupCook(); showScr('cook'); }
+}
+function logout(){ clearSession(); curUser=null; pinV=''; updDots(); setErr(''); showScr('login'); }
+
+// ══════════════════════════════════════════
+//  COOK
+// ══════════════════════════════════════════
+async function setupCook(){
+  const u=curUser;
+  document.getElementById('c-av').textContent=u.name.slice(0,2).toUpperCase();
+  document.getElementById('c-nm').textContent=u.name;
+  document.getElementById('c-hi').textContent=`Привет, ${u.name}! Твоя смена сегодня 🌸`;
+  const t=new Date();
+  document.getElementById('c-dt').textContent=t.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('c-date').value=t.toISOString().slice(0,10);
+  cCounters={}; calcH(); renderCookTasks();
+  cookTab('report', document.querySelector('.cook-tab'));
+  // Load from localStorage immediately (instant, no network)
+  const lsShifts = loadCookShiftsFromLS(u.name);
+  if(lsShifts.length){
+    cookShifts[u.name] = lsShifts;
+  }
+  // Then load from Sheets in background (may add more)
+  loadCookShifts(u.name);
+}
+
+// ── Load cook's shifts from Google Sheets ──
+async function loadCookShifts(staffName){
+  try {
+    const url = SHEETS_URL + '?action=getCookShifts&staff=' + encodeURIComponent(staffName);
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data && data.shifts && data.shifts.length) {
+      // Merge with any locally added shifts (don't duplicate same date+same normH)
+      const existing = new Set((cookShifts[staffName]||[]).map(s=>s.date+'_'+s.normH));
+      const fresh = data.shifts.filter(s=>!existing.has(s.date+'_'+s.normH));
+      cookShifts[staffName] = [...(cookShifts[staffName]||[]), ...fresh];
+    }
+    // Also load dailyStats for bonus calculation
+    await loadDailyStats();
+  } catch(e) {
+    console.warn('Could not load cook shifts from Sheets:', e);
+  }
+}
+
+function cookTab(name, el){
+  document.querySelectorAll('.cook-tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.cook-view').forEach(v=>v.classList.remove('act'));
+  document.getElementById('cv-'+name).classList.add('act');
+  if(name==='stats') renderCookStats();
+}
+
+// ═══════════════════════════════════════════
+//  COOK STATS — личная статистика за месяц
+// ═══════════════════════════════════════════
+function renderCookStats(){
+  const staff = curUser.name;
+  const now   = new Date();
+  const monthIdx = now.getMonth();
+  const monthName = MONTHS[monthIdx];
+  const daysInMonth = new Date(now.getFullYear(), monthIdx+1, 0).getDate();
+
+  // ── Смены этого повара за текущий месяц ──
+  // Смены хранятся в cookShifts: [{date, hoursWorked, normHours}]
+  const shifts = (cookShifts[staff] || []).filter(s => {
+    const d = new Date(s.date);
+    return d.getMonth()===monthIdx && d.getFullYear()===now.getFullYear();
+  });
+
+  const shiftCount = shifts.length;
+
+  // Фактические отработанные часы (время прихода–ухода)
+  const totalWorkedHours = shifts.reduce((sum,s)=>sum+(s.workedH||0),0);
+  const avgShiftH = shiftCount ? Math.round(totalWorkedHours/shiftCount*10)/10 : 0;
+
+  // Нормо-часы выполнено (сумма задач)
+  const baseNorm = shifts.reduce((sum,s)=>sum+(s.normH||0),0);
+  // Бонус за завтраки
+  let bfBonus=0;
+  shifts.forEach(s=>{
+    if(s.hasBfast){
+      const cnt=(dailyStats[s.date]&&dailyStats[s.date].bfastCount)||0;
+      bfBonus+=cnt*0.15;
+    }
+  });
+  bfBonus=Math.round(bfBonus*100)/100;
+  const normDone = baseNorm+bfBonus;
+  const normDoneR = Math.round(normDone*100)/100;
+
+  // План
+  const planPerShift = curUser.planPerShift || 7;
+  const planTotal = planPerShift * shiftCount;  // план × фактическое кол-во смен
+
+  // Прогресс
+  const pct = planTotal>0 ? Math.min(normDoneR/planTotal,1.5) : 0;
+  const pctDisp = planTotal>0 ? Math.round(normDoneR/planTotal*100) : 0;
+  const isOver = normDoneR >= planTotal && planTotal>0;
+  const diff = Math.abs(Math.round((normDoneR-planTotal)*100)/100);
+
+  // КПД = нормо-часы / фактические часы
+  const kpd = totalWorkedHours>0 ? Math.round(normDoneR/totalWorkedHours*100) : 0;
+  const kpdHigh = kpd >= 80;
+
+  // Окружность для SVG кольца
+  const R=34, circ=2*Math.PI*R;
+  const kpdPct = Math.min(kpd,100)/100;
+  const dash = circ*(1-kpdPct);
+
+  if(shiftCount===0){
+    document.getElementById('stats-content').innerHTML=`
+      <div class="no-data"><div class="no-data-icon">🌸</div>
+        <div style="font-size:15px;font-weight:500;color:var(--br);margin-bottom:6px">Данных за ${monthName} пока нет</div>
+        <div>Отправь первый отчёт за смену — и здесь появится твоя статистика!</div>
+      </div>`;
+    return;
+  }
+
+  const progW = Math.min(pct*100,100);
+
+  document.getElementById('stats-content').innerHTML = `
+    <!-- Месяц -->
+    <div style="font-size:12px;font-weight:700;color:var(--sf);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px">
+      📅 ${monthName} ${now.getFullYear()}
+    </div>
+
+    <!-- Верхние 4 карточки -->
+    <div class="stat-grid2">
+
+      <!-- Смен -->
+      <div class="stat-box">
+        <div class="sb-lbl">Смен отработано</div>
+        <div class="sb-val">${shiftCount}</div>
+        <div class="sb-sub">в ${monthName}</div>
+      </div>
+
+      <!-- Средняя смена -->
+      <div class="stat-box">
+        <div class="sb-lbl">Средняя смена</div>
+        <div class="sb-val">${avgShiftH}</div>
+        <div class="sb-sub">часов в среднем</div>
+      </div>
+
+      <!-- План -->
+      <div class="stat-box">
+        <div class="sb-lbl">Твой план на месяц</div>
+        <div class="sb-val">${planTotal}</div>
+        <div class="sb-sub">${planPerShift} н/ч × ${shiftCount} смен</div>
+      </div>
+
+      <!-- Нормо-часов выполнено -->
+      <div class="stat-box green">
+        <div class="sb-lbl">Нормо-часов выполнено</div>
+        <div class="sb-val green">${normDoneR}</div>
+        <div class="sb-sub">база ${baseNorm.toFixed(2)} + 🥐 бонус ${bfBonus}</div>
+      </div>
+
+    </div>
+
+    <!-- Прогресс -->
+    <div class="stat-box full" style="margin-bottom:14px">
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span class="prog-title">Прогресс выполнения плана</span>
+          <span class="prog-nums">${normDoneR} / ${planTotal} н/ч</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill ${isOver?'over':'under'}" style="width:${progW}%"></div>
+        </div>
+        <div class="prog-msg ${isOver?'over':'under'}">
+          ${isOver
+            ? `🎉 План перевыполнен на ${diff} нормо-часов!`
+            : `До плана осталось ${diff} нормо-часов`}
+        </div>
+      </div>
+    </div>
+
+    <!-- КПД -->
+    <div class="stat-box full">
+      <div class="sb-lbl">Твой КПД за месяц</div>
+      <div class="kpi-wrap" style="margin-top:10px">
+        <div class="kpi-ring">
+          <svg class="kpi-svg" width="80" height="80" viewBox="0 0 80 80">
+            <circle class="kpi-circle-bg" cx="40" cy="40" r="${R}"/>
+            <circle class="kpi-circle${kpdHigh?' high':''}" cx="40" cy="40" r="${R}"
+              stroke-dasharray="${circ}"
+              stroke-dashoffset="${dash}"
+              style="transition:stroke-dashoffset .8s cubic-bezier(.34,1.2,.64,1)"/>
+          </svg>
+          <div class="kpi-text">${kpd}%</div>
+        </div>
+        <div class="kpi-info">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--br)">${kpd}%</div>
+          <div class="kpi-desc">
+            КПД = нормо-часы ÷ фактические часы<br>
+            <b>${normDoneR} н/ч</b> ÷ <b>${totalWorkedHours.toFixed(1)} ч</b> × 100%
+          </div>
+          <div style="margin-top:8px;font-size:12px;font-weight:600;color:${kpdHigh?'#3a8a50':'var(--pkd)'}">
+            ${kpd>=90?'🌟 Отличный результат!':kpd>=70?'👍 Хорошая работа!':kpd>=50?'💪 Есть куда расти':'🔥 Продолжай стараться!'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function calcH(){
+  const a=document.getElementById('c-in').value, b=document.getElementById('c-out').value;
+  if(!a||!b){document.getElementById('c-hrs').textContent='—';return;}
+  const [h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);
+  let mn=(h2*60+m2)-(h1*60+m1); if(mn<0)mn+=1440;
+  const h=Math.floor(mn/60),m=mn%60;
+  document.getElementById('c-hrs').textContent=m?`${h} ч ${m} мин`:`${h} ч`;
+}
+
+function renderCookTasks(){
+  const bf=document.getElementById('c-bfast').checked;
+  const list=[...TD,...(bf?TB:[])];
+  let html='',lastC='';
+  list.forEach((t,i)=>{
+    if(t.c&&t.c!==lastC){ html+=`<div class="cat-hdr">${cEmoji(t.c)} ${t.c}</div>`; lastC=t.c; }
+    if(!t.c&&lastC!=='__bf'){ html+=`<div class="cat-hdr">🥐 Завтраки</div>`; lastC='__bf'; }
+    const v=cCounters[t.n]||0, e=(v*t.h).toFixed(2);
+    html+=`<div class="t-row${v>0?' act':''}" id="cr${i}">
+      <div class="t-info">
+        <div class="t-name">${t.n}${t.m?` <span class="min-b">мин: ${t.m}</span>`:''}</div>
+        <div class="t-meta"><span>${t.h} ч/замес</span><span class="h-earn${v>0?'':' hid'}" id="ce${i}">+${e} ч</span></div>
+      </div>
+      <div class="stepper">
+        <button class="sb" onclick="cs(${i},-1)">−</button>
+        <span class="sv${v>0?' nz':''}" id="cv${i}">${v}</span>
+        <button class="sb" onclick="cs(${i},1)">+</button>
+      </div></div>`;
+  });
+  document.getElementById('c-tasks').innerHTML=html;
+  updSum();
+}
+
+function cs(i,d){
+  const bf=document.getElementById('c-bfast').checked;
+  const list=[...TD,...(bf?TB:[])];
+  const t=list[i]; if(!t)return;
+  cCounters[t.n]=Math.max(0,(cCounters[t.n]||0)+d);
+  const v=cCounters[t.n];
+  const sv=document.getElementById('cv'+i), ce=document.getElementById('ce'+i), cr=document.getElementById('cr'+i);
+  if(sv){sv.textContent=v;sv.className='sv'+(v>0?' nz':'');}
+  if(ce){ce.textContent=`+${(v*t.h).toFixed(2)} ч`;ce.classList.toggle('hid',v===0);}
+  if(cr){cr.classList.toggle('act',v>0);}
+  updSum();
+}
+
+function updSum(){
+  let tot=0,hrs=0;
+  allT().forEach(t=>{const c=cCounters[t.n]||0;if(c>0){tot+=c;hrs+=c*t.h;}});
+  const el=document.getElementById('c-sum');
+  el.innerHTML=tot===0?'Отметьте выполненные задачи':`Выполнено: <strong>${tot} задач</strong> · Нормо-часов: <strong>${hrs.toFixed(2)} ч</strong>`;
+}
+
+// Парсим "8 ч 30 мин" → 8.5
+function parseWorkedHours(txt){
+  if(!txt||txt==='—') return 0;
+  const hm = txt.match(/(\d+)\s*ч(?:\s*(\d+)\s*мин)?/);
+  if(!hm) return 0;
+  return parseFloat(hm[1]) + (parseFloat(hm[2]||0)/60);
+}
+
+// ── localStorage: save one shift ──
+const LS_SHIFTS = 'burry_shifts';
+function saveCookShiftLocally(staff, shift){
+  try{
+    const all = JSON.parse(localStorage.getItem(LS_SHIFTS)||'{}');
+    if(!all[staff]) all[staff]=[];
+    // Avoid duplicates: same date + same normH
+    const dup = all[staff].find(s=>s.date===shift.date && Math.abs(s.normH-shift.normH)<0.01);
+    if(!dup) all[staff].push(shift);
+    localStorage.setItem(LS_SHIFTS, JSON.stringify(all));
+    // Also update in-memory
+    if(!cookShifts[staff]) cookShifts[staff]=[];
+    if(!dup) cookShifts[staff].push(shift);
+  }catch(e){ console.warn('LS save failed', e); }
+}
+
+// ── localStorage: load all shifts for this user ──
+function loadCookShiftsFromLS(staffName){
+  try{
+    const all = JSON.parse(localStorage.getItem(LS_SHIFTS)||'{}');
+    return all[staffName] || [];
+  }catch(e){ return []; }
+}
+
+async function cookSend(){
+  const tasks=allT().filter(t=>(cCounters[t.n]||0)>0).map(t=>({name:t.n,count:cCounters[t.n],norm:t.h}));
+  if(!tasks.length){showToast('⚠️ Отметьте хотя бы одну задачу!');return;}
+  const btn=document.getElementById('c-btn');
+  btn.disabled=true; btn.textContent='⏳ Отправляем...';
+  const date=document.getElementById('c-date').value;
+  const month=MONTHS[new Date(date).getMonth()];
+  const ti=document.getElementById('c-in').value, to=document.getElementById('c-out').value;
+  const hw=document.getElementById('c-hrs').textContent;
+  const staff=curUser.name;
+
+  if(!DB[month])DB[month]={};
+  tasks.forEach(t=>{
+    if(!DB[month][t.name])DB[month][t.name]={};
+    if(!DB[month][t.name][staff])DB[month][t.name][staff]={done:0};
+    DB[month][t.name][staff].done+=t.count;
+  });
+
+  // Record shift for stats
+  const workedH = parseWorkedHours(document.getElementById('c-hrs').textContent);
+  const normH   = tasks.reduce((s,t)=>s+t.count*t.norm, 0);
+  if(!cookShifts[staff]) cookShifts[staff]=[];
+  const hasBfast = document.getElementById('c-bfast').checked;
+  cookShifts[staff].push({date, workedH, normH, hasBfast});
+
+  try{
+    const p=new URLSearchParams({action:'submitReport',date,month,staff,timeIn:ti,timeOut:to,hoursWorked:hw,hasBfast:String(hasBfast),tasks:JSON.stringify(tasks)});
+    const img=new Image(); img.src=SHEETS_URL+'?'+p.toString();
+    await new Promise(r=>{img.onload=img.onerror=r;setTimeout(r,5000);});
+    cCounters={}; renderCookTasks();
+    // Save shift to localStorage so stats survive page reload
+    saveCookShiftLocally(staff, {date, workedH, normH, hasBfast});
+    showToast('✅ Отчёт отправлен! Хорошей смены 🌸');
+  }catch(e){
+    // Still save locally even if Sheets failed
+    saveCookShiftLocally(staff, {date, workedH, normH, hasBfast});
+    showToast('❌ Sheets недоступен. Данные сохранены локально.');
+  }
+  finally{ btn.disabled=false; btn.textContent='✨ Отправить отчёт'; }
+}
+
+// ══════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════
+function setupAdmin(){
+  document.getElementById('a-nm').textContent=curUser.name;
+  const init=curUser.name.slice(0,2).toUpperCase();
+  document.getElementById('a-av').textContent=init;
+  renderMonthBar(); 
+  loadDailyStats().then(()=>renderDash());
+}
+
+function aN(v,el){
+  document.querySelectorAll('.a-ni').forEach(i=>i.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.av').forEach(x=>x.classList.remove('act'));
+  document.getElementById('av-'+v).classList.add('act');
+  if(v==='dash')renderDash();
+  if(v==='bfast'){initBfastDate();renderBfastView();}
+  if(v==='staff')renderAStaff();
+  if(v==='tasks'){renderATasks();}
+  if(v==='sett'){renderPlans();renderMonthlyPlanForm();}
+}
+
+function renderMonthBar(){
+  const bar=document.getElementById('a-mb');
+  bar.innerHTML=MONTHS.map(m=>`<button class="mbtn${m===curMonth?' act':''}" onclick="selM('${m}',this)">${m}</button>`).join('');
+}
+function selM(m,el){
+  curMonth=m;
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act'); renderDash();
+}
+
+// ── DASH ──
+function renderDash(){
+  const cooks=users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+  document.getElementById('ds-s').textContent=cooks.length;
+  const totals={};
+  let totH=0,totR=0;
+  cooks.forEach(u=>{ totals[u.name]=totalNormH(u.name); totH+=totals[u.name]; });
+  if(DB[curMonth]) Object.values(DB[curMonth]).forEach(o=>Object.values(o).forEach(s=>totR+=s.done||0));
+  document.getElementById('ds-r').textContent=totR||'—';
+  document.getElementById('ds-h').textContent=totH?totH.toFixed(1):'—';
+  const top=cooks.slice().sort((a,b)=>totals[b.name]-totals[a.name])[0];
+  document.getElementById('ds-t').textContent=top?top.name:'—';
+  renderSCards(cooks,totals);
+  renderSummaryTable(cooks);
+  renderPTables(cooks);
+}
+
+function factH(staff){ let h=0; allT().forEach(t=>{h+=gmd(curMonth,t.n,staff)*t.h;}); return Math.round(h*100)/100; }
+
+// Base norm-hours without bonus
+function baseNormH(staff,month){
+  let h=0; allT().forEach(t=>{h+=gmd(month||curMonth,t.n,staff)*t.h;}); return Math.round(h*100)/100;
+}
+
+// Breakfast bonus: sum over shifts where hasBfast=true, multiply bfastCount * 0.15
+function bfastBonus(staff,month){
+  const shifts=(cookShifts[staff]||[]).filter(s=>{
+    if(!s.hasBfast) return false;
+    const d=new Date(s.date);
+    const mn=MONTHS[d.getMonth()];
+    return mn===(month||curMonth);
+  });
+  let bonus=0;
+  shifts.forEach(s=>{
+    const cnt=(dailyStats[s.date]&&dailyStats[s.date].bfastCount)||0;
+    bonus+=cnt*0.15;
+  });
+  return Math.round(bonus*100)/100;
+}
+
+// Total with bonus
+function totalNormH(staff,month){
+  return Math.round((baseNormH(staff,month)+bfastBonus(staff,month))*100)/100;
+}
+
+// Worked hours for staff this month
+function workedHours(staff,month){
+  return Math.round((cookShifts[staff]||[])
+    .filter(s=>MONTHS[new Date(s.date).getMonth()]===(month||curMonth))
+    .reduce((s,x)=>s+(x.workedH||0),0)*100)/100;
+}
+function gmd(mo,task,staff){ return (DB[mo]&&DB[mo][task]&&DB[mo][task][staff]&&DB[mo][task][staff].done)||0; }
+
+function renderSCards(cooks,totals){
+  document.getElementById('a-scards').innerHTML=cooks.map(u=>{
+    const plan=(monthPlans[curMonth]||u.planPerShift||7)*12;
+    const total=totals[u.name]||0;
+    const bonus=bfastBonus(u.name);
+    const pct=plan?Math.round(total/plan*100):0;
+    const cls=pct>=100?'bg-g':pct>=50?'bg-n':'bg-r';
+    return `<div class="scard"><div class="sc-nm">${u.name}</div><div class="sc-rl">${u.role}</div>
+      <div class="sc-st"><span>База н/ч</span><b>${baseNormH(u.name)}</b></div>
+      <div class="sc-st"><span>🥐 Бонус</span><b style="color:#b8832a">+${bonus}</b></div>
+      <div class="sc-st"><span>Итого н/ч</span><b style="color:var(--pkd)">${total}</b></div>
+      <div class="prog"><div class="pf" style="width:${Math.min(100,pct)}%"></div></div>
+      <span class="badge ${cls}">${pct}% плана</span></div>`;
+  }).join('');
+}
+
+function renderSummaryTable(cooks){
+  const tbody=document.getElementById('summary-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=cooks.map(u=>{
+    const worked=workedHours(u.name);
+    const base=baseNormH(u.name);
+    const bonus=bfastBonus(u.name);
+    const total=Math.round((base+bonus)*100)/100;
+    const kpd=worked>0?Math.round(total/worked*100):0;
+    const kpdCol=kpd>=80?'color:#3a8a50':kpd>=50?'color:var(--pkd)':'color:var(--rd)';
+    return `<tr>
+      <td><b>${u.name}</b></td>
+      <td style="text-align:center">${worked?worked+'ч':'—'}</td>
+      <td style="text-align:center">${base?base+'':'—'}</td>
+      <td style="text-align:center">${bonus>0?`<span class="bonus-chip">+${bonus}</span>`:'—'}</td>
+      <td style="text-align:center"><span class="total-chip">${total||'—'}</span></td>
+      <td style="text-align:center;font-weight:700;${kpdCol}">${kpd?kpd+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPTables(cooks){
+  const h=`<th style="min-width:190px">Задача</th><th>Норма</th>`+cooks.map(u=>`<th style="text-align:center">${u.name}</th>`).join('');
+  document.getElementById('dth').innerHTML=h;
+  document.getElementById('bth').innerHTML=h;
+  let dh='',lc='';
+  TD.forEach(t=>{
+    if(t.c!==lc){dh+=`<tr class="ctr"><td colspan="${2+cooks.length}">${cEmoji(t.c)} ${t.c}</td></tr>`;lc=t.c;}
+    const cells=cooks.map(u=>{const d=gmd(curMonth,t.n,u.name),hh=(d*t.h).toFixed(1);
+      return `<td style="text-align:center">${d>0?`<b style="color:var(--pkd)">${d}</b> <span class="hg">/${hh}ч</span>`:'<span style="color:var(--bed)">—</span>'}</td>`;}).join('');
+    dh+=`<tr><td>${t.n}</td><td style="text-align:center;font-weight:700;color:var(--br)">${t.h}</td>${cells}</tr>`;
+  });
+  document.getElementById('dtb').innerHTML=dh;
+  let bh='';
+  TB.forEach(t=>{
+    const cells=cooks.map(u=>{const d=gmd(curMonth,t.n,u.name),hh=(d*t.h).toFixed(2);
+      return `<td style="text-align:center">${d>0?`<b style="color:var(--pkd)">${d}</b> <span class="hg">/${hh}ч</span>`:'<span style="color:var(--bed)">—</span>'}</td>`;}).join('');
+    bh+=`<tr><td>${t.n}</td><td style="text-align:center;font-weight:700;color:var(--br)">${t.h}</td>${cells}</tr>`;
+  });
+  document.getElementById('btb').innerHTML=bh;
+}
+
+// ── STAFF ──
+function renderAStaff(){
+  document.getElementById('a-slist').innerHTML=users.map((u,i)=>`
+    <div class="sr"><div>
+      <div class="srnm">${u.name} <span style="font-size:11px;background:var(--pkl);color:var(--pkd);padding:2px 8px;border-radius:8px;margin-left:6px">${u.role}</span></div>
+      <div class="srmt">ПИН: ${'•'.repeat(4)} · план: ${u.planPerShift||7} н/ч/смену</div>
+    </div><button class="bdel" onclick="delUser(${i})">×</button></div>`).join('');
+}
+
+function openAddUser(){
+  document.getElementById('mc').innerHTML=`<div class="md-ttl">👤 Новый сотрудник</div>
+    <div class="fr"><label class="fl2">Имя</label><input class="fi2" id="nu-n" placeholder="Например: Вика"></div>
+    <div class="fr"><label class="fl2">ПИН-код (4 цифры)</label><input class="fi2" id="nu-p" type="number" placeholder="7777"></div>
+    <div class="fr"><label class="fl2">Роль</label><select class="fs2" id="nu-r"><option value="Povar">Повар</option><option value="Admin">Администратор</option></select></div>
+    <div class="fr"><label class="fl2">План н/ч за смену</label><input class="fi2" type="number" id="nu-h" value="7" min="1" max="24" step="0.5"></div>
+    <div class="mac"><button class="btn btns" onclick="closeMo()">Отмена</button><button class="btn btnp" onclick="addUser()">Добавить</button></div>`;
+  document.getElementById('mo').classList.add('open');
+}
+function addUser(){
+  const n=document.getElementById('nu-n').value.trim();
+  const p=String(document.getElementById('nu-p').value).trim();
+  const r=document.getElementById('nu-r').value;
+  const h=parseFloat(document.getElementById('nu-h').value)||7;
+  if(!n||p.length!==4){showToast('⚠️ Имя и 4-значный ПИН обязательны');return;}
+  if(users.find(u=>u.pin===p)){showToast('⚠️ Этот ПИН уже занят');return;}
+  users.push({name:n,pin:p,role:r,planPerShift:h});
+  closeMo(); renderAStaff();
+  showToast(`✅ ${n} добавлена! Также внесите в лист Settings таблицы.`);
+}
+function delUser(i){ if(!confirm(`Удалить "${users[i].name}"?`))return; users.splice(i,1); renderAStaff(); showToast('🗑 Удалено'); }
+
+// ── TASKS ──
+function renderATasks(){
+  const rg=(id,list,type)=>{
+    document.getElementById(id).innerHTML=list.map((t,i)=>`
+      <div class="sr"><div>
+        <div class="srnm">${t.n}</div>
+        <div class="srmt">${t.c?t.c+' · ':''}норма: ${t.h} ч${t.m?' · мин: '+t.m:''}</div>
+      </div><button class="bdel" onclick="delTask('${type}',${i})">×</button></div>`).join('');
+  };
+  rg('a-td',TD,'d'); rg('a-tb',TB,'b');
+}
+function openAddTask(type){
+  const cats=['Кексы','Чизкейки','Трюфели','Торты','Тарталетки','Муссовые','Кейк-попсы','Бенто'];
+  document.getElementById('mc').innerHTML=`<div class="md-ttl">➕ Новая задача</div>
+    <div class="fr"><label class="fl2">Название</label><input class="fi2" id="nt-n" placeholder="Название задачи"></div>
+    ${type==='d'?`<div class="fr"><label class="fl2">Категория</label><select class="fs2" id="nt-c">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div>`:''}
+    <div class="f2"><div class="fr"><label class="fl2">Норма часов</label><input class="fi2" type="number" id="nt-h" step="0.25" value="0.5"></div>
+    <div class="fr"><label class="fl2">Мин. замес</label><input class="fi2" id="nt-m" placeholder="4 шт"></div></div>
+    <div class="mac"><button class="btn btns" onclick="closeMo()">Отмена</button><button class="btn btnp" onclick="addTask('${type}')">Добавить</button></div>`;
+  document.getElementById('mo').classList.add('open');
+}
+function addTask(type){
+  const n=document.getElementById('nt-n').value.trim();
+  const h=parseFloat(document.getElementById('nt-h').value)||0.5;
+  const m=document.getElementById('nt-m').value.trim()||null;
+  if(!n){showToast('⚠️ Введите название');return;}
+  if(type==='d'){const c=document.getElementById('nt-c').value;TD.push({c,n,h,m});}
+  else{TB.push({n,h,m});}
+  closeMo(); renderATasks(); renderDash();
+  showToast(`✅ Задача "${n}" добавлена!`);
+}
+function delTask(type,i){const list=type==='d'?TD:TB;if(!confirm(`Удалить "${list[i].n}"?`))return;list.splice(i,1);renderATasks();renderDash();showToast('🗑 Удалено');}
+
+// ── PLANS ──
+function renderPlans(){
+  const cooks=users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+  document.getElementById('a-plans').innerHTML=cooks.map((u,i)=>`
+    <div class="pr">
+      <div><div style="font-size:15px;font-weight:600;color:var(--br)">${u.name}</div><div style="font-size:12px;color:var(--sf)">${u.role}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="pi" type="number" min="1" max="24" step="0.5" value="${u.planPerShift||7}"
+          oninput="users.find(x=>x.name==='${u.name}').planPerShift=parseFloat(this.value)||7">
+        <span style="font-size:12px;color:var(--sf)">н/ч / смену</span>
+      </div></div>`).join('');
+}
+function savePlans(){ renderDash(); showToast('✅ План сохранён!'); }
+
+// ══════════════════════════════════════════
+//  BREAKFAST CALENDAR (Admin)
+// ══════════════════════════════════════════
+function initBfastDate(){
+  const el=document.getElementById('bf-date');
+  if(el&&!el.value) el.value=new Date().toISOString().slice(0,10);
+}
+
+async function saveBfastDay(){
+  const date=document.getElementById('bf-date').value;
+  const count=parseInt(document.getElementById('bf-count').value)||0;
+  if(!date){showToast('⚠️ Выберите дату');return;}
+  if(!dailyStats[date]) dailyStats[date]={};
+  dailyStats[date].bfastCount=count;
+
+  // Send to Sheets
+  try{
+    const p=new URLSearchParams({action:'saveDailyStats',date,bfastCount:count});
+    const img=new Image(); img.src=SHEETS_URL+'?'+p.toString();
+    await new Promise(r=>{img.onload=img.onerror=r;setTimeout(r,4000);});
+    showToast(`✅ ${date}: ${count} завтраков сохранено`);
+  }catch(e){ showToast('✅ Сохранено локально'); }
+
+  renderBfastView();
+  renderDash();
+}
+
+function renderBfastView(){
+  const now=new Date();
+  const monthIdx=now.getMonth();
+  const year=now.getFullYear();
+
+  // Month nav buttons
+  const btnsCont=document.getElementById('bf-month-btns');
+  if(btnsCont){
+    btnsCont.innerHTML=MONTHS.slice(0,now.getMonth()+2).map((m,i)=>{
+      const active=i===monthIdx;
+      return `<button class="bsm ${active?'bpk':'bgh'}" onclick="renderBfastMonth(${i},${year})">${m}</button>`;
+    }).join('');
+  }
+  renderBfastMonth(monthIdx, year);
+}
+
+function renderBfastMonth(monthIdx, year){
+  const daysInMonth=new Date(year, monthIdx+1, 0).getDate();
+  const monthName=MONTHS[monthIdx];
+  document.getElementById('bf-cal-title').textContent=`📅 ${monthName} ${year}`;
+
+  let html='<div class="bf-grid">';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cnt=(dailyStats[dateStr]&&dailyStats[dateStr].bfastCount)||0;
+    const hasData=cnt>0;
+    html+=`<div class="bf-cell${hasData?' has-data':''}" onclick="quickFillBfast('${dateStr}',${cnt})">
+      <div class="bf-day">${d} ${monthName.slice(0,3)}</div>
+      <div class="bf-count">${hasData?cnt:'—'}</div>
+      <div class="bf-unit">${hasData?'шт завтраков':''}</div>
+    </div>`;
+  }
+  html+='</div>';
+  document.getElementById('bf-cal-grid').innerHTML=html;
+}
+
+function quickFillBfast(date, current){
+  document.getElementById('bf-date').value=date;
+  document.getElementById('bf-count').value=current||'';
+  document.getElementById('bf-date').scrollIntoView({behavior:'smooth'});
+  document.getElementById('bf-count').focus();
+}
+
+// Load dailyStats from Sheets on admin setup
+async function loadDailyStats(){
+  try{
+    const r=await fetch(SHEETS_URL+'?action=getDailyStats');
+    const d=await r.json();
+    if(d&&d.stats){
+      d.stats.forEach(s=>{ if(!dailyStats[s.date])dailyStats[s.date]={}; dailyStats[s.date].bfastCount=s.bfastCount; });
+    }
+  }catch(e){ console.warn('Could not load daily stats'); }
+}
+
+// ── Monthly plan form ──
+function renderMonthlyPlanForm(){
+  const el=document.getElementById('monthly-plan-form'); if(!el) return;
+  el.innerHTML=MONTHS.map(m=>{
+    const val=monthPlans[m]||(users.find(u=>(u.role||'').toLowerCase()!=='admin')||{}).planPerShift||7;
+    const isFuture=MONTHS.indexOf(m)>MONTHS.indexOf(curMonth);
+    return `<div class="mplan-row">
+      <div>
+        <div class="mplan-month">${m}</div>
+        <div class="mplan-note">${isFuture?'📌 Будущий месяц':m===curMonth?'📍 Текущий':''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="mplan-input" type="number" min="1" max="24" step="0.5"
+          value="${val}" oninput="monthPlans['${m}']=parseFloat(this.value)||7">
+        <span style="font-size:12px;color:var(--sf)">н/ч / смену</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REPORTS ──
+function aRep(type){
+  const box=document.getElementById('rep-out'); box.style.display='block';
+  const ttl=document.getElementById('rep-ttl'), body=document.getElementById('rep-body');
+  const cooks=users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+
+  if(type==='eff'){
+    ttl.textContent=`⚡ Эффективность — ${curMonth}`;
+    const rows=cooks.map(u=>{
+      const plan=(u.planPerShift||7)*12,fact=factH(u.name),pct=plan?Math.round(fact/plan*100):0;
+      const cls=pct>=100?'bg-g':pct>=60?'bg-n':'bg-r';
+      return `<tr><td><b>${u.name}</b></td><td>${plan}</td><td>${fact}</td><td><span class="badge ${cls}">${pct}%</span></td></tr>`;
+    }).join('');
+    body.innerHTML=`<table class="dt"><thead><tr><th>Сотрудник</th><th>План н/ч</th><th>Факт н/ч</th><th>Выполнение</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  }else if(type==='hrs'){
+    ttl.textContent=`⏱ Нормо-часы план vs факт — ${curMonth}`;
+    const maxV=Math.max(...cooks.map(u=>(u.planPerShift||7)*12),1);
+    let h='<div style="padding:20px">';
+    cooks.forEach(u=>{
+      const plan=(u.planPerShift||7)*12,fact=factH(u.name),pct=plan?Math.round(fact/plan*100):0;
+      h+=`<div class="chart-rw"><div class="chart-nr"><span class="chart-nm">${u.name}</span><span class="chart-pc">${pct}% от плана</span></div>
+        <div class="chart-bg"><div class="chart-pl" style="width:${plan/maxV*100}%"></div>
+        <div class="chart-fa" style="width:${Math.max(fact/maxV*100,4)}%"><span class="chart-lb">${fact} ч</span></div></div></div>`;
+    });
+    body.innerHTML=h+'</div>';
+
+  }else if(type==='top'){
+    ttl.textContent=`🏆 Топ задач — ${curMonth}`;
+    const rows=allT().map(t=>{
+      const tot=cooks.reduce((s,u)=>s+gmd(curMonth,t.n,u.name),0);
+      return {n:t.n,tot,hrs:+(tot*t.h).toFixed(2)};
+    }).filter(x=>x.tot>0).sort((a,b)=>b.hrs-a.hrs).slice(0,10);
+    body.innerHTML=`<table class="dt"><thead><tr><th>Задача</th><th style="text-align:center">Выполнено</th><th style="text-align:center">Нормо-часов</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r.n}</td><td style="text-align:center;font-weight:700">${r.tot}</td><td style="text-align:center;color:var(--pkd);font-weight:700">${r.hrs} ч</td></tr>`).join('')}</tbody></table>`;
+  }
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth'}),50);
+}
+
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+function showLd(t){document.getElementById('ldtx').textContent=t;document.getElementById('ldo').classList.add('show');}
+function hideLd(){document.getElementById('ldo').classList.remove('show');}
+let _tt;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3500);}
+function closeMo(){document.getElementById('mo').classList.remove('open');}
+</script>
+</body>
+</html>
