@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BURRY — План/Факт Сотрудников</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink-light: #fce8ec;
+  --pink-mid:   #f5c6d0;
+  --pink-main:  #e8919e;
+  --pink-dark:  #c26b78;
+  --cream:      #fdf6f0;
+  --beige:      #f0e8df;
+  --beige-dark: #e5d8cc;
+  --brown:      #8b5e52;
+  --text:       #3d2b26;
+  --text-soft:  #7a5a54;
+  --white:      #ffffff;
+  --green:      #7bbf8a;
+  --green-bg:   #edf7f0;
+  --red:        #e07070;
+  --gold:       #d4a96a;
+  --shadow:     rgba(194,107,120,0.13);
+  --shadow-lg:  rgba(194,107,120,0.22);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ───────── HEADER ───────── */
+header{
+  background:var(--white);
+  border-bottom:1px solid var(--pink-mid);
+  padding:0 36px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:66px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 20px var(--shadow);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:600;letter-spacing:6px;
+  color:var(--pink-dark);user-select:none;
+}
+.logo span{font-weight:300;font-style:italic;}
+.nav-tabs{display:flex;gap:6px;}
+.nav-tab{
+  padding:8px 20px;border-radius:22px;border:none;
+  background:transparent;color:var(--text-soft);
+  font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;
+  cursor:pointer;transition:all .2s;
+}
+.nav-tab.active,.nav-tab:hover{background:var(--pink-light);color:var(--pink-dark);}
+.nav-tab.active{font-weight:600;}
+.header-badge{
+  background:var(--pink-light);color:var(--pink-dark);
+  font-size:12px;font-weight:600;padding:4px 12px;
+  border-radius:20px;border:1px solid var(--pink-mid);
+}
+
+/* ───────── LAYOUT ───────── */
+.app{display:flex;min-height:calc(100vh - 66px);}
+
+/* ───────── SIDEBAR ───────── */
+.sidebar{
+  width:232px;background:var(--white);
+  border-right:1px solid var(--beige);
+  padding:28px 0;flex-shrink:0;
+}
+.sidebar-section{margin-bottom:6px;}
+.sidebar-label{
+  font-size:10px;font-weight:700;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--pink-main);
+  padding:0 20px 10px;display:block;
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;cursor:pointer;
+  color:var(--text-soft);font-size:13.5px;
+  border-left:3px solid transparent;transition:all .18s;
+}
+.sidebar-item:hover,.sidebar-item.active{
+  background:var(--pink-light);color:var(--pink-dark);
+  border-left-color:var(--pink-main);
+}
+.s-avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--pink-mid);color:var(--pink-dark);
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sidebar-item.active .s-avatar{background:var(--pink-main);color:white;}
+.sidebar-divider{height:1px;background:var(--beige);margin:12px 20px;}
+
+/* ───────── MAIN ───────── */
+.main{flex:1;padding:30px 36px;overflow-x:auto;max-width:1200px;}
+
+/* ───────── VIEWS ───────── */
+.view{display:none;}
+.view.active{display:block;}
+
+/* ───────── PAGE HEADER ───────── */
+.page-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:26px;flex-wrap:wrap;gap:14px;
+}
+.page-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:500;color:var(--brown);
+}
+.page-subtitle{font-size:13px;color:var(--text-soft);margin-top:3px;}
+
+/* ───────── MONTH BAR ───────── */
+.month-bar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:26px;flex-wrap:wrap;
+}
+.month-btn{
+  padding:8px 20px;border-radius:22px;
+  border:1.5px solid var(--pink-mid);
+  background:transparent;color:var(--text-soft);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  cursor:pointer;transition:all .2s;
+}
+.month-btn.active{background:var(--pink-main);border-color:var(--pink-main);color:white;font-weight:600;}
+.month-btn:hover:not(.active){border-color:var(--pink-main);color:var(--pink-dark);}
+
+/* ───────── TOTALS GRID ───────── */
+.totals-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+.total-card{
+  background:var(--white);border:1px solid var(--pink-mid);
+  border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;
+}
+.total-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--pink-mid),var(--pink-main));
+}
+.total-label{font-size:10.5px;color:var(--text-soft);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.total-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:600;color:var(--brown);margin:6px 0 2px;
+}
+.total-sub{font-size:11.5px;color:var(--pink-dark);}
+
+/* ───────── STAFF CARDS ───────── */
+.staff-cards{display:flex;gap:14px;margin-bottom:26px;flex-wrap:wrap;}
+.staff-card{
+  background:var(--white);border:1.5px solid var(--pink-mid);
+  border-radius:18px;padding:20px 22px;flex:1;min-width:175px;
+  cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+}
+.staff-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:var(--pink-mid);transition:background .2s;
+}
+.staff-card.selected{border-color:var(--pink-main);box-shadow:0 6px 24px var(--shadow-lg);}
+.staff-card.selected::before{background:linear-gradient(90deg,var(--pink-main),var(--pink-dark));}
+.staff-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--shadow);}
+.staff-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--brown);}
+.staff-role{font-size:11px;color:var(--text-soft);margin-bottom:14px;}
+.staff-stat{display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-top:5px;}
+.stat-val{font-weight:600;color:var(--text);}
+.prog-wrap{height:5px;background:var(--beige);border-radius:3px;overflow:hidden;margin-top:10px;}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--pink-main),var(--pink-dark));transition:width .5s;}
+.stat-badge{
+  display:inline-block;padding:3px 10px;border-radius:10px;
+  font-size:11px;font-weight:700;margin-top:10px;
+}
+.badge-green{background:var(--green-bg);color:#3a8a50;}
+.badge-red{background:#fdeaea;color:#c04040;}
+.badge-neutral{background:var(--beige);color:var(--brown);}
+
+/* ───────── TABLE CARD ───────── */
+.table-card{
+  background:var(--white);border:1px solid var(--pink-mid);
+  border-radius:18px;overflow:hidden;margin-bottom:26px;
+}
+.table-header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 22px;border-bottom:1px solid var(--pink-light);
+  background:linear-gradient(135deg,var(--pink-light),#fdf0f2);
+}
+.table-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--brown);}
+.btn-sm{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:20px;border:none;
+  font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-weight:500;transition:all .2s;
+}
+.btn-pink{background:var(--pink-main);color:white;}
+.btn-pink:hover{background:var(--pink-dark);}
+.btn-ghost{background:var(--beige);color:var(--text-soft);}
+.btn-ghost:hover{background:var(--pink-light);color:var(--pink-dark);}
+
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{
+  background:var(--pink-light);color:var(--brown);
+  padding:10px 16px;text-align:left;
+  font-weight:700;font-size:11px;letter-spacing:.5px;text-transform:uppercase;
+  border-bottom:1px solid var(--pink-mid);white-space:nowrap;
+}
+.data-table td{
+  padding:10px 16px;border-bottom:1px solid var(--beige);vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:#fdf5f7;}
+.cat-row td{
+  background:var(--beige)!important;font-weight:700;
+  font-size:12px;color:var(--brown);padding:8px 16px;
+  letter-spacing:.3px;
+}
+.hours-computed{
+  font-weight:700;color:var(--green);font-size:12.5px;
+  text-align:center;
+}
+
+/* ───────── STEPPER ───────── */
+.stepper{
+  display:inline-flex;align-items:center;gap:0;
+  border:1.5px solid var(--pink-mid);border-radius:22px;
+  overflow:hidden;background:var(--white);
+}
+.step-btn{
+  width:30px;height:30px;border:none;background:transparent;
+  color:var(--pink-dark);font-size:16px;font-weight:600;
+  cursor:pointer;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.step-btn:hover{background:var(--pink-light);}
+.step-btn:active{background:var(--pink-mid);}
+.step-val{
+  min-width:32px;text-align:center;font-size:14px;
+  font-weight:700;color:var(--text);padding:0 2px;
+  font-family:'DM Sans',sans-serif;
+}
+.step-val.nonzero{color:var(--pink-dark);}
+
+/* ───────── DAILY LOG FORM (view-daily) ───────── */
+.daily-form-wrap{
+  background:var(--white);border:1px solid var(--pink-mid);
+  border-radius:20px;overflow:hidden;margin-bottom:26px;
+}
+.daily-form-header{
+  display:flex;align-items:center;gap:14px;
+  padding:20px 28px;
+  background:linear-gradient(135deg,var(--pink-light),#fdf0f2);
+  border-bottom:1px solid var(--pink-mid);flex-wrap:wrap;
+}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:10.5px;font-weight:700;color:var(--text-soft);letter-spacing:.5px;text-transform:uppercase;}
+.field-select,.field-input{
+  padding:9px 14px;border:1.5px solid var(--pink-mid);border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+  background:white;outline:none;transition:border-color .2s;cursor:pointer;
+}
+.field-select:focus,.field-input:focus{border-color:var(--pink-main);}
+.time-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.time-sep{font-size:18px;color:var(--pink-mid);font-weight:300;}
+.hours-pill{
+  background:var(--pink-light);color:var(--pink-dark);
+  padding:9px 16px;border-radius:10px;font-weight:700;font-size:14px;
+  white-space:nowrap;border:1.5px solid var(--pink-mid);min-width:100px;text-align:center;
+}
+
+.daily-tasks-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:0;
+}
+.task-cell{
+  padding:14px 22px;
+  border-bottom:1px solid var(--beige);border-right:1px solid var(--beige);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  transition:background .15s;
+}
+.task-cell:hover{background:#fdf8f9;}
+.task-cell-name{font-size:13px;color:var(--text);flex:1;line-height:1.4;}
+.task-cell-norm{font-size:11px;color:var(--text-soft);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+
+.task-min-badge{
+  display:inline-block;
+  font-size:10.5px;font-weight:500;
+  color:var(--brown);
+  background:var(--beige);
+  border:1px solid var(--beige-dark);
+  border-radius:8px;
+  padding:1px 7px;
+  margin-left:3px;
+  white-space:nowrap;
+}
+
+.task-hours-live{
+  font-size:11px;font-weight:700;
+  color:var(--green);
+  background:var(--green-bg);
+  border-radius:8px;
+  padding:1px 8px;
+  transition:opacity .2s, transform .2s;
+  white-space:nowrap;
+}
+.task-hours-live.hidden{
+  opacity:0;transform:scale(.85);pointer-events:none;
+}
+
+.task-cell-active{
+  background:linear-gradient(135deg,#fff7f9,#fff)!important;
+  border-bottom-color:var(--pink-mid)!important;
+}
+.task-cat-header{
+  grid-column:1/-1;
+  background:var(--beige);padding:10px 22px;
+  font-size:11.5px;font-weight:700;color:var(--brown);
+  letter-spacing:.5px;text-transform:uppercase;
+  border-bottom:1px solid var(--beige-dark);
+}
+
+/* ───────── SUBMIT BUTTON ───────── */
+.submit-wrap{
+  padding:24px 28px;
+  border-top:1px solid var(--pink-light);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  background:linear-gradient(135deg,#fff9fa,var(--white));
+}
+.submit-summary{font-size:13px;color:var(--text-soft);}
+.submit-summary strong{color:var(--brown);}
+.btn-submit{
+  padding:14px 40px;border-radius:28px;border:none;
+  background:linear-gradient(135deg,var(--pink-main),var(--pink-dark));
+  color:white;font-family:'DM Sans',sans-serif;
+  font-size:15px;font-weight:600;cursor:pointer;
+  transition:all .25s;letter-spacing:.3px;
+  box-shadow:0 6px 20px rgba(194,107,120,.3);
+}
+.btn-submit:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 28px rgba(194,107,120,.4);
+}
+.btn-submit:active{transform:translateY(0);}
+
+/* ───────── SUCCESS TOAST ───────── */
+.toast{
+  position:fixed;bottom:30px;right:30px;
+  background:var(--brown);color:white;
+  padding:14px 24px;border-radius:14px;
+  font-size:14px;font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  transform:translateY(80px);opacity:0;
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ───────── REPORTS ───────── */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:28px;}
+.report-card{
+  background:var(--white);border:1px solid var(--pink-mid);
+  border-radius:18px;padding:24px;cursor:pointer;
+  transition:all .22s;
+}
+.report-card:hover{box-shadow:0 8px 28px var(--shadow);transform:translateY(-3px);}
+.report-icon{font-size:30px;margin-bottom:12px;}
+.report-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--brown);}
+.report-desc{font-size:12.5px;color:var(--text-soft);margin-top:5px;line-height:1.5;}
+
+.report-table{width:100%;border-collapse:collapse;font-size:13px;}
+.report-table th{background:var(--pink-light);color:var(--brown);padding:10px 16px;text-align:left;font-weight:700;font-size:11.5px;border-bottom:1px solid var(--pink-mid);}
+.report-table td{padding:10px 16px;border-bottom:1px solid var(--beige);vertical-align:middle;}
+.report-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--cream);}
+
+/* ───────── CHART ───────── */
+.chart-wrap{padding:24px;}
+.chart-label-row{display:flex;justify-content:space-between;margin-bottom:6px;}
+.chart-name{font-size:13px;font-weight:600;color:var(--brown);}
+.chart-pct{font-size:12px;color:var(--text-soft);}
+.chart-bg{background:var(--beige);border-radius:8px;overflow:hidden;height:24px;margin-bottom:16px;position:relative;}
+.chart-plan-bar{position:absolute;top:0;left:0;bottom:0;background:var(--pink-mid);border-radius:8px;}
+.chart-fact-bar{position:absolute;top:4px;left:0;bottom:4px;background:linear-gradient(90deg,var(--pink-main),var(--pink-dark));border-radius:6px;display:flex;align-items:center;padding:0 10px;}
+.chart-fact-label{font-size:11.5px;font-weight:700;color:white;white-space:nowrap;}
+
+/* ───────── MODAL ───────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(61,43,38,.3);backdrop-filter:blur(4px);
+  z-index:300;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:white;border-radius:22px;
+  padding:36px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;
+  box-shadow:0 24px 70px rgba(0,0,0,.15);
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--brown);margin-bottom:22px;}
+.form-row{margin-bottom:16px;}
+.form-label{font-size:11.5px;font-weight:700;color:var(--text-soft);margin-bottom:7px;display:block;letter-spacing:.3px;}
+.form-input,.form-select{
+  width:100%;padding:11px 15px;border:1.5px solid var(--pink-mid);
+  border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;
+  color:var(--text);background:white;outline:none;transition:border-color .2s;
+}
+.form-input:focus,.form-select:focus{border-color:var(--pink-main);}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:26px;}
+.btn{padding:11px 24px;border-radius:22px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-primary{background:var(--pink-main);color:white;}
+.btn-primary:hover{background:var(--pink-dark);}
+
+@media(max-width:720px){
+  .main{padding:18px;}
+  .sidebar{display:none;}
+  .totals-grid{grid-template-columns:1fr 1fr;}
+  .daily-form-header{padding:16px 18px;}
+  header{padding:0 18px;}
+  .logo{font-size:24px;letter-spacing:4px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">BURR<span>y</span></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab" onclick="showView('plan',this)">📋 План/Факт</button>
+    <button class="nav-tab active" onclick="showView('daily',this)">✏️ Дневной отчёт</button>
+    <button class="nav-tab" onclick="showView('reports',this)">📊 Отчёты</button>
+  </nav>
+  <div class="header-badge" id="today-badge"></div>
+</header>
+
+<div class="app">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <span class="sidebar-label">Сотрудники</span>
+    <div class="sidebar-item active" id="sb-all" onclick="sidebarSelect('all',this)">
+      <div class="s-avatar">∞</div> Все
+    </div>
+    <div class="sidebar-item" id="sb-Светлана" onclick="sidebarSelect('Светлана',this)">
+      <div class="s-avatar">СВ</div> Светлана
+    </div>
+    <div class="sidebar-item" id="sb-Екатерина" onclick="sidebarSelect('Екатерина',this)">
+      <div class="s-avatar">ЕК</div> Екатерина
+    </div>
+    <div class="sidebar-item" id="sb-Катя" onclick="sidebarSelect('Катя',this)">
+      <div class="s-avatar">КА</div> Катя
+    </div>
+    <div class="sidebar-item" style="opacity:.55" onclick="openModal('addStaff')">
+      <div class="s-avatar" style="background:var(--beige);color:var(--text-soft);font-size:16px">+</div> Добавить
+    </div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">
+    <span class="sidebar-label">Категории</span>
+    <div class="sidebar-item">🧁 Кексы</div>
+    <div class="sidebar-item">🎂 Чизкейки</div>
+    <div class="sidebar-item">🍫 Трюфели</div>
+    <div class="sidebar-item">🎀 Торты</div>
+    <div class="sidebar-item">🍮 Тарталетки</div>
+    <div class="sidebar-item">🥐 Завтраки</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- ═══════════ VIEW: ДНЕВНОЙ ОТЧЁТ ═══════════ -->
+  <div id="view-daily" class="view active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Дневной отчёт</div>
+        <div class="page-subtitle">Введите данные за смену — задачи, время прихода и ухода</div>
+      </div>
+    </div>
+
+    <div class="daily-form-wrap">
+      <!-- TOP BAR: сотрудник + дата + время -->
+      <div class="daily-form-header">
+
+        <!-- Сотрудник -->
+        <div class="field-group">
+          <div class="field-label">Сотрудник</div>
+          <select class="field-select" id="sel-staff" onchange="syncSidebarFromSelect()">
+            <option>Светлана</option>
+            <option>Екатерина</option>
+            <option>Катя</option>
+          </select>
+        </div>
+
+        <!-- Дата -->
+        <div class="field-group">
+          <div class="field-label">Дата</div>
+          <input class="field-input" type="date" id="sel-date" style="min-width:148px;">
+        </div>
+
+        <!-- Время -->
+        <div class="field-group">
+          <div class="field-label">Время прихода — ухода</div>
+          <div class="time-row">
+            <input class="field-input" type="time" id="time-in" value="09:00" oninput="calcHours()" style="width:110px;">
+            <span class="time-sep">→</span>
+            <input class="field-input" type="time" id="time-out" value="17:30" oninput="calcHours()" style="width:110px;">
+            <div class="hours-pill" id="hours-pill">8 ч 30 мин</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TASKS GRID -->
+      <div class="daily-tasks-grid" id="daily-tasks-grid"></div>
+
+      <!-- SUBMIT -->
+      <div class="submit-wrap">
+        <div class="submit-summary" id="submit-summary">Заполните задачи выше</div>
+        <button class="btn-submit" onclick="submitReport()">
+          ✨ Отправить отчёт за день
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VIEW: ПЛАН/ФАКТ ═══════════ -->
+  <div id="view-plan" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="plan-title">План / Факт — Апрель</div>
+        <div class="page-subtitle">Сводка выполнения задач и нормо-часов</div>
+      </div>
+      <button class="btn-sm btn-ghost" onclick="exportAlert()">⬇ Экспорт</button>
+    </div>
+
+    <div class="month-bar">
+      <button class="month-btn" onclick="setMonth('Март',this)">Март</button>
+      <button class="month-btn active" onclick="setMonth('Апрель',this)">Апрель</button>
+      <button class="month-btn" onclick="setMonth('Май',this)">Май</button>
+      <button class="month-btn" onclick="setMonth('Июнь',this)">Июнь</button>
+      <button class="month-btn" style="border-style:dashed;margin-left:auto" onclick="openModal('addMonth')">+ Месяц</button>
+    </div>
+
+    <div class="totals-grid">
+      <div class="total-card"><div class="total-label">План н/часов</div><div class="total-val" id="tot-plan">91</div><div class="total-sub">Текущий сотрудник</div></div>
+      <div class="total-card"><div class="total-label">Факт н/часов</div><div class="total-val" id="tot-fact">—</div><div class="total-sub">фактически начислено</div></div>
+      <div class="total-card"><div class="total-label">Смен отработано</div><div class="total-val" id="tot-shifts">—</div><div class="total-sub">за месяц</div></div>
+      <div class="total-card"><div class="total-label">Выполнение</div><div class="total-val" id="tot-pct" style="color:var(--pink-dark)">—</div><div class="total-sub">от плана</div></div>
+    </div>
+
+    <div class="staff-cards" id="staff-cards-row"></div>
+
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="table-title">🍰 Десерты</div>
+        <button class="btn-sm btn-pink" onclick="openModal('addTask')">+ Задача</button>
+      </div>
+      <table class="data-table"><thead>
+        <tr>
+          <th style="min-width:220px">Задача</th>
+          <th>Норма ч</th>
+          <th style="text-align:center">Светлана<br><span style="font-weight:400;font-size:10px">сделано / ч</span></th>
+          <th style="text-align:center">Екатерина<br><span style="font-weight:400;font-size:10px">сделано / ч</span></th>
+          <th style="text-align:center">Катя<br><span style="font-weight:400;font-size:10px">сделано / ч</span></th>
+        </tr>
+      </thead><tbody id="desserts-tbody"></tbody></table>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="table-title">🥐 Завтраки</div>
+        <button class="btn-sm btn-pink" onclick="openModal('addTask')">+ Задача</button>
+      </div>
+      <table class="data-table"><thead>
+        <tr>
+          <th style="min-width:220px">Задача</th>
+          <th>Норма ч</th>
+          <th style="text-align:center">Светлана</th>
+          <th style="text-align:center">Екатерина</th>
+          <th style="text-align:center">Катя</th>
+        </tr>
+      </thead><tbody id="breakfasts-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ═══════════ VIEW: ОТЧЁТЫ ═══════════ -->
+  <div id="view-reports" class="view">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Отчёты и аналитика</div>
+        <div class="page-subtitle">Выберите тип отчёта для просмотра</div>
+      </div>
+    </div>
+    <div class="report-grid">
+      <div class="report-card" onclick="showReport('efficiency')">
+        <div class="report-icon">⚡</div>
+        <div class="report-name">Эффективность</div>
+        <div class="report-desc">% выполнения плана, средние часы в смену, перевыполнение по каждому сотруднику</div>
+      </div>
+      <div class="report-card" onclick="showReport('hours')">
+        <div class="report-icon">⏱</div>
+        <div class="report-name">Нормо-часы план/факт</div>
+        <div class="report-desc">Визуальное сравнение плановых и фактических нормо-часов</div>
+      </div>
+      <div class="report-card" onclick="showReport('monthly')">
+        <div class="report-icon">📅</div>
+        <div class="report-name">Сравнение месяцев</div>
+        <div class="report-desc">Динамика апрель → май по каждому сотруднику</div>
+      </div>
+      <div class="report-card" onclick="showReport('tasks')">
+        <div class="report-icon">🏆</div>
+        <div class="report-name">Топ задач</div>
+        <div class="report-desc">Самые выполняемые задачи и суммарные нормо-часы</div>
+      </div>
+    </div>
+    <div id="report-output" style="display:none">
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="table-title" id="report-title">—</div>
+          <button class="btn-sm btn-ghost" onclick="document.getElementById('report-output').style.display='none'">✕</button>
+        </div>
+        <div id="report-body" style="padding:4px 0"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div id="modal-content"></div></div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+const STAFF = ['Светлана','Екатерина','Катя'];
+
+const TASKS_DESSERTS = [
+  {cat:'Кексы',      name:'Замес кексов морковь',           norm:1.5, min:'4 шт'},
+  {cat:'Кексы',      name:'Замес кексов банан веган',        norm:1.5, min:'4 шт'},
+  {cat:'Кексы',      name:'Замес кексов лимон',              norm:1.5, min:'4 шт'},
+  {cat:'Чизкейки',   name:'Замес чизкейков',                 norm:1.5, min:'4 шт'},
+  {cat:'Чизкейки',   name:'Заливка чизкейков',               norm:0.5, min:'4 шт'},
+  {cat:'Чизкейки',   name:'Нарезка чизкейков',               norm:1.0, min:'4 шт'},
+  {cat:'Чизкейки',   name:'Глазировка чизкейков',            norm:0.5, min:null},
+  {cat:'Трюфели',    name:'Замес трюфелей',                  norm:0.5, min:'2 шт'},
+  {cat:'Трюфели',    name:'Накатка трюфелей',                norm:1.5, min:'2 шт'},
+  {cat:'Трюфели',    name:'Декор трюфелей шоколадом',        norm:0.5, min:'2 шт'},
+  {cat:'Кейк-попсы', name:'Замес на кейк-попсы',             norm:0.5, min:'1 шт'},
+  {cat:'Кейк-попсы', name:'Накатка кейк-попсов',             norm:1.5, min:'1 шт'},
+  {cat:'Торты',      name:'Замес бисквитов для тортов',      norm:0.5, min:'4 шт'},
+  {cat:'Торты',      name:'Карамель',                        norm:0.5, min:'1 шт'},
+  {cat:'Торты',      name:'Сборка торта бисквитного',        norm:0.5, min:'1 шт'},
+  {cat:'Торты',      name:'Выравнивание и декор торта',      norm:0.5, min:'1 шт'},
+  {cat:'Муссовые',   name:'Крамбл классический',             norm:1.0, min:'5 шт'},
+  {cat:'Муссовые',   name:'Бисквиты с хрустящим слоем',      norm:2.5, min:'3 шт'},
+  {cat:'Муссовые',   name:'Нарезка муссовых',                norm:1.0, min:'3 шт'},
+  {cat:'Муссовые',   name:'Глазировка и декор муссовых',     norm:0.3, min:null},
+  {cat:'Тарталетки', name:'Замес ганаша',                    norm:0.5, min:'3 шт'},
+  {cat:'Тарталетки', name:'Выпечка тарталеток',              norm:1.0, min:'3 шт'},
+  {cat:'Тарталетки', name:'Отсадка крема на тарталетки',     norm:1.0, min:'3 шт'},
+  {cat:'Бенто',      name:'Бенто бисквит фисташка',          norm:1.0, min:'4 шт'},
+  {cat:'Бенто',      name:'Ганаш для бенто',                 norm:0.5, min:'4 шт'},
+  {cat:'Бенто',      name:'Сборка бенто',                    norm:1.0, min:'4 шт'},
+];
+
+const TASKS_BREAKFASTS = [
+  {name:'Нарезка рыбы',           norm:0.25, min:'1 уп'},
+  {name:'Вафля шпинатная п/ф',    norm:0.25, min:null},
+  {name:'Вафля сырная п/ф',       norm:0.25, min:null},
+  {name:'Нарезка вяленых томатов',norm:0.25, min:null},
+  {name:'Соус песто',             norm:0.25, min:null},
+  {name:'Замачивание гречи',      norm:0.25, min:null},
+  {name:'Замачивание овсянки',    norm:0.25, min:null},
+  {name:'Соленая карамель п/ф',   norm:0.25, min:'1 шт'},
+  {name:'Малиновое кули п/ф',     norm:0.25, min:'1 шт'},
+  {name:'Сырники ПФ',             norm:0.25, min:'3 п'},
+  {name:'Тофу п/ф',               norm:0.25, min:null},
+  {name:'Творожный сыр с зеленью',norm:0.25, min:null},
+  {name:'Мусс из авокадо',        norm:0.25, min:null},
+  {name:'Лимонный сок п/ф',       norm:0.50, min:null},
+];
+
+// ── ALL STATE VARIABLES — declared before any function runs ──
+let DB            = {};           // { month: { task: { staff: { done: N } } } }
+let dailyCounters = {};           // { taskName: count } for the daily form
+let currentMonth  = 'Апрель';    // selected month in Plan/Fact view
+
+const MONTH_PLANS = { 'Светлана': 91, 'Екатерина': 81, 'Катя': 16 };
+
+const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbyxCBOBPm3NsxqjP-zGmi0xSCfH-4iQFXr81vl9hlhtzmlghUtN3-HTMgQFmcGr3Dc6/exec';
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+(function init(){
+  // today badge
+  const d = new Date();
+  document.getElementById('today-badge').textContent =
+    d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+
+  // set today on date picker
+  document.getElementById('sel-date').value = d.toISOString().slice(0,10);
+
+  calcHours();
+  renderDailyTasksGrid();
+  renderDessertsPlanTable();
+  renderBreakfastsPlanTable();
+  renderStaffCards();
+  updatePlanTotals();
+})();
+
+// ═══════════════════════════════════════════════════════
+//  TIME CALC
+// ═══════════════════════════════════════════════════════
+function calcHours(){
+  const tin  = document.getElementById('time-in').value;
+  const tout = document.getElementById('time-out').value;
+  if(!tin||!tout){document.getElementById('hours-pill').textContent='—';return;}
+  const [h1,m1]=tin.split(':').map(Number);
+  const [h2,m2]=tout.split(':').map(Number);
+  let mins = (h2*60+m2)-(h1*60+m1);
+  if(mins<0) mins+=1440;
+  const h=Math.floor(mins/60), m=mins%60;
+  document.getElementById('hours-pill').textContent =
+    m ? `${h} ч ${m} мин` : `${h} ч`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  STEPPER HELPERS  (idx = numeric index into allTasks)
+// ═══════════════════════════════════════════════════════
+function allTasksList(){ return [...TASKS_DESSERTS,...TASKS_BREAKFASTS]; }
+
+function stepUp(idx){
+  const key = allTasksList()[idx].name;
+  dailyCounters[key] = (dailyCounters[key]||0)+1;
+  refreshStepperUI(idx);
+}
+function stepDown(idx){
+  const key = allTasksList()[idx].name;
+  dailyCounters[key] = Math.max(0,(dailyCounters[key]||0)-1);
+  refreshStepperUI(idx);
+}
+function refreshStepperUI(idx){
+  const task = allTasksList()[idx];
+  const key  = task.name;
+  const val  = dailyCounters[key]||0;
+
+  // stepper number
+  const sv = document.getElementById('sv-'+idx);
+  if(sv){
+    sv.textContent = val;
+    sv.className = 'step-val' + (val>0?' nonzero':'');
+  }
+
+  // live hours pill
+  const th = document.getElementById('th-'+idx);
+  if(th){
+    th.textContent = '→ +'+(val*task.norm).toFixed(2)+' ч';
+    th.classList.toggle('hidden', val===0);
+  }
+
+  // highlight row
+  const tc = document.getElementById('tc-'+idx);
+  if(tc) tc.classList.toggle('task-cell-active', val>0);
+
+  updateSubmitSummary();
+}
+function updateSubmitSummary(){
+  let total=0, hours=0;
+  const allTasks = [...TASKS_DESSERTS,...TASKS_BREAKFASTS];
+  allTasks.forEach(t=>{
+    const cnt=dailyCounters[t.name]||0;
+    if(cnt>0){total+=cnt;hours+=cnt*t.norm;}
+  });
+  const el=document.getElementById('submit-summary');
+  if(total===0){
+    el.innerHTML='Заполните задачи выше';
+  } else {
+    el.innerHTML=`Выполнено задач: <strong>${total} шт</strong> · Нормо-часов: <strong>${hours.toFixed(2)} ч</strong>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  DAILY TASKS GRID RENDER
+// ═══════════════════════════════════════════════════════
+function renderDailyTasksGrid(){
+  const grid = document.getElementById('daily-tasks-grid');
+  let html = '';
+  let idx = 0;
+
+  // Desserts by category
+  let lastCat='';
+  TASKS_DESSERTS.forEach(t=>{
+    if(t.cat!==lastCat){
+      html+=`<div class="task-cat-header">${catEmoji(t.cat)} ${t.cat}</div>`;
+      lastCat=t.cat;
+    }
+    html+=taskCellHTML(t, idx++);
+  });
+  // Breakfasts
+  html+=`<div class="task-cat-header">🥐 Завтраки</div>`;
+  TASKS_BREAKFASTS.forEach(t=>{ html+=taskCellHTML(t, idx++); });
+
+  grid.innerHTML=html;
+  updateSubmitSummary();
+}
+
+function taskCellHTML(t, idx){
+  const key=t.name;
+  const val=dailyCounters[key]||0;
+  const minLabel = t.min ? `<span class="task-min-badge">(мин. замес: ${t.min})</span>` : '';
+  const earnedH = (val*t.norm).toFixed(2);
+  return `<div class="task-cell${val>0?' task-cell-active':''}" id="tc-${idx}">
+    <div style="flex:1;min-width:0">
+      <div class="task-cell-name">${t.name} ${minLabel}</div>
+      <div class="task-cell-norm">
+        ${t.norm} ч/замес
+        <span class="task-hours-live${val>0?'':' hidden'}" id="th-${idx}">→ +${earnedH} ч</span>
+      </div>
+    </div>
+    <div class="stepper">
+      <button class="step-btn" onclick="stepDown(${idx})" title="Уменьшить">−</button>
+      <span class="step-val${val>0?' nonzero':''}" id="sv-${idx}">${val}</span>
+      <button class="step-btn" onclick="stepUp(${idx})" title="Увеличить">+</button>
+    </div>
+  </div>`;
+}
+function catEmoji(cat){
+  const map={Кексы:'🧁',Чизкейки:'🎂',Трюфели:'🍫',Торты:'🎀',Тарталетки:'🍮',Муссовые:'❄️','Кейк-попсы':'🍭',Бенто:'📦'};
+  return map[cat]||'🍽';
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBMIT REPORT  →  Google Sheets
+// ═══════════════════════════════════════════════════════
+async function submitReport(){
+  const staff       = document.getElementById('sel-staff').value;
+  const date        = document.getElementById('sel-date').value;
+  const month       = monthFromDate(date);
+  const timeIn      = document.getElementById('time-in').value;
+  const timeOut     = document.getElementById('time-out').value;
+  const hoursWorked = document.getElementById('hours-pill').textContent;
+
+  const allTasks = [...TASKS_DESSERTS, ...TASKS_BREAKFASTS];
+
+  // Only tasks with count > 0
+  const tasks = allTasks
+    .filter(t => (dailyCounters[t.name]||0) > 0)
+    .map(t => ({ name: t.name, count: dailyCounters[t.name], norm: t.norm }));
+
+  if(tasks.length === 0){
+    showToast('⚠️ Добавьте хотя бы одну задачу!');
+    return;
+  }
+
+  // Disable button while sending
+  const btn = document.querySelector('.btn-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Отправляем...';
+
+  // Save to local DB
+  if(!DB[month]) DB[month]={};
+  tasks.forEach(t => {
+    if(!DB[month][t.name]) DB[month][t.name]={};
+    if(!DB[month][t.name][staff]) DB[month][t.name][staff]={done:0};
+    DB[month][t.name][staff].done += t.count;
+  });
+
+  // Send to Google Sheets
+  try {
+    const payload = { action:'submitReport', date, month, staff, timeIn, timeOut, hoursWorked, tasks };
+
+    // Apps Script requires no-cors — response is opaque but data saves fine
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    dailyCounters = {};
+    renderDailyTasksGrid();
+    renderDessertsPlanTable();
+    renderBreakfastsPlanTable();
+    updatePlanTotals();
+
+    showToast('✅ Отчёт за ' + formatDate(date) + ' сохранён в Google Sheets!');
+
+  } catch(err) {
+    showToast('❌ Ошибка отправки. Проверьте интернет.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Отправить отчёт за день';
+  }
+}
+
+function monthFromDate(dateStr){
+  if(!dateStr) return 'Апрель';
+  const m=new Date(dateStr).getMonth();
+  return ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m];
+}
+function formatDate(dateStr){
+  return new Date(dateStr).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+}
+
+// ═══════════════════════════════════════════════════════
+//  PLAN TABLE RENDERS
+// ═══════════════════════════════════════════════════════
+
+function getMonthData(month,task,staff){
+  return (DB[month]&&DB[month][task]&&DB[month][task][staff]&&DB[month][task][staff].done)||0;
+}
+
+function renderDessertsPlanTable(){
+  const tbody=document.getElementById('desserts-tbody');
+  let html='', lastCat='';
+  TASKS_DESSERTS.forEach(t=>{
+    if(t.cat!==lastCat){
+      html+=`<tr class="cat-row"><td colspan="5">${catEmoji(t.cat)} ${t.cat}</td></tr>`;
+      lastCat=t.cat;
+    }
+    const vals=STAFF.map(s=>{
+      const d=getMonthData(currentMonth,t.name,s);
+      const h=(d*t.norm).toFixed(1);
+      return `<td style="text-align:center">
+        ${d>0?`<b style="color:var(--pink-dark)">${d}</b>`:'<span style="color:var(--beige-dark)">0</span>'}
+        ${d>0?`<span class="hours-computed"> / ${h}ч</span>`:''}
+      </td>`;
+    }).join('');
+    html+=`<tr><td>${t.name}</td><td style="text-align:center;font-weight:600;color:var(--brown)">${t.norm}</td>${vals}</tr>`;
+  });
+  tbody.innerHTML=html;
+}
+
+function renderBreakfastsPlanTable(){
+  const tbody=document.getElementById('breakfasts-tbody');
+  let html='';
+  TASKS_BREAKFASTS.forEach(t=>{
+    const vals=STAFF.map(s=>{
+      const d=getMonthData(currentMonth,t.name,s);
+      const h=(d*t.norm).toFixed(2);
+      return `<td style="text-align:center">
+        ${d>0?`<b style="color:var(--pink-dark)">${d}</b>`:'<span style="color:var(--beige-dark)">0</span>'}
+        ${d>0?`<span class="hours-computed"> / ${h}ч</span>`:''}
+      </td>`;
+    }).join('');
+    html+=`<tr><td>${t.name}</td><td style="text-align:center;font-weight:600;color:var(--brown)">${t.norm}</td>${vals}</tr>`;
+  });
+  tbody.innerHTML=html;
+}
+
+function renderStaffCards(){
+  const row=document.getElementById('staff-cards-row');
+  const colors=['#3a8a50','#c04040','#d4a96a'];
+  const plans={Светлана:91,Екатерина:81,Катя:16};
+  const shifts={Светлана:7,Екатерина:4,Катя:3};
+  row.innerHTML=STAFF.map((s,i)=>{
+    const fact=calcFactHours(s);
+    const plan=plans[s];
+    const pct=plan?Math.round(fact/plan*100):0;
+    let badge=pct>=100?'badge-green':pct>=50?'badge-neutral':'badge-red';
+    const progW=Math.min(100,pct);
+    return `<div class="staff-card" onclick="this.parentNode.querySelectorAll('.staff-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected')">
+      <div class="staff-name">${s}</div>
+      <div class="staff-role">Кондитер</div>
+      <div class="staff-stat"><span>План н/ч</span><span class="stat-val">${plan}</span></div>
+      <div class="staff-stat"><span>Факт н/ч</span><span class="stat-val">${fact.toFixed(1)}</span></div>
+      <div class="staff-stat"><span>Смен</span><span class="stat-val">${shifts[s]||'—'}</span></div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${progW}%"></div></div>
+      <span class="stat-badge ${badge}">${pct}% плана</span>
+    </div>`;
+  }).join('');
+}
+
+function calcFactHours(staff){
+  const allTasks=[...TASKS_DESSERTS,...TASKS_BREAKFASTS];
+  let h=0;
+  allTasks.forEach(t=>{
+    h+=getMonthData(currentMonth,t.name,staff)*t.norm;
+  });
+  return h;
+}
+
+function updatePlanTotals(){
+  renderStaffCards();
+  // show totals for Светлана as default
+  const fact=calcFactHours('Светлана');
+  const plan=MONTH_PLANS['Светлана'];
+  const pct=plan?Math.round(fact/plan*100):0;
+  document.getElementById('tot-plan').textContent=plan;
+  document.getElementById('tot-fact').textContent=fact.toFixed(1)||'—';
+  document.getElementById('tot-pct').textContent=(fact?pct+'%':'—');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MONTH SELECTOR
+// ═══════════════════════════════════════════════════════
+function setMonth(m,el){
+  currentMonth=m;
+  document.querySelectorAll('.month-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('plan-title').textContent=`План / Факт — ${m}`;
+  renderDessertsPlanTable();
+  renderBreakfastsPlanTable();
+  updatePlanTotals();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SIDEBAR SYNC
+// ═══════════════════════════════════════════════════════
+function sidebarSelect(name,el){
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  if(name!=='all'){
+    const sel=document.getElementById('sel-staff');
+    if([...sel.options].some(o=>o.value===name)) sel.value=name;
+  }
+}
+function syncSidebarFromSelect(){
+  const val=document.getElementById('sel-staff').value;
+  const id='sb-'+val;
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  const target=document.getElementById(id);
+  if(target) target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  VIEWS
+// ═══════════════════════════════════════════════════════
+function showView(name,tabEl){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  if(name==='plan'){renderDessertsPlanTable();renderBreakfastsPlanTable();updatePlanTotals();}
+}
+
+// ═══════════════════════════════════════════════════════
+//  REPORTS
+// ═══════════════════════════════════════════════════════
+function showReport(type){
+  const box=document.getElementById('report-output');
+  const title=document.getElementById('report-title');
+  const body=document.getElementById('report-body');
+  box.style.display='block';
+
+  const stats={
+    'Светлана': {plan:91,fact:50.5,shifts:7,avg:6.8,mayFact:62.2},
+    'Екатерина':{plan:81,fact:37.5,shifts:4,avg:9.4,mayFact:64.0},
+    'Катя':     {plan:16,fact:21.0,shifts:3,avg:7.0,mayFact:21.6},
+  };
+
+  if(type==='efficiency'){
+    title.textContent='⚡ Эффективность сотрудников — Апрель';
+    let rows='';
+    Object.entries(stats).forEach(([n,s])=>{
+      const pct=Math.round(s.fact/s.plan*100);
+      const cls=pct>=100?'badge-green':pct>=60?'badge-neutral':'badge-red';
+      rows+=`<tr>
+        <td><b>${n}</b></td><td>${s.plan}</td><td>${s.fact}</td>
+        <td>${s.shifts}</td><td>${s.avg}</td>
+        <td><span class="stat-badge ${cls}">${pct}%</span></td>
+      </tr>`;
+    });
+    body.innerHTML=`<table class="report-table">
+      <thead><tr><th>Сотрудник</th><th>План н/ч</th><th>Факт н/ч</th><th>Смен</th><th>Ср. ч/смену</th><th>Выполнение</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+
+  } else if(type==='hours'){
+    title.textContent='⏱ Нормо-часы план vs факт';
+    let html='<div class="chart-wrap">';
+    const maxV=100;
+    Object.entries(stats).forEach(([n,s])=>{
+      const pw=s.plan/maxV*100, fw=s.fact/maxV*100;
+      const pct=Math.round(s.fact/s.plan*100);
+      html+=`<div class="chart-label-row"><span class="chart-name">${n}</span><span class="chart-pct">${pct}% от плана</span></div>
+        <div class="chart-bg">
+          <div class="chart-plan-bar" style="width:${pw}%;opacity:.35"></div>
+          <div class="chart-fact-bar" style="width:${fw}%"><span class="chart-fact-label">${s.fact} ч</span></div>
+        </div>`;
+    });
+    body.innerHTML=html+'</div>';
+
+  } else if(type==='monthly'){
+    title.textContent='📅 Апрель → Май: динамика';
+    body.innerHTML=`<table class="report-table">
+      <thead><tr><th>Сотрудник</th><th>Апрель н/ч</th><th>Май н/ч</th><th>Динамика</th></tr></thead>
+      <tbody>
+        <tr><td><b>Светлана</b></td><td>50.5</td><td>62.2</td><td style="color:var(--green)">↑ +11.7</td></tr>
+        <tr><td><b>Екатерина</b></td><td>37.5</td><td>64.0</td><td style="color:var(--green)">↑ +26.5</td></tr>
+        <tr><td><b>Катя</b></td><td>21.0</td><td>21.6</td><td style="color:var(--gold)">→ +0.6</td></tr>
+        <tr><td>Итого</td><td>109.0</td><td>147.8</td><td style="color:var(--green)">↑ +38.8</td></tr>
+      </tbody></table>`;
+
+  } else if(type==='tasks'){
+    title.textContent='🏆 Топ задач по нормо-часам';
+    const topT=[
+      {n:'Замес чизкейков',cnt:4,h:6.0},{n:'Заливка чизкейков',cnt:5,h:2.5},
+      {n:'Крамбл классический',cnt:3,h:3.0},{n:'Тофу п/ф',cnt:6,h:1.5},
+      {n:'Мусс из авокадо',cnt:6,h:1.5},{n:'Накатка трюфелей',cnt:2,h:3.0},
+      {n:'Вафля сырная п/ф',cnt:5,h:1.25},{n:'Сборка бенто',cnt:2,h:2.0},
+    ];
+    body.innerHTML=`<table class="report-table">
+      <thead><tr><th>Задача</th><th style="text-align:center">Выполнено</th><th style="text-align:center">Нормо-часов</th></tr></thead>
+      <tbody>${topT.map(t=>`<tr><td>${t.n}</td><td style="text-align:center;font-weight:600">${t.cnt}</td><td style="text-align:center;color:var(--pink-dark);font-weight:700">${t.h} ч</td></tr>`).join('')}</tbody></table>`;
+  }
+
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth'}),50);
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════
+function openModal(type){
+  const overlay=document.getElementById('modal-overlay');
+  let html='';
+  if(type==='addTask'){
+    html=`<div class="modal-title">➕ Новая задача</div>
+    <div class="form-row"><label class="form-label">Название</label><input class="form-input" id="f-tname" placeholder="Например: Замес нового крема"></div>
+    <div class="form-row"><label class="form-label">Категория</label>
+      <select class="form-select"><option>Кексы</option><option>Чизкейки</option><option>Трюфели</option><option>Торты</option><option>Тарталетки</option><option>Бенто</option><option>Завтраки</option></select></div>
+    <div class="form-2">
+      <div class="form-row"><label class="form-label">Мин. замес</label><input class="form-input" type="number" placeholder="4"></div>
+      <div class="form-row"><label class="form-label">Норма часов</label><input class="form-input" type="number" step="0.25" id="f-tnorm" placeholder="1.5"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="addTaskConfirm()">Добавить</button></div>`;
+  } else if(type==='addStaff'){
+    html=`<div class="modal-title">👤 Новый сотрудник</div>
+    <div class="form-row"><label class="form-label">Имя</label><input class="form-input" id="f-sname" placeholder="Имя"></div>
+    <div class="form-2">
+      <div class="form-row"><label class="form-label">Должность</label><input class="form-input" placeholder="Кондитер"></div>
+      <div class="form-row"><label class="form-label">Норма н/ч / месяц</label><input class="form-input" type="number" placeholder="80"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="closeModal();showToast('👤 Сотрудник добавлен!')">Добавить</button></div>`;
+  } else if(type==='addMonth'){
+    html=`<div class="modal-title">📅 Новый месяц</div>
+    <div class="form-row"><label class="form-label">Месяц</label>
+      <select class="form-select"><option>Июль</option><option>Август</option><option>Сентябрь</option><option>Октябрь</option><option>Ноябрь</option><option>Декабрь</option></select></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="closeModal();showToast('📅 Месяц создан!')">Создать</button></div>`;
+  }
+  document.getElementById('modal-content').innerHTML=html;
+  overlay.classList.add('open');
+}
+function addTaskConfirm(){
+  const name=document.getElementById('f-tname').value.trim();
+  if(!name) return;
+  const norm=parseFloat(document.getElementById('f-tnorm').value)||1;
+  TASKS_DESSERTS.push({cat:'Кексы',name,norm});
+  renderDailyTasksGrid();
+  renderDessertsPlanTable();
+  closeModal();
+  showToast('✅ Задача добавлена!');
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+
+function exportAlert(){
+  showToast('⬇ В полной версии — скачивается .xlsx файл');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+</script>
+</body>
+</html>
