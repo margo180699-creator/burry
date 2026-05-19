@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BURRY</title>
+<!-- BURRY v2.1 -->
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ─── ACTAY + ACTAY WIDE via @font-face ─────────────────────
+   Since Actay isn't on Google Fonts we simulate it with
+   Nunito (rounded, geometric) + tracking. If you have the
+   .woff2 files, replace the src URLs below.                  */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* Actay Regular → Nunito 700 */
+@font-face {
+  font-family:'Actay';
+  src:local('Nunito Bold'),url('https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDOUhRTM.woff2') format('woff2');
+  font-weight:400 700;font-style:normal;font-display:swap;
+}
+/* Actay Wide → Nunito 900 + wider tracking */
+@font-face {
+  font-family:'Actay Wide';
+  src:local('Nunito Black'),url('https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDOUhRTM.woff2') format('woff2');
+  font-weight:900;font-style:normal;font-display:swap;
+}
+
+/* ─── VARIABLES ─────────────────────────────────────────── */
+:root{
+  --pk:#f9d0ce;   /* soft blush pink */
+  --pkd:#e8919e;  /* medium pink */
+  --pkk:#c9525f;  /* dark accent pink */
+  --pkl:#fef4f3;  /* lightest pink */
+  --pkm:#f5c6d0;  /* border pink */
+  --gn:#9ab87a;   /* sage green */
+  --gnl:#eaf2e3;  /* light green bg */
+  --gnd:#5e8040;  /* dark green */
+  --cr:#f7f4ef;   /* cream page bg */
+  --be:#ede8e0;   /* warm beige */
+  --bed:#d8d0c4;  /* beige border */
+  --br:#3d2e1e;   /* dark brown text */
+  --tx:#2a1f14;   /* almost black */
+  --sf:#8a7060;   /* muted text */
+  --wh:#ffffff;
+  --rd:#d95050;
+  --sh:rgba(201,82,95,.1);
+  --shl:rgba(201,82,95,.18);
+  --sh-g:rgba(94,128,64,.12);
+  --rad:20px;       /* base border radius */
+  --rad-lg:28px;
+  --rad-xl:36px;
+}
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Actay','Nunito',sans-serif;
+  background:var(--cr);color:var(--tx);min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── SCREENS ────────────────────────────────────────────── */
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ════════════════════════════════════════════
+   LOGIN SCREEN
+//════════════════════════════════════════════ */
+#s-login{
+  align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#fce8e6 0%,#fdf6f0 45%,#e8f0e3 100%);
+  position:relative;overflow:hidden;
+}
+
+/* decorative bg flowers */
+.bg-flower{
+  position:absolute;color:var(--pkd);pointer-events:none;
+}
+
+.login-box{
+  background:var(--wh);
+  border-radius:var(--rad-xl);
+  padding:52px 44px 44px;
+  width:400px;max-width:94vw;
+  box-shadow:0 28px 80px rgba(201,82,95,.12),0 4px 24px rgba(0,0,0,.04);
+  text-align:center;position:relative;z-index:1;
+}
+
+/* logo */
+.l-logo{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-weight:900;letter-spacing:10px;
+  font-size:40px;color:var(--pkk);
+  margin-bottom:4px;line-height:1;
+  text-transform:uppercase;
+}
+.l-logo em{font-style:italic;font-weight:900;letter-spacing:6px;}
+.l-tagline{
+  font-size:10px;color:var(--gnd);letter-spacing:4px;
+  text-transform:uppercase;font-weight:700;
+  margin-bottom:36px;
+}
+
+/* flower divider */
+.l-divider{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-bottom:24px;
+}
+.l-divider-line{flex:1;height:1px;background:var(--pkm);}
+.l-divider-icon{color:var(--pkd);opacity:.6;}
+
+.l-hint{font-size:12px;font-weight:700;color:var(--sf);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
+
+/* pin dots */
+.pin-dots{display:flex;gap:16px;justify-content:center;margin-bottom:28px;}
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--pkm);background:var(--wh);transition:all .2s;
+}
+.pin-dot.on{background:var(--gn);border-color:var(--gnd);transform:scale(1.15);}
+
+/* numpad */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.nb{
+  height:60px;border:2px solid var(--be);border-radius:var(--rad);
+  background:var(--wh);font-size:22px;font-weight:700;color:var(--tx);
+  cursor:pointer;transition:all .18s;
+  font-family:'Actay Wide','Nunito',sans-serif;
+  touch-action:manipulation; /* prevents double-tap zoom on mobile */
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.nb:hover{background:var(--pkl);border-color:var(--pkm);}
+.nb:active{transform:scale(.94);background:var(--pkm);}
+.nb.del{font-size:20px;color:var(--sf);font-family:sans-serif;}
+.nb.go{
+  background:var(--gn);color:var(--wh);border-color:var(--gn);
+  font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 6px 18px var(--sh-g);
+}
+.nb.go:hover{background:var(--gnd);border-color:var(--gnd);transform:translateY(-1px);}
+.l-err{color:var(--rd);font-size:13px;font-weight:600;min-height:22px;margin-top:4px;}
+.l-loading{color:var(--sf);font-size:12px;min-height:18px;margin-top:4px;letter-spacing:.5px;}
+.shake{animation:shk .4s ease;}
+@keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+/* ════════════════════════════════════════════
+   COMMON HEADER
+//════════════════════════════════════════════ */
+.app-hdr{
+  background:var(--wh);
+  border-bottom:2px solid var(--pk);
+  padding:0 28px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 20px var(--sh);flex-shrink:0;
+}
+.h-logo{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-weight:900;font-size:24px;letter-spacing:6px;
+  color:var(--pkk);text-transform:uppercase;
+}
+.h-user{display:flex;align-items:center;gap:12px;}
+.h-av{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--gn);color:var(--wh);
+  font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'Actay Wide','Nunito',sans-serif;letter-spacing:.5px;
+}
+.h-nm{font-size:13px;font-weight:700;color:var(--br);}
+.h-rl{font-size:10px;color:var(--sf);letter-spacing:.5px;text-transform:uppercase;font-weight:600;}
+.btn-out{
+  padding:8px 18px;border-radius:20px;border:2px solid var(--be);
+  background:var(--wh);color:var(--sf);font-size:12px;
+  font-weight:700;cursor:pointer;font-family:'Actay','Nunito',sans-serif;
+  transition:all .2s;letter-spacing:.3px;
+}
+.btn-out:hover{border-color:var(--rd);color:var(--rd);}
+
+/* ════════════════════════════════════════════
+   COOK PANEL
+//════════════════════════════════════════════ */
+#s-cook{background:var(--cr);}
+.cook-body{flex:1;padding:24px 28px;max-width:820px;width:100%;margin:0 auto;}
+
+/* cook tabs */
+.cook-tabs{
+  display:flex;gap:6px;margin-bottom:24px;
+  background:var(--be);border-radius:var(--rad-lg);padding:5px;
+}
+.cook-tab{
+  flex:1;padding:12px;border:none;background:transparent;
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:13px;font-weight:900;color:var(--sf);
+  cursor:pointer;transition:all .22s;border-radius:var(--rad);
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.cook-tab.act{background:var(--wh);color:var(--pkk);box-shadow:0 2px 12px var(--sh);}
+.cook-tab:hover:not(.act){background:rgba(255,255,255,.55);}
+.cook-view{display:none;}
+.cook-view.act{display:block;}
+
+/* greeting */
+.greet-card{
+  background:linear-gradient(135deg,var(--pk) 0%,#fde8e6 50%,var(--gnl) 100%);
+  border-radius:var(--rad-lg);padding:26px 30px;margin-bottom:22px;
+  box-shadow:0 4px 20px var(--sh);position:relative;overflow:hidden;
+}
+.greet-card::after{
+  content:'';position:absolute;right:-20px;top:-20px;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+}
+.greet-hi{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:22px;font-weight:900;color:var(--br);
+  letter-spacing:.5px;line-height:1.3;
+}
+.greet-dt{font-size:13px;color:var(--sf);margin-top:6px;font-weight:600;}
+
+/* cards */
+.card{
+  background:var(--wh);border-radius:var(--rad-lg);
+  overflow:hidden;margin-bottom:18px;
+  box-shadow:0 2px 16px rgba(0,0,0,.05);
+}
+.card-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 22px;
+  background:linear-gradient(135deg,var(--pkl),#fffbfb);
+  border-bottom:1.5px solid var(--pkm);
+}
+.card-ttl{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:13px;font-weight:900;color:var(--br);
+  letter-spacing:1px;text-transform:uppercase;
+}
+.card-body{padding:20px 22px;}
+
+/* time fields */
+.time-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fl{
+  font-size:10px;font-weight:900;color:var(--sf);
+  letter-spacing:1.5px;text-transform:uppercase;
+  font-family:'Actay Wide','Nunito',sans-serif;
+}
+.fi,.fs{
+  padding:10px 14px;border:2px solid var(--be);border-radius:var(--rad);
+  font-family:'Actay','Nunito',sans-serif;font-size:14px;
+  color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;
+  font-weight:600;
+}
+.fi:focus,.fs:focus{border-color:var(--pkd);}
+.hrs-pill{
+  background:var(--gnl);color:var(--gnd);padding:10px 18px;
+  border-radius:var(--rad);font-weight:900;font-size:14px;
+  border:2px solid #c8e0b0;min-width:120px;text-align:center;
+  white-space:nowrap;font-family:'Actay Wide','Nunito',sans-serif;letter-spacing:.5px;
+}
+
+/* task list */
+.cat-hdr{
+  padding:10px 22px;background:var(--gnl);
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:10px;font-weight:900;color:var(--gnd);
+  letter-spacing:2px;text-transform:uppercase;
+  border-bottom:1.5px solid #c8e0b0;
+}
+.t-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 22px;border-bottom:1px solid var(--be);gap:14px;
+  transition:background .15s;
+}
+.t-row:last-child{border-bottom:none;}
+.t-row:hover{background:#fdf9f8;}
+.t-row.act{background:linear-gradient(135deg,#fff7f6,var(--wh));}
+.t-info{flex:1;min-width:0;}
+.t-name{font-size:13.5px;color:var(--tx);line-height:1.4;font-weight:600;}
+.t-meta{font-size:11px;color:var(--sf);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.min-b{
+  background:var(--be);border:1.5px solid var(--bed);
+  border-radius:8px;padding:2px 7px;font-size:10.5px;color:var(--br);font-weight:700;
+}
+.h-earn{
+  font-size:11px;font-weight:700;color:var(--gnd);
+  background:var(--gnl);border-radius:8px;padding:2px 7px;transition:opacity .2s;
+}
+.h-earn.hid{opacity:0;pointer-events:none;}
+
+/* stepper */
+.stepper{
+  display:inline-flex;align-items:center;
+  border:2px solid var(--pkm);border-radius:24px;overflow:hidden;
+  background:var(--pkl);
+}
+.sb{
+  width:36px;height:36px;border:none;background:transparent;
+  color:var(--pkk);font-size:22px;font-weight:900;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;flex-shrink:0;line-height:1;
+  font-family:'Actay Wide','Nunito',sans-serif;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.sb:hover{background:var(--pkm);}
+.sv{
+  min-width:36px;text-align:center;font-size:16px;font-weight:900;
+  color:var(--tx);font-family:'Actay Wide','Nunito',sans-serif;
+}
+.sv.nz{color:var(--pkk);}
+
+/* submit bar */
+.sub-bar{
+  padding:18px 22px;border-top:1.5px solid var(--pkl);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;flex-wrap:wrap;
+  background:linear-gradient(135deg,#fffafb,var(--wh));
+}
+.sub-sum{font-size:13px;color:var(--sf);font-weight:600;}
+.sub-sum strong{color:var(--br);font-weight:900;}
+.btn-sub{
+  padding:14px 40px;border-radius:28px;border:none;
+  background:var(--gn);color:var(--wh);
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;box-shadow:0 6px 22px var(--sh-g);transition:all .25s;
+}
+.btn-sub:hover{background:var(--gnd);transform:translateY(-2px);box-shadow:0 10px 28px var(--sh-g);}
+.btn-sub:disabled{opacity:.6;transform:none;cursor:not-allowed;}
+
+/* breakfast checkbox */
+.bfast-label{
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  padding:10px 14px;border-radius:var(--rad);transition:background .18s;
+}
+.bfast-label:hover{background:var(--gnl);}
+.bfast-cb{
+  appearance:none;-webkit-appearance:none;
+  width:38px;height:38px;border-radius:10px;
+  border:2.5px solid var(--pkm);background:var(--wh);
+  cursor:pointer;flex-shrink:0;transition:all .2s;position:relative;
+}
+.bfast-cb:hover{border-color:var(--pkd);transform:scale(1.06);}
+.bfast-cb:checked{
+  background:var(--gn);border-color:var(--gnd);
+  box-shadow:0 4px 14px var(--sh-g);transform:scale(1.06);
+}
+.bfast-cb:checked::after{
+  content:'';position:absolute;left:8px;top:4px;width:17px;height:10px;
+  border-left:3.5px solid white;border-bottom:3.5px solid white;
+  transform:rotate(-45deg);
+}
+.bfast-txt{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:18px;font-weight:900;color:var(--br);
+  letter-spacing:.5px;
+}
+.bfast-label:has(.bfast-cb:checked) .bfast-txt{color:var(--gnd);}
+
+/* ════════════════════════════════════════════
+   STATS
+//════════════════════════════════════════════ */
+.stat-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.stat-box{
+  background:var(--wh);border-radius:var(--rad-lg);
+  padding:20px 22px;position:relative;overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+}
+.stat-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--pk),var(--gn));
+}
+.stat-box.full{grid-column:1/-1;}
+.stat-box.green::before{background:linear-gradient(90deg,var(--gn),var(--gnd));}
+.sb-lbl{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:9px;font-weight:900;color:var(--sf);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;
+}
+.sb-val{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:36px;font-weight:900;color:var(--br);line-height:1;letter-spacing:-1px;
+}
+.sb-val.green{color:var(--gnd);}
+.sb-sub{font-size:12px;color:var(--sf);margin-top:5px;font-weight:600;}
+
+.prog-wrap{margin-top:18px;}
+.prog-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.prog-title{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:10px;font-weight:900;color:var(--br);
+  text-transform:uppercase;letter-spacing:1px;
+}
+.prog-nums{font-size:13px;font-weight:700;color:var(--sf);}
+.prog-track{height:16px;background:var(--be);border-radius:8px;overflow:visible;position:relative;}
+.prog-fill{height:100%;border-radius:8px;transition:width .8s cubic-bezier(.34,1.2,.64,1);position:relative;}
+.prog-fill.under{background:linear-gradient(90deg,var(--pk),var(--pkd));}
+.prog-fill.over{background:linear-gradient(90deg,var(--gn),var(--gnd));box-shadow:0 0 0 3px rgba(154,184,122,.25);}
+.prog-fill.over::after{content:"✦";position:absolute;right:-6px;top:50%;transform:translateY(-50%);font-size:14px;}
+.prog-msg{margin-top:12px;font-size:13px;font-weight:700;border-radius:var(--rad);padding:10px 16px;text-align:center;}
+.prog-msg.under{background:var(--pkl);color:var(--pkk);}
+.prog-msg.over{background:var(--gnl);color:var(--gnd);}
+
+.kpi-wrap{display:flex;align-items:center;gap:22px;}
+.kpi-ring{position:relative;width:84px;height:84px;flex-shrink:0;}
+.kpi-svg{transform:rotate(-90deg);}
+.kpi-circle-bg{fill:none;stroke:var(--be);stroke-width:8;}
+.kpi-circle{fill:none;stroke:var(--pkd);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.34,1.2,.64,1);}
+.kpi-circle.high{stroke:var(--gn);}
+.kpi-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Actay Wide','Nunito',sans-serif;font-size:17px;font-weight:900;color:var(--br);
+}
+.kpi-info{flex:1;}
+.kpi-desc{font-size:12.5px;color:var(--sf);line-height:1.5;margin-top:4px;font-weight:600;}
+.no-data{text-align:center;padding:50px 20px;color:var(--sf);font-size:14px;font-weight:600;}
+.no-data-icon{font-size:40px;margin-bottom:12px;color:var(--pkd);}
+
+/* ════════════════════════════════════════════
+   ADMIN PANEL
+//════════════════════════════════════════════ */
+#s-admin{background:var(--cr);}
+.admin-body{flex:1;display:flex;min-height:0;overflow:hidden;}
+
+/* sidebar */
+.a-sidebar{
+  width:220px;background:var(--wh);
+  border-right:2px solid var(--be);padding:28px 0;flex-shrink:0;
+}
+.a-slbl{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:9px;font-weight:900;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--gnd);
+  padding:0 20px 12px;display:block;
+}
+.a-ni{
+  display:flex;align-items:center;gap:12px;padding:11px 20px;
+  cursor:pointer;color:var(--sf);
+  font-size:13px;font-weight:700;
+  border-left:3px solid transparent;transition:all .18s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.a-ni svg{flex-shrink:0;opacity:.7;}
+.a-ni.act svg,.a-ni:hover svg{opacity:1;}
+.a-ni:hover,.a-ni.act{
+  background:var(--gnl);color:var(--gnd);border-left-color:var(--gn);
+}
+.a-ni.act{font-weight:900;}
+
+/* admin main */
+.a-main{flex:1;padding:28px 32px;overflow-y:auto;}
+.av{display:none;}
+.av.act{display:block;}
+
+/* page header */
+.pg-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:14px;flex-wrap:wrap;}
+.pg-ttl{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:24px;font-weight:900;color:var(--br);
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.pg-sub{font-size:13px;color:var(--sf);margin-top:4px;font-weight:600;}
+
+/* month bar */
+.mb{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+.mbtn{
+  padding:8px 18px;border-radius:20px;border:2px solid var(--be);
+  background:var(--wh);color:var(--sf);font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Actay','Nunito',sans-serif;transition:all .2s;
+}
+.mbtn.act{background:var(--gn);border-color:var(--gn);color:var(--wh);font-weight:900;}
+.mbtn:hover:not(.act){border-color:var(--gn);color:var(--gnd);}
+
+/* stat cards row */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.sc{
+  background:var(--wh);border-radius:var(--rad-lg);
+  padding:20px 20px;position:relative;overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+}
+.sc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--pk),var(--gn));
+}
+.sc-l{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:9px;font-weight:900;color:var(--sf);
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.sc-v{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:32px;font-weight:900;color:var(--br);margin:6px 0 2px;
+  letter-spacing:-1px;
+}
+.sc-s{font-size:11.5px;color:var(--pkd);font-weight:700;}
+
+/* staff cards */
+.srow{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+.scard{
+  background:var(--wh);border-radius:var(--rad-lg);
+  padding:20px;flex:1;min-width:150px;cursor:pointer;
+  transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.05);
+}
+.scard:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--sh);}
+.sc-nm{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:17px;font-weight:900;color:var(--br);letter-spacing:.3px;
+}
+.sc-rl{font-size:10px;color:var(--sf);margin-bottom:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.sc-st{display:flex;justify-content:space-between;font-size:12px;color:var(--sf);margin-top:5px;font-weight:600;}
+.sc-st b{color:var(--tx);font-weight:900;}
+.prog{height:6px;background:var(--be);border-radius:3px;overflow:hidden;margin-top:12px;}
+.pf{height:100%;background:linear-gradient(90deg,var(--pk),var(--gn));border-radius:3px;transition:width .5s;}
+.badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:900;margin-top:10px;font-family:'Actay Wide','Nunito',sans-serif;letter-spacing:.5px;}
+.bg-g{background:var(--gnl);color:var(--gnd);}
+.bg-r{background:#fdeaea;color:#b03030;}
+.bg-n{background:var(--pkl);color:var(--pkk);}
+
+/* table card */
+.tc{
+  background:var(--wh);border-radius:var(--rad-lg);
+  overflow:hidden;margin-bottom:20px;
+  box-shadow:0 2px 14px rgba(0,0,0,.05);
+}
+.tc-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;
+  background:linear-gradient(135deg,var(--pkl),#fffbfb);
+  border-bottom:1.5px solid var(--pkm);
+}
+.tc-ttl{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:12px;font-weight:900;color:var(--br);
+  letter-spacing:1px;text-transform:uppercase;
+}
+.bsm{
+  padding:8px 16px;border-radius:20px;border:none;
+  font-size:12px;cursor:pointer;font-family:'Actay Wide','Nunito',sans-serif;
+  font-weight:900;transition:all .2s;letter-spacing:.5px;
+}
+.bpk{background:var(--gn);color:var(--wh);}
+.bpk:hover{background:var(--gnd);}
+.bgh{background:var(--be);color:var(--sf);}
+.bgh:hover{background:var(--gnl);color:var(--gnd);}
+
+/* data table */
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{
+  background:var(--pkl);color:var(--br);padding:10px 14px;
+  text-align:left;font-weight:900;font-size:10px;letter-spacing:1px;
+  text-transform:uppercase;border-bottom:1.5px solid var(--pkm);
+  white-space:nowrap;font-family:'Actay Wide','Nunito',sans-serif;
+}
+.dt td{padding:10px 14px;border-bottom:1px solid var(--be);vertical-align:middle;font-weight:600;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:#fdf9f8;}
+.ctr td{background:var(--gnl)!important;font-weight:900;font-size:11px;color:var(--gnd);padding:8px 14px;letter-spacing:.5px;text-transform:uppercase;font-family:'Actay Wide','Nunito',sans-serif;}
+.hg{font-weight:900;color:var(--gnd);font-size:12.5px;}
+
+/* report cards */
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:22px;}
+.rc{
+  background:var(--wh);border-radius:var(--rad-lg);
+  padding:24px;cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+}
+.rc:hover{box-shadow:0 8px 28px var(--sh);transform:translateY(-3px);}
+.ri{font-size:32px;margin-bottom:12px;color:var(--pkd);}
+.rn{font-family:'Actay Wide','Nunito',sans-serif;font-size:16px;font-weight:900;color:var(--br);letter-spacing:.5px;}
+.rd{font-size:12.5px;color:var(--sf);margin-top:5px;line-height:1.5;font-weight:600;}
+
+/* settings rows */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--be);gap:12px;}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:#fdf9f8;}
+.srnm{font-size:14px;font-weight:700;color:var(--tx);}
+.srmt{font-size:12px;color:var(--sf);margin-top:3px;font-weight:600;}
+.bdel{width:32px;height:32px;border-radius:50%;border:2px solid var(--pkm);background:var(--wh);color:var(--rd);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.bdel:hover{background:var(--rd);color:var(--wh);border-color:var(--rd);}
+
+.pr{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--be);gap:16px;}
+.pr:last-child{border-bottom:none;}
+.pi{width:90px;padding:9px;border:2px solid var(--pkm);border-radius:var(--rad);font-family:'Actay Wide','Nunito',sans-serif;font-size:15px;font-weight:900;color:var(--pkk);text-align:center;outline:none;transition:border-color .2s;}
+.pi:focus{border-color:var(--pkd);}
+
+/* charts */
+.chart-rw{margin-bottom:22px;}
+.chart-nr{display:flex;justify-content:space-between;margin-bottom:8px;}
+.chart-nm{font-size:13px;font-weight:900;color:var(--br);font-family:'Actay Wide','Nunito',sans-serif;letter-spacing:.3px;}
+.chart-pc{font-size:12px;color:var(--sf);font-weight:700;}
+.chart-bg{background:var(--be);border-radius:8px;height:26px;position:relative;overflow:hidden;}
+.chart-pl{position:absolute;top:0;left:0;bottom:0;background:var(--pkm);opacity:.4;border-radius:8px;}
+.chart-fa{position:absolute;top:3px;left:0;bottom:3px;background:linear-gradient(90deg,var(--gn),var(--gnd));border-radius:6px;display:flex;align-items:center;padding:0 10px;min-width:44px;}
+.chart-lb{font-size:12px;font-weight:900;color:var(--wh);white-space:nowrap;font-family:'Actay Wide','Nunito',sans-serif;}
+
+/* bfast calendar */
+.bf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
+.bf-cell{background:var(--be);border:2px solid var(--bed);border-radius:var(--rad);padding:12px;cursor:pointer;transition:all .18s;text-align:center;}
+.bf-cell:hover{border-color:var(--pkd);background:var(--pkl);}
+.bf-cell.has-data{background:linear-gradient(135deg,#fffaf9,var(--wh));border-color:var(--pkd);box-shadow:0 2px 8px var(--sh);}
+.bf-cell.has-data .bf-count{color:var(--pkk);}
+.bf-day{font-size:9px;color:var(--sf);margin-bottom:4px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.bf-count{font-family:'Actay Wide','Nunito',sans-serif;font-size:24px;font-weight:900;color:var(--bed);line-height:1;}
+.bf-unit{font-size:9px;color:var(--pkd);font-weight:700;margin-top:2px;letter-spacing:.3px;}
+
+/* bonus / total badges */
+.bonus-chip{background:#fff5e0;border:1.5px solid #e8c060;border-radius:10px;padding:3px 9px;font-size:11.5px;font-weight:900;color:#9a6a10;}
+.total-chip{background:var(--pkl);border:1.5px solid var(--pkm);border-radius:10px;padding:3px 9px;font-size:12px;font-weight:900;color:var(--pkk);}
+
+/* monthly plan */
+.mplan-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--be);gap:16px;}
+.mplan-row:last-child{border-bottom:none;}
+.mplan-month{font-size:14px;font-weight:900;color:var(--br);min-width:110px;font-family:'Actay Wide','Nunito',sans-serif;}
+.mplan-input{width:80px;padding:9px;border:2px solid var(--pkm);border-radius:var(--rad);font-family:'Actay Wide','Nunito',sans-serif;font-size:14px;font-weight:900;color:var(--pkk);text-align:center;outline:none;transition:border-color .2s;}
+.mplan-input:focus{border-color:var(--pkd);}
+.mplan-note{font-size:11px;color:var(--sf);font-weight:700;}
+
+/* modal */
+.mo{display:none;position:fixed;inset:0;background:rgba(42,31,20,.28);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.md{background:var(--wh);border-radius:var(--rad-xl);padding:36px;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 28px 80px rgba(0,0,0,.14);animation:mi .25s ease;}
+@keyframes mi{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+.md-ttl{font-family:'Actay Wide','Nunito',sans-serif;font-size:20px;font-weight:900;color:var(--br);margin-bottom:22px;letter-spacing:.5px;text-transform:uppercase;}
+.fr{margin-bottom:16px;}
+.fl2{font-family:'Actay Wide','Nunito',sans-serif;font-size:10px;font-weight:900;color:var(--sf);margin-bottom:7px;display:block;letter-spacing:1px;text-transform:uppercase;}
+.fi2,.fs2{width:100%;padding:11px 15px;border:2px solid var(--be);border-radius:var(--rad);font-family:'Actay','Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--wh);outline:none;transition:border-color .2s;font-weight:600;}
+.fi2:focus,.fs2:focus{border-color:var(--pkd);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.mac{display:flex;gap:10px;justify-content:flex-end;margin-top:26px;}
+.btn{padding:11px 24px;border-radius:22px;border:none;font-family:'Actay Wide','Nunito',sans-serif;font-size:12px;font-weight:900;cursor:pointer;transition:all .2s;letter-spacing:.5px;text-transform:uppercase;}
+.btnp{background:var(--gn);color:var(--wh);}
+.btnp:hover{background:var(--gnd);}
+.btns{background:var(--be);color:var(--sf);}
+.btns:hover{background:var(--gnl);color:var(--gnd);}
+
+/* toast & loading */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--gnd);color:var(--wh);padding:14px 24px;border-radius:20px;font-size:13px;font-weight:900;font-family:'Actay Wide','Nunito',sans-serif;letter-spacing:.5px;box-shadow:0 8px 28px var(--sh-g);transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.ldo{display:none;position:fixed;inset:0;background:rgba(247,244,239,.7);backdrop-filter:blur(2px);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:16px;pointer-events:none;}
+.ldo.show{display:flex;}
+.spin{width:40px;height:40px;border:3px solid var(--gnl);border-top-color:var(--gn);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.ldtx{font-size:13px;color:var(--sf);font-weight:700;letter-spacing:.5px;font-family:'Actay Wide','Nunito',sans-serif;}
+
+/* flower icon helper */
+.fl-ico{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex-shrink:0;}
+
+/* ── TASKS CONFIG ── */
+.task-cfg-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px;border-bottom:1px solid var(--be);gap:12px;
+  transition:background .15s;
+}
+.task-cfg-row:hover{background:#fdf9f8;}
+.task-cfg-row.archived{opacity:.5;}
+.task-cfg-name{font-size:13.5px;font-weight:600;color:var(--tx);flex:1;}
+.task-cfg-cat{font-size:11px;color:var(--sf);margin-top:2px;}
+.task-cfg-norm{
+  font-family:'Actay Wide','Nunito',sans-serif;
+  font-size:14px;font-weight:900;color:var(--pkk);
+  min-width:60px;text-align:center;
+}
+.task-cfg-actions{display:flex;gap:8px;align-items:center;}
+.tag-active{background:var(--gnl);color:var(--gnd);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;}
+.tag-archived{background:var(--be);color:var(--sf);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;}
+.btn-edit{padding:6px 12px;border-radius:14px;border:1.5px solid var(--pkm);background:var(--wh);color:var(--pkd);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Actay','Nunito',sans-serif;touch-action:manipulation;}
+.btn-edit:hover{background:var(--pkl);border-color:var(--pkd);}
+.btn-archive{padding:6px 12px;border-radius:14px;border:1.5px solid var(--bed);background:var(--wh);color:var(--sf);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Actay','Nunito',sans-serif;touch-action:manipulation;}
+.btn-archive:hover{background:var(--be);}
+.btn-restore{padding:6px 12px;border-radius:14px;border:1.5px solid var(--gnl);background:var(--wh);color:var(--gnd);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Actay','Nunito',sans-serif;}
+.btn-restore:hover{background:var(--gnl);}
+.norm-input-inline{width:70px;padding:5px 8px;border:1.5px solid var(--pkm);border-radius:8px;font-family:'Actay Wide','Nunito',sans-serif;font-size:13px;font-weight:900;color:var(--pkk);text-align:center;outline:none;}
+.norm-input-inline:focus{border-color:var(--pkd);}
+
+/* ══════════════════════════════════
+   BURGER BUTTON
+//══════════════════════════════════ */
+.burger-btn{
+  display:none;flex-direction:column;justify-content:center;
+  gap:5px;width:40px;height:40px;border:none;background:transparent;
+  cursor:pointer;padding:6px;flex-shrink:0;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.burger-btn span{
+  display:block;height:2px;background:var(--tx);border-radius:2px;
+  transition:all .28s cubic-bezier(.4,0,.2,1);
+}
+.burger-btn.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.burger-btn.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.burger-btn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ══════════════════════════════════
+   DRAWER OVERLAY (dark backdrop)
+//══════════════════════════════════ */
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(30,20,14,.45);
+  backdrop-filter:blur(2px);
+  z-index:200;
+  opacity:0;transition:opacity .3s;
+}
+.sidebar-overlay.show{display:block;opacity:1;}
+
+/* ══════════════════════════════════
+   SLIDE-OUT DRAWER
+//══════════════════════════════════ */
+.a-sidebar{
+  /* Desktop: static sidebar */
+  width:220px;background:var(--wh);
+  border-right:2px solid var(--be);
+  padding:28px 0;flex-shrink:0;
+}
+
+/* Mobile drawer overrides */
+@media(max-width:700px){
+  .burger-btn{display:flex;}
+
+  .a-sidebar{
+    position:fixed;left:-320px;top:0;bottom:0;z-index:300;
+    width:280px;max-width:80vw;
+    background:var(--wh);
+    border-right:none;
+    padding:0;
+    transition:left .32s cubic-bezier(.4,0,.2,1), visibility 0s .32s;
+    box-shadow:none;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .a-sidebar.open{
+    left:0 !important;
+    visibility:visible;
+    pointer-events:auto;
+    transition:left .32s cubic-bezier(.4,0,.2,1), visibility 0s;
+  }
+  .a-sidebar.open{
+    left:0;
+    box-shadow:8px 0 40px rgba(0,0,0,.18);
+  }
+
+  /* Drawer header */
+  .a-sidebar::before{
+    content:'Меню';
+    display:block;
+    font-family:'Actay Wide','Nunito',sans-serif;
+    font-size:22px;font-weight:900;color:var(--tx);
+    padding:28px 24px 20px;
+    border-bottom:1px solid var(--be);
+    flex-shrink:0;
+    letter-spacing:.5px;
+  }
+
+  /* Nav items bigger on mobile */
+  .a-slbl{display:none;}
+  .a-ni{
+    padding:18px 24px;
+    font-size:17px;font-weight:700;
+    border-left:none !important;
+    border-bottom:1px solid var(--be);
+    gap:16px;
+  }
+  .a-ni:last-child{border-bottom:none;}
+  .a-ni:hover,.a-ni.act{
+    background:var(--pkl);
+    color:var(--pkk);
+    border-left:none !important;
+  }
+
+  .sg{grid-template-columns:1fr 1fr;}
+  .cook-body,.a-main{padding:16px;}
+  .time-row{gap:8px;flex-wrap:wrap;}
+  .srow{flex-direction:column;}
+  .stat-grid2{grid-template-columns:1fr 1fr;}
+  .h-nm-wrap{display:none;}
+
+  .nb{height:68px;font-size:26px;}
+  .numpad{gap:12px;}
+  .pin-dot{width:18px;height:18px;}
+  .pin-dots{gap:18px;}
+  .login-box{padding:36px 24px;}
+
+  .mb{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .mb::-webkit-scrollbar{height:0;}
+
+  .cook-tab{font-size:12px;padding:10px 6px;}
+  .btn-sub{width:100%;padding:16px;}
+  .sub-bar{flex-direction:column;align-items:stretch;}
+
+  /* Stat cards scroll */
+  .srow{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;gap:10px;}
+  .scard{min-width:200px;}
+
+  /* Tables scroll */
+  .tc{overflow-x:auto;}
+}
+</style>
+</head>
+<body>
+
+<div class="ldo" id="ldo" style="pointer-events:none"><div class="spin"></div><div class="ldtx" id="ldtx">Загружаем...</div></div>
+<div class="toast" id="toast"></div>
+<div class="mo" id="mo" onclick="if(event.target===this)closeMo()"><div class="md"><div id="mc"></div></div></div>
+
+//<!-- ════ LOGIN ════ -->
+<div id="s-login" class="screen active">
+  <!-- decorative bg flowers -->
+  <svg class="bg-flower" style="top:5%;left:4%;width:80px;height:80px;opacity:.14;" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5" opacity=".35"/><ellipse cx="12" cy="4.5" rx="3" ry="4" opacity=".65"/><ellipse cx="12" cy="19.5" rx="3" ry="4" opacity=".65"/><ellipse cx="4.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="19.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="6.8" cy="6.8" rx="2.8" ry="3.8" transform="rotate(-45 6.8 6.8)" opacity=".5"/><ellipse cx="17.2" cy="6.8" rx="2.8" ry="3.8" transform="rotate(45 17.2 6.8)" opacity=".5"/><ellipse cx="6.8" cy="17.2" rx="2.8" ry="3.8" transform="rotate(45 6.8 17.2)" opacity=".5"/><ellipse cx="17.2" cy="17.2" rx="2.8" ry="3.8" transform="rotate(-45 17.2 17.2)" opacity=".5"/><circle cx="12" cy="12" r="2.2" fill="white"/></svg>
+  <svg class="bg-flower" style="top:8%;right:6%;width:52px;height:52px;opacity:.1;color:var(--gnd);" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5" opacity=".35"/><ellipse cx="12" cy="4.5" rx="3" ry="4" opacity=".65"/><ellipse cx="12" cy="19.5" rx="3" ry="4" opacity=".65"/><ellipse cx="4.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="19.5" cy="12" rx="4" ry="3" opacity=".65"/><circle cx="12" cy="12" r="2.2" fill="white"/></svg>
+  <svg class="bg-flower" style="bottom:8%;left:6%;width:100px;height:100px;opacity:.09;color:var(--gnd);" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5" opacity=".35"/><ellipse cx="12" cy="4.5" rx="3" ry="4" opacity=".65"/><ellipse cx="12" cy="19.5" rx="3" ry="4" opacity=".65"/><ellipse cx="4.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="19.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="6.8" cy="6.8" rx="2.8" ry="3.8" transform="rotate(-45 6.8 6.8)" opacity=".5"/><ellipse cx="17.2" cy="6.8" rx="2.8" ry="3.8" transform="rotate(45 17.2 6.8)" opacity=".5"/><ellipse cx="6.8" cy="17.2" rx="2.8" ry="3.8" transform="rotate(45 6.8 17.2)" opacity=".5"/><ellipse cx="17.2" cy="17.2" rx="2.8" ry="3.8" transform="rotate(-45 17.2 17.2)" opacity=".5"/><circle cx="12" cy="12" r="2.2" fill="white"/></svg>
+  <svg class="bg-flower" style="bottom:12%;right:5%;width:60px;height:60px;opacity:.12;" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5" opacity=".35"/><ellipse cx="12" cy="4.5" rx="3" ry="4" opacity=".65"/><ellipse cx="12" cy="19.5" rx="3" ry="4" opacity=".65"/><ellipse cx="4.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="19.5" cy="12" rx="4" ry="3" opacity=".65"/><circle cx="12" cy="12" r="2.2" fill="white"/></svg>
+
+  <div class="login-box">
+    <div class="l-logo">BURR<em>y</em></div>
+    <div class="l-tagline">Floral · Artisanal · Delightful</div>
+
+    <div class="l-divider">
+      <div class="l-divider-line"></div>
+      <svg class="l-divider-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5" opacity=".35"/><ellipse cx="12" cy="4.5" rx="3" ry="4" opacity=".65"/><ellipse cx="12" cy="19.5" rx="3" ry="4" opacity=".65"/><ellipse cx="4.5" cy="12" rx="4" ry="3" opacity=".65"/><ellipse cx="19.5" cy="12" rx="4" ry="3" opacity=".65"/><circle cx="12" cy="12" r="2.2" fill="white"/></svg>
+      <div class="l-divider-line"></div>
+    </div>
+
+    <div class="l-hint">Введите ваш PIN-код</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="numpad">
+      <button class="nb" onclick="pp('1')">1</button><button class="nb" onclick="pp('2')">2</button><button class="nb" onclick="pp('3')">3</button>
+      <button class="nb" onclick="pp('4')">4</button><button class="nb" onclick="pp('5')">5</button><button class="nb" onclick="pp('6')">6</button>
+      <button class="nb" onclick="pp('7')">7</button><button class="nb" onclick="pp('8')">8</button><button class="nb" onclick="pp('9')">9</button>
+      <button class="nb del" onclick="pd()">&#8592;</button><button class="nb" onclick="pp('0')">0</button><button class="nb go" onclick="pe()">Войти</button>
+    </div>
+    <div class="l-err" id="l-err"></div>
+    <div class="l-loading" id="l-load">Загружаем...</div>
+  </div>
+</div>
+
+//<!-- ════ COOK ════ -->
+<div id="s-cook" class="screen">
+  <header class="app-hdr">
+    <div class="h-logo">BURRy</div>
+    <div class="h-user">
+      <div class="h-av" id="c-av">?</div>
+      <div><div class="h-nm" id="c-nm">—</div><div class="h-rl">Повар</div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <div class="cook-body">
+    <div class="greet-card">
+      <div class="greet-hi" id="c-hi">Привет! Твоя смена сегодня</div>
+      <div class="greet-dt" id="c-dt"></div>
+    </div>
+    <div class="cook-tabs">
+      <button class="cook-tab act" onclick="cookTab('report',this)">Отчёт за смену</button>
+      <button class="cook-tab" onclick="cookTab('stats',this)">Моя статистика</button>
+    </div>
+    <div id="cv-report" class="cook-view act">
+      <div class="card">
+        <div class="card-hdr"><div class="card-ttl">Дата и время смены</div></div>
+        <div class="card-body">
+          <div class="time-row">
+            <div class="fg"><div class="fl">Дата</div><input class="fi" type="date" id="c-date"></div>
+            <div class="fg"><div class="fl">Приход</div><input class="fi" type="time" id="c-in" value="09:00" oninput="calcH()"></div>
+            <div class="fg"><div class="fl">Уход</div><input class="fi" type="time" id="c-out" value="17:30" oninput="calcH()"></div>
+            <div class="fg"><div class="fl">Итого</div><div class="hrs-pill" id="c-hrs">8 ч 30 мин</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-ttl">Задачи смены</div>
+          <label class="bfast-label">
+            <input type="checkbox" id="c-bfast" onchange="renderCookTasks()" class="bfast-cb">
+            <div class="bfast-txt">Я работала с завтраками</div>
+          </label>
+        </div>
+        <div id="c-tasks"></div>
+        <div class="sub-bar">
+          <div class="sub-sum" id="c-sum">Отметьте выполненные задачи</div>
+          <button class="btn-sub" id="c-btn" onclick="cookSend()">Отправить отчёт</button>
+        </div>
+      </div>
+    </div>
+    <div id="cv-stats" class="cook-view">
+      <div id="stats-content"></div>
+    </div>
+  </div>
+</div>
+
+//<!-- ════ ADMIN ════ -->
+<div id="s-admin" class="screen">
+  <header class="app-hdr">
+    <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="h-logo">BURRy</div>
+    <div class="h-user">
+      <div class="h-av" style="background:var(--pkd)" id="a-av">M</div>
+      <div class="h-nm-wrap"><div class="h-nm" id="a-nm">—</div><div class="h-rl">Администратор</div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="admin-body">
+    <nav class="a-sidebar" id="a-sidebar" style="display:flex;flex-direction:column;">
+      <span class="a-slbl">Меню</span>
+      <div class="a-ni act" onclick="aN('dash',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Дашборд
+      </div>
+      <div class="a-ni" onclick="aN('rep',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Отчёты
+      </div>
+      <div class="a-ni" onclick="aN('bfast',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        Завтраки
+      </div>
+      <div class="a-ni" onclick="aN('staff',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Сотрудники
+      </div>
+      <div class="a-ni" onclick="aN('tasks',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Управление задачами
+      </div>
+      <div class="a-ni" onclick="aN('sett',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Настройки
+      </div>
+      <div class="a-ni" onclick="logout()" style="margin-top:auto;color:var(--rd);border-top:1px solid var(--be)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Выйти
+      </div>
+    </nav>
+    <div class="a-main">
+
+      <!-- DASHBOARD -->
+      <div id="av-dash" class="av act">
+        <div class="pg-hdr"><div><div class="pg-ttl">Дашборд</div><div class="pg-sub">Сводка за выбранный месяц</div></div><button class="bsm bgh" onclick="showToast('Данные в Google Sheets — откройте таблицу для экспорта')">Экспорт</button></div>
+        <div class="mb" id="a-mb"></div>
+        <div class="sg">
+          <div class="sc"><div class="sc-l">Сотрудников</div><div class="sc-v" id="ds-s">—</div><div class="sc-s">активных</div></div>
+          <div class="sc"><div class="sc-l">Записей</div><div class="sc-v" id="ds-r">—</div><div class="sc-s">за месяц</div></div>
+          <div class="sc"><div class="sc-l">Нормо-часов</div><div class="sc-v" id="ds-h">—</div><div class="sc-s">фактически</div></div>
+          <div class="sc"><div class="sc-l">Лидер</div><div class="sc-v" style="font-size:18px;letter-spacing:0" id="ds-t">—</div><div class="sc-s">больше всех</div></div>
+        </div>
+        <div class="srow" id="a-scards"></div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">Сводная таблица</div></div>
+          <table class="dt"><thead><tr><th>Имя</th><th style="text-align:center">Отработано ч</th><th style="text-align:center">Базовые н/ч</th><th style="text-align:center">Бонус завтраки</th><th style="text-align:center">Итого н/ч</th><th style="text-align:center">КПД %</th></tr></thead><tbody id="summary-tbody"></tbody></table></div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">Десерты — план/факт</div></div>
+          <table class="dt"><thead><tr id="dth"></tr></thead><tbody id="dtb"></tbody></table></div>
+        <div class="tc"><div class="tc-hdr"><div class="tc-ttl">Завтраки — план/факт</div></div>
+          <table class="dt"><thead><tr id="bth"></tr></thead><tbody id="btb"></tbody></table></div>
+      </div>
+
+      <!-- REPORTS -->
+      <div id="av-rep" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Отчёты</div><div class="pg-sub">Аналитика по сотрудникам</div></div></div>
+        <div class="rg">
+          <div class="rc" onclick="aRep('eff')"><div class="ri">◆</div><div class="rn">Эффективность</div><div class="rd">% выполнения плана, часы по каждому сотруднику</div></div>
+          <div class="rc" onclick="aRep('hrs')"><div class="ri">◈</div><div class="rn">Нормо-часы</div><div class="rd">Визуальное сравнение план vs факт</div></div>
+          <div class="rc" onclick="aRep('top')"><div class="ri">✦</div><div class="rn">Топ задач</div><div class="rd">Самые выполняемые задачи за месяц</div></div>
+        </div>
+        <div id="rep-out" style="display:none">
+          <div class="tc"><div class="tc-hdr"><div class="tc-ttl" id="rep-ttl">—</div><button class="bsm bgh" onclick="document.getElementById('rep-out').style.display='none'">Закрыть</button></div>
+          <div id="rep-body"></div></div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div id="av-staff" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Сотрудники</div><div class="pg-sub">Список из Google Sheets — лист Settings</div></div><button class="bsm bpk" onclick="openAddUser()">+ Добавить</button></div>
+        <div class="tc"><div id="a-slist"></div></div>
+        <p style="font-size:12px;color:var(--sf);margin-top:12px;font-weight:600">Для постоянного добавления внесите строку в лист Settings (Name, Pin, Role) и обновите страницу.</p>
+      </div>
+
+      <!-- TASKS -->
+      <div id="av-tasks" class="av">
+        <div class="pg-hdr">
+          <div><div class="pg-ttl">Управление задачами</div><div class="pg-sub">Задачи из листа TasksConfig · только активные видны поварам</div></div>
+          <button class="bsm bpk" onclick="openAddTaskModal()">+ Добавить задачу</button>
+        </div>
+        <div style="background:var(--gnl);border:1px solid #c8e0b0;border-radius:12px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--gnd);font-weight:600">
+          Задачи синхронизируются с листом <b>TasksConfig</b>. Нормы часов фиксируются в момент отправки отчёта — исторические данные не пересчитываются.
+        </div>
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap" id="task-filter-tabs">
+          <button class="mbtn act" onclick="filterTasks('all',this)">Все</button>
+          <button class="mbtn" onclick="filterTasks('active',this)">Активные</button>
+          <button class="mbtn" onclick="filterTasks('archived',this)">Архив</button>
+        </div>
+        <div class="tc"><div id="a-tasks-list"></div></div>
+      </div>
+
+      <!-- BREAKFASTS -->
+      <div id="av-bfast" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Завтраки</div><div class="pg-sub">Ежедневный учёт проданных завтраков</div></div><button class="bsm bpk" onclick="saveBfastDay()">Сохранить</button></div>
+        <div class="tc" style="margin-bottom:20px">
+          <div class="tc-hdr"><div class="tc-ttl">Быстрый ввод</div></div>
+          <div style="padding:22px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+            <div class="fg"><div class="fl">Дата</div><input class="fi" type="date" id="bf-date" style="width:160px"></div>
+            <div class="fg"><div class="fl">Завтраков продано</div><input class="fi" type="number" id="bf-count" min="0" max="999" placeholder="35" style="width:130px"></div>
+            <button class="bsm bpk" onclick="saveBfastDay()" style="height:44px;padding:0 24px">Сохранить</button>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tc-hdr"><div class="tc-ttl" id="bf-cal-title">Данные за месяц</div><div style="display:flex;gap:8px" id="bf-month-btns"></div></div>
+          <div id="bf-cal-grid" style="padding:22px"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="av-sett" class="av">
+        <div class="pg-hdr"><div><div class="pg-ttl">Настройки</div><div class="pg-sub">Норма нормо-часов на смену + план по месяцам</div></div><button class="bsm bpk" onclick="savePlans()">Сохранить</button></div>
+        <div class="tc" style="margin-bottom:20px">
+          <div class="tc-hdr"><div class="tc-ttl">Норма нормо-часов на смену</div></div>
+          <div style="padding:22px"><div id="a-plans"></div></div>
+        </div>
+        <div class="tc">
+          <div class="tc-hdr"><div class="tc-ttl">Целевой план по месяцам</div></div>
+          <div style="padding:22px">
+            <p style="font-size:13px;color:var(--sf);margin-bottom:18px;font-weight:600">Установите целевую норму часов на смену для каждого месяца.</p>
+            <div id="monthly-plan-form"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  BURRY — Complete Application Script
+//  Architecture: fetchData() is the single source of truth.
+//  Called after login. All views read from global state.
+// ════════════════════════════════════════════════════════════
+
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyxCBOBPm3NsxqjP-zGmi0xSCfH-4iQFXr81vl9hlhtzmlghUtN3-HTMgQFmcGr3Dc6/exec';
+const SESS_KEY   = 'burry_sess';
+const SESS_TTL   = 12 * 60 * 60 * 1000; // 12 hours
+
+// ── MONTHS ──────────────────────────────────────────────────
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+// ── GLOBAL STATE ────────────────────────────────────────────
+// All data lives here. fetchData() populates it. Views read it.
+let STATE = {
+  users:       [],   // [{name, pin, role, planPerShift}]
+  reports:     [],   // [{date,month,staff,task,count,norm,normEarned,workedH,hasBfast}]
+  dailyStats:  {},   // {'2026-05-14': 35}  — bfastCount per date
+  cookShifts:  {},   // {staffName: [{date,month,workedH,normH,hasBfast}]}
+  DB:          {},   // {month: {task: {staff: {done:N}}}}  — for plan/fact table
+  tasks:       [],   // [{name, normHours, category, isActive}] from TasksConfig sheet
+};
+
+// Active tasks for cook form (loaded from Sheets)
+// Falls back to hardcoded TD/TB if Sheets not available
+let ACTIVE_DESSERTS = null; // null = use TD fallback
+let ACTIVE_BFAST    = null; // null = use TB fallback
+
+function getActiveDesserts(){ return ACTIVE_DESSERTS || TD; }
+function getActiveBfast()   { return ACTIVE_BFAST    || TB; }
+
+let curUser   = null;
+let curMonth  = MONTHS[new Date().getMonth()];
+let cCounters = {};  // stepper state for daily report form
+let monthPlans = {};
+
+// ── TASKS DATA ───────────────────────────────────────────────
+const TD = [
+  {c:'Кексы',      n:'Замес кексов морковь',        h:1.5, m:'4 шт'},
+  {c:'Кексы',      n:'Замес кексов банан веган',     h:1.5, m:'4 шт'},
+  {c:'Кексы',      n:'Замес кексов лимон',           h:1.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Замес чизкейков',              h:1.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Заливка чизкейков',            h:0.5, m:'4 шт'},
+  {c:'Чизкейки',   n:'Нарезка чизкейков',            h:1.0, m:'4 шт'},
+  {c:'Чизкейки',   n:'Глазировка чизкейков',         h:0.5, m:null},
+  {c:'Трюфели',    n:'Замес трюфелей',               h:0.5, m:'2 шт'},
+  {c:'Трюфели',    n:'Накатка трюфелей',             h:1.5, m:'2 шт'},
+  {c:'Трюфели',    n:'Декор трюфелей шоколадом',     h:0.5, m:'2 шт'},
+  {c:'Кейк-попсы', n:'Замес на кейк-попсы',          h:0.5, m:'1 шт'},
+  {c:'Кейк-попсы', n:'Накатка кейк-попсов',          h:1.5, m:'1 шт'},
+  {c:'Торты',      n:'Замес бисквитов для тортов',   h:0.5, m:'4 шт'},
+  {c:'Торты',      n:'Карамель',                     h:0.5, m:'1 шт'},
+  {c:'Торты',      n:'Сборка торта бисквитного',     h:0.5, m:'1 шт'},
+  {c:'Торты',      n:'Выравнивание и декор торта',   h:0.5, m:'1 шт'},
+  {c:'Муссовые',   n:'Крамбл классический',          h:1.0, m:'5 шт'},
+  {c:'Муссовые',   n:'Бисквиты с хрустящим слоем',   h:2.5, m:'3 шт'},
+  {c:'Муссовые',   n:'Нарезка муссовых',             h:1.0, m:'3 шт'},
+  {c:'Муссовые',   n:'Глазировка и декор муссовых',  h:0.3, m:null},
+  {c:'Тарталетки', n:'Замес ганаша',                 h:0.5, m:'3 шт'},
+  {c:'Тарталетки', n:'Выпечка тарталеток',           h:1.0, m:'3 шт'},
+  {c:'Тарталетки', n:'Отсадка крема на тарталетки',  h:1.0, m:'3 шт'},
+  {c:'Бенто',      n:'Бенто бисквит фисташка',       h:1.0, m:'4 шт'},
+  {c:'Бенто',      n:'Ганаш для бенто',              h:0.5, m:'4 шт'},
+  {c:'Бенто',      n:'Сборка бенто',                 h:1.0, m:'4 шт'},
+];
+const TB = [
+  {n:'Нарезка рыбы',           h:0.25, m:'1 уп'},
+  {n:'Вафля шпинатная п/ф',    h:0.25, m:null},
+  {n:'Вафля сырная п/ф',       h:0.25, m:null},
+  {n:'Нарезка вяленых томатов',h:0.25, m:null},
+  {n:'Соус песто',             h:0.25, m:null},
+  {n:'Замачивание гречи',      h:0.25, m:null},
+  {n:'Замачивание овсянки',    h:0.25, m:null},
+  {n:'Соленая карамель п/ф',   h:0.25, m:'1 шт'},
+  {n:'Малиновое кули п/ф',     h:0.25, m:'1 шт'},
+  {n:'Сырники ПФ',             h:0.25, m:'3 п'},
+  {n:'Тофу п/ф',               h:0.25, m:null},
+  {n:'Творожный сыр с зеленью',h:0.25, m:null},
+  {n:'Мусс из авокадо',        h:0.25, m:null},
+  {n:'Лимонный сок п/ф',       h:0.50, m:null},
+];
+const allT = () => [...TD, ...TB];
+const cEmoji = c => ({Кексы:'🧁',Чизкейки:'🎂',Трюфели:'🍫',Торты:'🎀',
+  Тарталетки:'🍮',Муссовые:'❄️','Кейк-попсы':'🍭',Бенто:'📦'}[c]||'🍽');
+
+// ════════════════════════════════════════════════════════════
+//  THE ONE FUNCTION THAT RULES THEM ALL
+//  fetchData() — loads everything from Sheets, builds STATE
+// ════════════════════════════════════════════════════════════
+const CACHE_KEY = 'burry_data_cache';
+const CACHE_TTL = 10 * 60 * 1000; // 10 минут
+
+function saveCache(data) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ts: Date.now(), data}));
+  } catch(e) {}
+}
+
+function loadCache() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (!raw) return null;
+    // Don't expire cache for tasks — use stale data if Sheets is slow
+    const data = raw.data || raw; // handle both formats
+    return data;
+  } catch(e) { return null; }
+}
+
+function applyData(data) {
+  if (!data) return;
+  if (data.users && data.users.length) STATE.users = data.users;
+  if (data.dailyStats) {
+    STATE.dailyStats = {};
+    data.dailyStats.forEach(s => {
+      STATE.dailyStats[String(s.date).trim().slice(0,10)] = Number(s.bfastCount)||0;
+    });
+  }
+  const reports = data.reports || [];
+  if (reports.length > 0) buildStateFromReports(reports);
+  if (data.bfastShifts && data.bfastShifts.length) {
+    if (!STATE._bfastDates) STATE._bfastDates = new Set();
+    data.bfastShifts.forEach(bf => {
+      const key = String(bf.staff).trim()+'|'+String(bf.date).trim().slice(0,10);
+      STATE._bfastDates.add(key);
+      const staff = String(bf.staff).trim();
+      const date  = String(bf.date).trim().slice(0,10);
+      if (STATE.cookShifts[staff]) {
+        const match = STATE.cookShifts[staff].find(s=>String(s.date).trim().slice(0,10)===date);
+        if (match) match.hasBfast = true;
+      }
+    });
+  }
+  if (data.tasksConfig && data.tasksConfig.length) {
+    STATE.tasksConfig = data.tasksConfig;
+  }
+  // Always rebuild — even if tasksConfig didn't change
+  rebuildActiveTasks();
+}
+
+async function fetchData() {
+  // 1. Показываем кэш мгновенно
+  const cached = loadCache();
+  if (cached) {
+    applyData(cached);
+    // Обновляем UI сразу с кэшированными данными
+    if (typeof renderDash === 'function' && !document.getElementById('s-admin').classList.contains('active') === false) {
+      try { renderDash(); } catch(e) {}
+    }
+  }
+
+  // 2. Грузим свежие данные в фоне
+  if (!document.getElementById('s-login').classList.contains('active')) showLd('Обновляем...');
+
+  // 10 second timeout for data loading
+  const TIMEOUT = 10000;
+  function fetchWithTimeout(url) {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), TIMEOUT);
+    return fetch(url, {method:'GET', redirect:'follow', signal: ctrl.signal});
+  }
+
+  // Make parallel requests to be sure we get everything
+  const [allResult, statsResult] = await Promise.allSettled([
+    fetchWithTimeout(SHEETS_URL + '?action=getAll').then(r=>r.json()),
+    fetchWithTimeout(SHEETS_URL + '?action=getDailyStats').then(r=>r.json()),
+  ]);
+
+  // ── Process getAll ──
+  if (allResult.status === 'fulfilled' && allResult.value && !allResult.value.error) {
+    const data = allResult.value;
+
+    if (data.users && data.users.length) STATE.users = data.users;
+
+    const reports = data.reports || [];
+    if (reports.length > 0) {
+      buildStateFromReports(reports);
+    } else {
+      await fetchCookShiftsFallback();
+    }
+
+    // dailyStats from getAll (if included)
+    if (data.dailyStats && data.dailyStats.length) {
+      STATE.dailyStats = {};
+      data.dailyStats.forEach(s => {
+        const key = String(s.date).trim().slice(0,10);
+        STATE.dailyStats[key] = Number(s.bfastCount) || 0;
+      });
+    }
+  } else {
+    console.warn('getAll failed, using fallback');
+    await fetchCookShiftsFallback();
+  }
+
+  // ── ALWAYS load dailyStats separately (most reliable) ──
+  if (statsResult.status === 'fulfilled' && statsResult.value && statsResult.value.stats) {
+    const freshStats = {};
+    statsResult.value.stats.forEach(s => {
+      const key = String(s.date).trim().slice(0,10);
+      freshStats[key] = Number(s.bfastCount) || 0;
+    });
+    STATE.dailyStats = { ...STATE.dailyStats, ...freshStats };
+  }
+
+  // ── Load TasksConfig ──
+  try {
+    const tcResp = await fetch(SHEETS_URL + '?action=getTasksConfig', {method:'GET', redirect:'follow'});
+    const tcData = await tcResp.json();
+    if (tcData && tcData.tasks && tcData.tasks.length) {
+      STATE.tasksConfig = tcData.tasks;
+      console.log('TasksConfig loaded:', STATE.tasksConfig.length, 'tasks');
+    }
+  } catch(e) {
+    console.warn('TasksConfig load failed, using built-in defaults:', e);
+    // Keep using TD/TB arrays as fallback
+  }
+
+  // ── Process bfastShifts from getAll response ──
+  // getAll now includes bfastShifts: [{staff, date}] — most reliable source
+  if (allResult.status === 'fulfilled' && allResult.value && allResult.value.bfastShifts) {
+    if (!STATE._bfastDates) STATE._bfastDates = new Set();
+    allResult.value.bfastShifts.forEach(bf => {
+      const key = String(bf.staff).trim() + '|' + String(bf.date).trim().slice(0,10);
+      STATE._bfastDates.add(key);
+      // Also patch cookShifts
+      const staff = String(bf.staff).trim();
+      const date  = String(bf.date).trim().slice(0,10);
+      if (STATE.cookShifts[staff]) {
+        const match = STATE.cookShifts[staff].find(s => String(s.date).trim().slice(0,10) === date);
+        if (match) match.hasBfast = true;
+      }
+    });
+    console.log('bfastShifts from getAll:', [...STATE._bfastDates]);
+  }
+
+  // ── Process tasksConfig from getAll ──
+  if (allResult.status === 'fulfilled' && allResult.value && allResult.value.tasksConfig) {
+    if (allResult.value.tasksConfig.length > 0) {
+      STATE.tasksConfig = allResult.value.tasksConfig;
+      rebuildActiveTasks();
+      console.log('TasksConfig loaded:', STATE.tasksConfig.length, 'tasks');
+    }
+  }
+
+  // ── PATCH hasBfast using getBfastShifts action ──
+  // This action returns staff+date pairs where Завтраки="Да"
+  try {
+    const bfResp = await fetchWithTimeout(
+      SHEETS_URL + '?action=getBfastShifts',
+      {method:'GET', redirect:'follow'}, 5000
+    );
+    const bfData = await bfResp.json();
+    if (bfData && bfData.shifts && bfData.shifts.length) {
+      // bfData.shifts = [{staff, date}] where завтраки=Да
+      bfData.shifts.forEach(bf => {
+        const staff = String(bf.staff).trim();
+        const date  = String(bf.date).trim().slice(0,10);
+        if (STATE.cookShifts[staff]) {
+          const match = STATE.cookShifts[staff].find(s =>
+            String(s.date).trim().slice(0,10) === date
+          );
+          if (match) { match.hasBfast = true; }
+        }
+        // Also update bfastSet for bonus calculation
+        if (!STATE._bfastDates) STATE._bfastDates = new Set();
+        STATE._bfastDates.add(staff + '|' + date);
+      });
+      console.log('hasBfast patched:', bfData.shifts.length, 'bfast shifts found');
+    }
+  } catch(e) {
+    console.warn('getBfastShifts failed:', e);
+  }
+
+  hideLd();
+}
+
+// Builds STATE.DB, STATE.cookShifts from a rows array
+function buildStateFromReports(reports) {
+  STATE.DB = {};
+  STATE.cookShifts = {};
+  const shiftMap = {};
+
+  // Pre-pass: find ALL staff+date combos where завтраки = Да
+  // This handles any field name Apps Script might use
+  const bfastSet = new Set();
+  reports.forEach(r => {
+    const raw = r.hasBfast !== undefined ? r.hasBfast
+              : r['Завтраки'] !== undefined ? r['Завтраки'] : null;
+    const yes = raw===true || raw===1 || raw==='1'
+      || String(raw||'').trim().toLowerCase()==='да'
+      || String(raw||'').trim().toLowerCase()==='true';
+    const d = String(r.date||r['Дата смены']||'').trim().slice(0,10);
+    const s = String(r.staff||r['Сотрудник']||'').trim();
+    if(yes && d && s) bfastSet.add(s+'|'+d);
+  });
+  console.log('bfastSet:', [...bfastSet]);
+
+  reports.forEach(r => {
+    const date  = String(r.date  || r['Дата смены']  || '').trim().slice(0,10);
+    const staff = String(r.staff || r['Сотрудник']   || '').trim();
+    const month = String(r.month || r['Месяц']       || '').trim();
+    const task  = String(r.task  || r['Задача']       || '').trim();
+    const count = Number(r.count || r['Количество']  || 0);
+    const norm  = Number(r.norm  || r['Норма (ч)']   || 0);
+    const normE = Number(r.normEarned || r['Итого часов'] || 0) || count*norm;
+    const workedH = Number(r.workedH || 0);
+    // Use pre-computed set — reliable regardless of field name
+    const hasBfast = bfastSet.has(staff + '|' + date);
+
+    if (!date || !staff || !task) return; // skip incomplete rows
+
+    // DB
+    if (!STATE.DB[month]) STATE.DB[month] = {};
+    if (!STATE.DB[month][task]) STATE.DB[month][task] = {};
+    if (!STATE.DB[month][task][staff]) STATE.DB[month][task][staff] = {done:0};
+    STATE.DB[month][task][staff].done += count;
+
+    // shiftMap — one per staff+date
+    const key = staff + '|' + date;
+    if (!shiftMap[key]) {
+      shiftMap[key] = { date, month, staff, workedH, normH:0, hasBfast:false };
+    }
+    shiftMap[key].normH = Math.round((shiftMap[key].normH + normE)*100)/100;
+    if (hasBfast) shiftMap[key].hasBfast = true;
+  });
+
+  Object.values(shiftMap).forEach(shift => {
+    if (!STATE.cookShifts[shift.staff]) STATE.cookShifts[shift.staff] = [];
+    STATE.cookShifts[shift.staff].push(shift);
+  });
+
+  // Log for debugging — shows hasBfast values
+  console.log('STATE.cookShifts:', JSON.stringify(
+    Object.entries(STATE.cookShifts).map(([k,v])=>({
+      staff:k,
+      count:v.length,
+      shifts:v.map(s=>s.date+'|hasBfast='+s.hasBfast+'|normH='+s.normH)
+    }))
+  ));
+  console.log('STATE.dailyStats:', STATE.dailyStats);
+}
+
+// Fallback: fetch shifts for current user only
+async function fetchCookShiftsFallback() {
+  if (!curUser) return;
+  try {
+    const staff = curUser.name;
+    const url = SHEETS_URL + '?action=getCookShifts&staff=' + encodeURIComponent(staff);
+    const resp = await fetch(url, {method:'GET', redirect:'follow'});
+    const data = await resp.json();
+    if (data && data.shifts && data.shifts.length) {
+      STATE.cookShifts[staff] = data.shifts.map(s=>({
+        ...s,
+        date: String(s.date).trim().slice(0,10),
+        month: String(s.month||'').trim()
+      }));
+      console.log('Fallback loaded', data.shifts.length, 'shifts for', staff);
+    }
+  } catch(e) {
+    console.warn('Fallback getCookShifts failed:', e);
+  }
+  // Also load dailyStats
+  try {
+    const r = await fetch(SHEETS_URL+'?action=getDailyStats',{method:'GET',redirect:'follow'});
+    const d = await r.json();
+    if (d && d.stats) {
+      STATE.dailyStats = {};
+      d.stats.forEach(s => { STATE.dailyStats[String(s.date).trim().slice(0,10)] = Number(s.bfastCount)||0; });
+    }
+  } catch(e) { console.warn('Fallback getDailyStats failed:', e); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT — check session, load users, auto-login
+// ════════════════════════════════════════════════════════════
+// ── INIT ──────────────────────────────────────────
+// Шаг 1: показываем логин СИНХРОННО — никаких await
+
+
+// Шаг 2: фоновая загрузка данных
+
+async function pe(){
+  if(pinV.length<4){ setErr('Введите 4 цифры'); return; }
+  const u = STATE.users.find(u => String(u.pin) === pinV);
+  if(!u){
+    // Show available PINs for debugging
+    const pins = STATE.users.map(x=>x.name+':'+String(x.pin)).join(', ');
+    setErr('Неверный PIN-код. Загружено: ' + STATE.users.length + ' пользователей');
+    console.log('Введён PIN:', pinV, '| Пользователи:', pins);
+    document.getElementById('pin-dots').classList.add('shake');
+    setTimeout(()=>document.getElementById('pin-dots').classList.remove('shake'),400);
+    pinV=''; updDots(); return;
+  }
+  curUser = u;
+  saveSession(u);
+  // Enter app immediately with fallback data
+  enterApp();
+  // Load real data in background
+  fetchData().catch(()=>{});
+}
+function setErr(m){ document.getElementById('l-err').textContent=m; }
+
+// ════════════════════════════════════════════════════════════
+//  ROUTING
+// ════════════════════════════════════════════════════════════
+function showScr(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+n).classList.add('active');
+}
+function enterApp(){
+  const role = (curUser.role||'').toLowerCase();
+  // Make sidebar visible only for admin
+  const sb = document.getElementById('a-sidebar');
+  if(sb) sb.style.display = role==='admin' ? 'flex' : 'none';
+  if(role==='admin'){ setupAdmin(); showScr('admin'); }
+  else               { setupCook();  showScr('cook');  }
+}
+function logout(){
+  clearSession(); curUser=null; pinV=''; updDots(); setErr('');
+  // Hide sidebar so it doesn't block login screen
+  const sb = document.getElementById('a-sidebar');
+  if(sb) sb.style.display = 'none';
+  closeSidebar();
+  showScr('login');
+}
+
+// ════════════════════════════════════════════════════════════
+//  COOK PANEL
+// ════════════════════════════════════════════════════════════
+function setupCook(){
+  const u = curUser;
+  document.getElementById('c-av').textContent = u.name.slice(0,2).toUpperCase();
+  document.getElementById('c-nm').textContent = u.name;
+  document.getElementById('c-hi').textContent = `Привет, ${u.name}! Твоя смена сегодня`;
+  const t = new Date();
+  document.getElementById('c-dt').textContent =
+    t.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('c-date').value = t.toISOString().slice(0,10);
+  // Rebuild task lists from TasksConfig (includes newly added tasks)
+  rebuildActiveTasks();
+  cCounters = {}; calcH(); renderCookTasks();
+  cookTab('report', document.querySelector('.cook-tab'));
+  // Load fresh tasks from Sheets in background
+  fetchData().then(()=>{ rebuildActiveTasks(); renderCookTasks(); }).catch(()=>{});
+}
+
+function calcH(){
+  const a=document.getElementById('c-in').value, b=document.getElementById('c-out').value;
+  if(!a||!b){document.getElementById('c-hrs').textContent='—';return;}
+  const [h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);
+  let mn=(h2*60+m2)-(h1*60+m1); if(mn<0)mn+=1440;
+  const h=Math.floor(mn/60),m=mn%60;
+  document.getElementById('c-hrs').textContent = m?`${h} ч ${m} мин`:`${h} ч`;
+}
+
+function renderCookTasks(){
+  const bf = document.getElementById('c-bfast').checked;
+  const list = [...getActiveDesserts(),...(bf?getActiveBfast():[])];
+  let html='', lastC='';
+  list.forEach((t,i)=>{
+    if(t.c && t.c!==lastC){ html+=`<div class="cat-hdr">${cEmoji(t.c)} ${t.c}</div>`; lastC=t.c; }
+    if(!t.c && lastC!=='__bf'){ html+=`<div class="cat-hdr">Завтраки</div>`; lastC='__bf'; }
+    const v=cCounters[t.n]||0, e=(v*t.h).toFixed(2);
+    html+=`<div class="t-row${v>0?' act':''}" id="cr${i}">
+      <div class="t-info">
+        <div class="t-name">${t.n}${t.m?` <span class="min-b">мин: ${t.m}</span>`:''}</div>
+        <div class="t-meta"><span>${t.h} ч/замес</span><span class="h-earn${v>0?'':' hid'}" id="ce${i}">+${e} ч</span></div>
+      </div>
+      <div class="stepper">
+        <button class="sb" onclick="cs(${i},-1)">−</button>
+        <span class="sv${v>0?' nz':''}" id="cv${i}">${v}</span>
+        <button class="sb" onclick="cs(${i},1)">+</button>
+      </div></div>`;
+  });
+  document.getElementById('c-tasks').innerHTML=html;
+  updSum();
+}
+
+function cs(i,d){
+  const bf=document.getElementById('c-bfast').checked;
+  const list=[...getActiveDesserts(),...(bf?getActiveBfast():[])];
+  const t=list[i]; if(!t)return;
+  cCounters[t.n]=Math.max(0,(cCounters[t.n]||0)+d);
+  const v=cCounters[t.n];
+  const sv=document.getElementById('cv'+i), ce=document.getElementById('ce'+i), cr=document.getElementById('cr'+i);
+  if(sv){sv.textContent=v; sv.className='sv'+(v>0?' nz':'');}
+  if(ce){ce.textContent=`+${(v*norm).toFixed(2)} ч`; ce.classList.toggle('hid',v===0);}
+  if(cr){cr.classList.toggle('act',v>0);}
+  updSum();
+}
+
+function updSum(){
+  let tot=0,hrs=0;
+  // Get current task list (dynamic or static)
+  const bf=document.getElementById('c-bfast')?.checked||false;
+  let taskList;
+  if(STATE.tasksConfig && STATE.tasksConfig.length>0){
+    taskList=STATE.tasksConfig.filter(t=>t.isActive&&(bf||t.category!=='Завтраки')).map(t=>({n:t.name,h:t.normHours}));
+  } else {
+    taskList=[...TD,...(bf?TB:[])];
+  }
+  taskList.forEach(t=>{const cnt=cCounters[t.n||t.name]||0; if(cnt>0){tot+=cnt;hrs+=cnt*(t.h||t.normHours||0);}});
+  const el=document.getElementById('c-sum');
+  el.innerHTML = tot===0 ? 'Отметьте выполненные задачи'
+    : `Выполнено: <strong>${tot} задач</strong> · Нормо-часов: <strong>${hrs.toFixed(2)} ч</strong>`;
+}
+
+function cookTab(name,el){
+  document.querySelectorAll('.cook-tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.cook-view').forEach(v=>v.classList.remove('act'));
+  document.getElementById('cv-'+name).classList.add('act');
+  if(name==='stats'){
+    // Always fetch fresh data then render
+    document.getElementById('stats-content').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--sf);font-size:13px;font-weight:600">Загружаем статистику...</div>';
+    fetchData().then(()=>renderCookStats());
+  }
+}
+
+async function cookSend(){
+  // Use CURRENT active tasks — norm is snapshotted at time of send
+  const currentList = [...getActiveDesserts(),...getActiveBfast()];
+  const tasks=currentList.filter(t=>(cCounters[t.n]||0)>0).map(t=>({name:t.n,count:cCounters[t.n],norm:t.h}));
+  if(!tasks.length){showToast('Отметьте хотя бы одну задачу!');return;}
+  const btn=document.getElementById('c-btn');
+  btn.disabled=true; btn.textContent='Отправляем...';
+  const date=document.getElementById('c-date').value;
+  const month=MONTHS[new Date(date).getMonth()];
+  const ti=document.getElementById('c-in').value;
+  const to=document.getElementById('c-out').value;
+  const hw=document.getElementById('c-hrs').textContent;
+  const hasBfast=document.getElementById('c-bfast').checked;
+  const staff=curUser.name;
+
+  const p = new URLSearchParams({
+    action:'submitReport', date, month, staff,
+    timeIn:ti, timeOut:to, hoursWorked:hw,
+    hasBfast:String(hasBfast),
+    tasks:JSON.stringify(tasks)
+  });
+
+  let sent=false;
+  try {
+    const r=await fetch(SHEETS_URL+'?'+p.toString(),{method:'GET',redirect:'follow'});
+    const d=await r.json();
+    if(d && d.ok) sent=true;
+  } catch(e){}
+  if(!sent){
+    try{ await fetch(SHEETS_URL+'?'+p.toString(),{method:'GET',mode:'no-cors',redirect:'follow'}); sent=true; }
+    catch(e){}
+  }
+
+  if(sent){
+    cCounters={}; renderCookTasks();
+    showToast('Отчёт отправлен!');
+    // Refresh in background — don't block UI
+    setTimeout(()=>fetchData().catch(()=>{}), 500);
+  } else {
+    showToast('Ошибка отправки — проверьте интернет');
+  }
+  btn.disabled=false; btn.textContent='Отправить отчёт';
+}
+
+// ════════════════════════════════════════════════════════════
+//  COOK STATS — reads from STATE, not from cookShifts
+// ════════════════════════════════════════════════════════════
+// Build ACTIVE_DESSERTS and ACTIVE_BFAST from TasksConfig
+function buildActiveTasks(tasks) {
+  const active = tasks.filter(t => t.isActive);
+  const desserts = active.filter(t => t.category !== 'Завтраки');
+  const bfast    = active.filter(t => t.category === 'Завтраки');
+
+  if (desserts.length > 0) {
+    ACTIVE_DESSERTS = desserts.map(t => ({
+      c: t.category || 'Прочее',
+      n: t.name,
+      h: Number(t.normHours) || 1,
+      m: t.minBatch || null
+    }));
+  }
+  if (bfast.length > 0) {
+    ACTIVE_BFAST = bfast.map(t => ({
+      n: t.name,
+      h: Number(t.normHours) || 0.25,
+      m: t.minBatch || null
+    }));
+  }
+  console.log('Active tasks loaded:', (ACTIVE_DESSERTS||TD).length, 'desserts,', (ACTIVE_BFAST||TB).length, 'bfast');
+}
+
+function renderCookStats(){
+  const staff    = curUser.name.trim();
+  const now      = new Date();
+  const monthIdx = now.getMonth();
+  const monthName= MONTHS[monthIdx];
+  const year     = now.getFullYear();
+
+  // Parse date safely — "2026-05-14" split to avoid UTC timezone bug
+  function parseDateLocal(str){
+    const [y,m,d] = String(str).trim().slice(0,10).split('-').map(Number);
+    return {y, m: m-1, d}; // m-1 because getMonth() is 0-based
+  }
+
+  const allShifts = STATE.cookShifts[staff] || [];
+  const myShifts  = allShifts.filter(s => {
+    // Primary: match by month name string (e.g. "Май") — avoids timezone bugs
+    if (s.month && s.month.trim() === monthName) return true;
+    // Fallback: parse date manually
+    const {y, m} = parseDateLocal(s.date);
+    return m === monthIdx && y === year;
+  });
+
+  const shiftCount = myShifts.length;
+
+  if(shiftCount===0){
+    document.getElementById('stats-content').innerHTML=`
+      <div class="no-data">
+        <div class="no-data-icon">✿</div>
+        <div style="font-size:15px;font-weight:700;color:var(--br);margin-bottom:6px">Данных за ${monthName} пока нет</div>
+        <div>Отправь первый отчёт за смену!</div>
+      </div>`;
+    return;
+  }
+
+  // Worked hours
+  const totalWorkedH = myShifts.reduce((s,x)=>s+(x.workedH||0),0);
+  const avgShiftH    = Math.round(totalWorkedH/shiftCount*10)/10;
+
+  // Base norm hours (from tasks)
+  const baseNorm = Math.round(myShifts.reduce((s,x)=>s+(x.normH||0),0)*100)/100;
+
+  // Breakfast bonus — match shift date to STATE.dailyStats
+  let bfBonus = 0;
+  myShifts.forEach(s => {
+    const dateKey = String(s.date).trim().slice(0,10);
+    // Check hasBfast in shift object AND in STATE._bfastDates (patched from getBfastShifts)
+    const hb = s.hasBfast === true || s.hasBfast === 'true'
+      || String(s.hasBfast||'').trim().toLowerCase() === 'да'
+      || (STATE._bfastDates && STATE._bfastDates.has(staff + '|' + dateKey));
+    const cnt = STATE.dailyStats[dateKey] || 0;
+    if(!hb) return;
+    bfBonus += cnt * 0.15;
+  });
+  bfBonus = Math.round(bfBonus*100)/100;
+
+
+
+  const normDone  = Math.round((baseNorm+bfBonus)*100)/100;
+  const planPerSh = curUser.planPerShift || 7;
+  const planTotal = planPerSh * shiftCount;
+  const pct       = planTotal>0 ? Math.round(normDone/planTotal*100) : 0;
+  const isOver    = normDone>=planTotal && planTotal>0;
+  const diff      = Math.abs(Math.round((normDone-planTotal)*100)/100);
+  const progW     = Math.min(pct,100);
+  const kpd       = totalWorkedH>0 ? Math.round(normDone/totalWorkedH*100) : 0;
+  const kpdHigh   = kpd>=80;
+  const R=34, circ=2*Math.PI*R, dash=circ*(1-Math.min(kpd,100)/100);
+
+  document.getElementById('stats-content').innerHTML=`
+    <div style="font-size:10px;font-weight:700;color:var(--sf);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">${monthName} ${year}</div>
+    <div class="stat-grid2">
+      <div class="stat-box">
+        <div class="sb-lbl">Смен отработано</div>
+        <div class="sb-val">${shiftCount}</div>
+        <div class="sb-sub">в ${monthName}</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-lbl">Средняя смена</div>
+        <div class="sb-val">${avgShiftH}</div>
+        <div class="sb-sub">часов в среднем</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-lbl">Твой план на месяц</div>
+        <div class="sb-val">${planTotal}</div>
+        <div class="sb-sub">${planPerSh} н/ч × ${shiftCount} смен</div>
+      </div>
+      <div class="stat-box green">
+        <div class="sb-lbl">Нормо-часов выполнено</div>
+        <div class="sb-val green">${normDone}</div>
+        <div class="sb-sub">база ${baseNorm} + бонус ${bfBonus}</div>
+      </div>
+    </div>
+    <div class="stat-box full" style="margin-bottom:14px">
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span class="prog-title">Прогресс выполнения плана</span>
+          <span class="prog-nums">${normDone} / ${planTotal} н/ч</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill ${isOver?'over':'under'}" style="width:${progW}%"></div>
+        </div>
+        <div class="prog-msg ${isOver?'over':'under'}">
+          ${isOver ? `План перевыполнен на ${diff} нормо-часов!` : `До плана осталось ${diff} нормо-часов`}
+        </div>
+      </div>
+    </div>
+    <div class="stat-box full">
+      <div class="sb-lbl">Твой КПД за месяц</div>
+      <div class="kpi-wrap" style="margin-top:10px">
+        <div class="kpi-ring">
+          <svg class="kpi-svg" width="84" height="84" viewBox="0 0 84 84">
+            <circle class="kpi-circle-bg" cx="42" cy="42" r="${R}"/>
+            <circle class="kpi-circle${kpdHigh?' high':''}" cx="42" cy="42" r="${R}"
+              stroke-dasharray="${circ}" stroke-dashoffset="${dash}"/>
+          </svg>
+          <div class="kpi-text">${kpd}%</div>
+        </div>
+        <div class="kpi-info">
+          <div style="font-family:'Actay Wide','Nunito',sans-serif;font-size:24px;font-weight:900;color:var(--br)">${kpd}%</div>
+          <div class="kpi-desc">${normDone} н/ч ÷ ${totalWorkedH.toFixed(1)} ч × 100%</div>
+          <div style="margin-top:8px;font-size:12px;font-weight:700;color:${kpdHigh?'var(--gnd)':'var(--pkd)'}">
+            ${kpd>=90?'Отличный результат!':kpd>=70?'Хорошая работа!':kpd>=50?'Есть куда расти':'Продолжай стараться!'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ADMIN PANEL
+// ════════════════════════════════════════════════════════════
+function setupAdmin(){
+  document.getElementById('a-nm').textContent = curUser.name;
+  document.getElementById('a-av').textContent = curUser.name.slice(0,2).toUpperCase();
+  renderMonthBar();
+  renderDash();
+}
+
+function aN(v,el){
+  document.querySelectorAll('.a-ni').forEach(i=>i.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.av').forEach(x=>x.classList.remove('act'));
+  document.getElementById('av-'+v).classList.add('act');
+  closeSidebar();
+  // Always render from cached STATE first — instant
+  if(v==='dash')  { renderDash(); bgRefresh(); }
+  if(v==='bfast') { initBfastDate(); renderBfastView(); }
+  if(v==='staff') renderAStaff();
+  if(v==='tasks') renderATasks();
+  if(v==='sett')  { renderPlans(); renderMonthlyPlanForm(); }
+}
+
+let _bgTimer = null;
+function bgRefresh(){
+  if(_bgTimer) return; // debounce 30s
+  _bgTimer = setTimeout(()=>{ _bgTimer=null; }, 30000);
+  fetchData().then(()=>renderDash()).catch(()=>{});
+}
+
+
+function selM(m,el){
+  curMonth=m;
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+  renderDash();
+}
+
+// ── Dashboard ──
+function renderDash(){
+  const cooks = STATE.users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+  document.getElementById('ds-s').textContent = cooks.length;
+
+  // Count records for current month
+  const monthRecords = STATE.reports.filter(r=>String(r.month).trim()===curMonth);
+  document.getElementById('ds-r').textContent = monthRecords.length || '—';
+
+  // Total norm hours
+  const totals = {};
+  cooks.forEach(u => { totals[u.name] = calcTotalNorm(u.name, curMonth); });
+  const totH = Object.values(totals).reduce((s,v)=>s+v,0);
+  document.getElementById('ds-h').textContent = totH ? totH.toFixed(1) : '—';
+
+  const topCook = cooks.slice().sort((a,b)=>totals[b.name]-totals[a.name])[0];
+  document.getElementById('ds-t').textContent = topCook ? topCook.name : '—';
+
+  renderSCards(cooks, totals);
+  renderSummaryTable(cooks);
+  renderPTables(cooks);
+}
+
+// Returns base norm hours for staff in month (from STATE.DB)
+function getBaseNorm(staff, month){
+  let h=0;
+  allT().forEach(t=>{
+    const done = (STATE.DB[month]&&STATE.DB[month][t.n]&&STATE.DB[month][t.n][staff]&&STATE.DB[month][t.n][staff].done)||0;
+    h += done * t.h;
+  });
+  return Math.round(h*100)/100;
+}
+
+// Returns breakfast bonus for staff in month
+function getBfastBonus(staff, month){
+  const shifts = (STATE.cookShifts[staff]||[]).filter(s=>{
+    if(String(s.month).trim()!==month) return false;
+    const dateKey = String(s.date).trim().slice(0,10);
+    return s.hasBfast===true || s.hasBfast==='true'
+      || String(s.hasBfast||'').trim().toLowerCase()==='да'
+      || (STATE._bfastDates && STATE._bfastDates.has(staff+'|'+dateKey));
+  });
+  let bonus=0;
+  shifts.forEach(s=>{
+    const cnt = STATE.dailyStats[String(s.date).trim().slice(0,10)] || 0;
+    bonus += cnt * 0.15;
+  });
+  return Math.round(bonus*100)/100;
+}
+
+// Returns total norm hours including bonus
+function calcTotalNorm(staff, month){
+  return Math.round((getBaseNorm(staff,month)+getBfastBonus(staff,month))*100)/100;
+}
+
+// Returns worked hours for staff in month
+function getWorkedH(staff, month){
+  return Math.round(
+    (STATE.cookShifts[staff]||[])
+      .filter(s=>String(s.month).trim()===month)
+      .reduce((s,x)=>s+(x.workedH||0),0)*100)/100;
+}
+
+// Returns count of shifts for staff in month
+function getShiftCount(staff, month){
+  return (STATE.cookShifts[staff]||[]).filter(s=>String(s.month).trim()===month).length;
+}
+
+function renderSCards(cooks, totals){
+  document.getElementById('a-scards').innerHTML=cooks.map(u=>{
+    const plan  = (monthPlans[curMonth]||u.planPerShift||7) * 12;
+    const total = totals[u.name]||0;
+    const base  = getBaseNorm(u.name, curMonth);
+    const bonus = getBfastBonus(u.name, curMonth);
+    const pct   = plan ? Math.round(total/plan*100) : 0;
+    const cls   = pct>=100?'bg-g':pct>=50?'bg-n':'bg-r';
+    return `<div class="scard">
+      <div class="sc-nm">${u.name}</div><div class="sc-rl">Повар</div>
+      <div class="sc-st"><span>База н/ч</span><b>${base}</b></div>
+      <div class="sc-st"><span>Завтраки бонус</span><b style="color:#b8832a">+${bonus}</b></div>
+      <div class="sc-st"><span>Итого н/ч</span><b style="color:var(--pkd)">${total}</b></div>
+      <div class="prog"><div class="pf" style="width:${Math.min(100,pct)}%"></div></div>
+      <span class="badge ${cls}">${pct}% плана</span>
+    </div>`;
+  }).join('');
+}
+
+function renderSummaryTable(cooks){
+  const tbody=document.getElementById('summary-tbody'); if(!tbody)return;
+  tbody.innerHTML=cooks.map(u=>{
+    const worked = getWorkedH(u.name, curMonth);
+    const base   = getBaseNorm(u.name, curMonth);
+    const bonus  = getBfastBonus(u.name, curMonth);
+    const total  = Math.round((base+bonus)*100)/100;
+    const kpd    = worked>0 ? Math.round(total/worked*100) : 0;
+    const kCol   = kpd>=80?'color:var(--gnd)':kpd>=50?'color:var(--pkd)':'color:var(--rd)';
+    return `<tr>
+      <td><b>${u.name}</b></td>
+      <td style="text-align:center">${worked||'—'}</td>
+      <td style="text-align:center">${base||'—'}</td>
+      <td style="text-align:center">${bonus>0?`<span class="bonus-chip">+${bonus}</span>`:'—'}</td>
+      <td style="text-align:center"><span class="total-chip">${total||'—'}</span></td>
+      <td style="text-align:center;font-weight:900;${kCol}">${kpd?kpd+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPTables(cooks){
+  const head=`<th style="min-width:190px">Задача</th><th>Норма</th>`+cooks.map(u=>`<th style="text-align:center">${u.name}</th>`).join('');
+  document.getElementById('dth').innerHTML=head;
+  document.getElementById('bth').innerHTML=head;
+
+  let dh='',lastC='';
+  TD.forEach(t=>{
+    if(t.c!==lastC){dh+=`<tr class="ctr"><td colspan="${2+cooks.length}">${cEmoji(t.c)} ${t.c}</td></tr>`;lastC=t.c;}
+    const cells=cooks.map(u=>{
+      const d=(STATE.DB[curMonth]&&STATE.DB[curMonth][t.n]&&STATE.DB[curMonth][t.n][u.name]&&STATE.DB[curMonth][t.n][u.name].done)||0;
+      const hh=(d*t.h).toFixed(1);
+      return `<td style="text-align:center">${d>0?`<b style="color:var(--pkd)">${d}</b> <span class="hg">/${hh}ч</span>`:'<span style="color:var(--bed)">—</span>'}</td>`;
+    }).join('');
+    dh+=`<tr><td>${t.n}</td><td style="text-align:center;font-weight:700;color:var(--br)">${t.h}</td>${cells}</tr>`;
+  });
+  document.getElementById('dtb').innerHTML=dh;
+
+  let bh='';
+  TB.forEach(t=>{
+    const cells=cooks.map(u=>{
+      const d=(STATE.DB[curMonth]&&STATE.DB[curMonth][t.n]&&STATE.DB[curMonth][t.n][u.name]&&STATE.DB[curMonth][t.n][u.name].done)||0;
+      const hh=(d*t.h).toFixed(2);
+      return `<td style="text-align:center">${d>0?`<b style="color:var(--pkd)">${d}</b> <span class="hg">/${hh}ч</span>`:'<span style="color:var(--bed)">—</span>'}</td>`;
+    }).join('');
+    bh+=`<tr><td>${t.n}</td><td style="text-align:center;font-weight:700;color:var(--br)">${t.h}</td>${cells}</tr>`;
+  });
+  document.getElementById('btb').innerHTML=bh;
+}
+
+// ── Staff management ──
+function renderAStaff(){
+  document.getElementById('a-slist').innerHTML=STATE.users.map((u,i)=>`
+    <div class="sr"><div>
+      <div class="srnm">${u.name} <span style="font-size:11px;background:var(--pkl);color:var(--pkd);padding:2px 8px;border-radius:8px;margin-left:6px">${u.role}</span></div>
+      <div class="srmt">ПИН: ${'•'.repeat(4)} · план: ${u.planPerShift||7} н/ч/смену</div>
+    </div><button class="bdel" onclick="delUser(${i})">×</button></div>`).join('');
+}
+function openAddUser(){
+  document.getElementById('mc').innerHTML=`<div class="md-ttl">Новый сотрудник</div>
+    <div class="fr"><label class="fl2">Имя</label><input class="fi2" id="nu-n" placeholder="Например: Вика"></div>
+    <div class="fr"><label class="fl2">PIN-код (4 цифры)</label><input class="fi2" id="nu-p" type="number" placeholder="7777"></div>
+    <div class="fr"><label class="fl2">Роль</label><select class="fs2" id="nu-r"><option value="Povar">Повар</option><option value="Admin">Администратор</option></select></div>
+    <div class="fr"><label class="fl2">План н/ч за смену</label><input class="fi2" type="number" id="nu-h" value="7"></div>
+    <div class="mac"><button class="btn btns" onclick="closeMo()">Отмена</button><button class="btn btnp" onclick="addUser()">Добавить</button></div>`;
+  document.getElementById('mo').classList.add('open');
+}
+function addUser(){
+  const n=document.getElementById('nu-n').value.trim();
+  const p=String(document.getElementById('nu-p').value).trim();
+  const r=document.getElementById('nu-r').value;
+  const h=parseFloat(document.getElementById('nu-h').value)||7;
+  if(!n||p.length!==4){showToast('Имя и 4-значный PIN обязательны');return;}
+  if(STATE.users.find(u=>String(u.pin).trim()===String(p).trim())){showToast('Этот PIN уже занят');return;}
+  STATE.users.push({name:n,pin:p,role:r,planPerShift:h});
+  closeMo(); renderAStaff(); showToast(`${n} добавлена!`);
+}
+function delUser(i){
+  if(!confirm(`Удалить "${STATE.users[i].name}"?`))return;
+  STATE.users.splice(i,1); renderAStaff(); showToast('Удалено');
+}
+
+// ── Tasks management ──
+// Current filter for tasks view
+let _taskFilter = 'all';
+
+function filterTasks(f, el){
+  _taskFilter = f;
+  document.querySelectorAll('#task-filter-tabs .mbtn').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+  renderATasks();
+}
+
+function renderATasks(){
+  const tasks = STATE.tasksConfig || [];
+  const active = tasks.filter(t => t.isActive !== false);
+  const archived = tasks.filter(t => t.isActive === false);
+  const categories = [...new Set(tasks.map(t => t.category || 'Общие').filter(Boolean))];
+
+  let html = '';
+
+  // Active tasks by category
+  categories.forEach(cat => {
+    const catTasks = active.filter(t => (t.category || 'Общие') === cat);
+    if (!catTasks.length) return;
+    html += `<div style="padding:10px 20px;background:var(--gnl);font-size:10px;font-weight:900;color:var(--gnd);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #c8e0b0">${cat}</div>`;
+    catTasks.forEach((t, i) => {
+      const idx = tasks.indexOf(t);
+      html += `<div class="sr" style="align-items:center">
+        <div style="flex:1">
+          <div class="srnm">${t.name}</div>
+          <div class="srmt">${t.category || ''} · норма: <b>${t.normHours} ч</b></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" step="0.25" min="0.1" value="${t.normHours}"
+            style="width:70px;padding:6px 8px;border:1.5px solid var(--pkm);border-radius:8px;font-size:13px;font-weight:700;color:var(--pkk);text-align:center;font-family:'Actay','Nunito',sans-serif"
+            onchange="updateTaskNorm(${idx}, this.value)" title="Изменить норму часов">
+          <button class="bsm bgh" onclick="archiveTask(${idx})" title="Архивировать">Архив</button>
+          <button class="bdel" onclick="deleteTask(${idx})" title="Удалить навсегда">×</button>
+        </div>
+      </div>`;
+    });
+  });
+
+  // Archived tasks (collapsed)
+  if (archived.length) {
+    html += `<div style="padding:12px 20px;border-top:2px solid var(--be)">
+      <details>
+        <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--sf);letter-spacing:.5px">
+          АРХИВ (${archived.length} задач)
+        </summary>
+        <div style="margin-top:10px">`;
+    archived.forEach((t, i) => {
+      const idx = tasks.indexOf(t);
+      html += `<div class="sr">
+        <div><div class="srnm" style="color:var(--sf)">${t.name}</div>
+        <div class="srmt">${t.category || ''} · норма: ${t.normHours} ч · архив</div></div>
+        <button class="bsm bgh" onclick="restoreTask(${idx})">Восстановить</button>
+      </div>`;
+    });
+    html += `</div></details></div>`;
+  }
+
+  if (!tasks.length) {
+    html = `<div style="padding:30px;text-align:center;color:var(--sf);font-size:13px;font-weight:600">
+      Нет задач. Добавьте задачи или синхронизируйте с листом TasksConfig.
+    </div>`;
+  }
+
+  const el = document.getElementById('admin-tasks-list');
+  if (el) el.innerHTML = html;
+}
+
+function updateTaskNorm(idx, value) {
+  const norm = parseFloat(value) || 0;
+  if (!norm || norm <= 0) { showToast('Введите корректную норму'); return; }
+  STATE.tasksConfig[idx].normHours = norm;
+  // Save to Sheets
+  const t = STATE.tasksConfig[idx];
+  const url = SHEETS_URL + '?action=updateTask&name=' + encodeURIComponent(t.name) + '&normHours=' + norm;
+  fetch(url, {method:'GET', redirect:'follow'}).catch(()=>{});
+  showToast(`Норма для "${t.name}" → ${norm} ч`);
+  // Rebuild active task lists
+  rebuildActiveTasks();
+}
+
+function archiveTask(idx) {
+  const t = STATE.tasksConfig[idx];
+  if (!confirm(`Архивировать "${t.name}"? Она исчезнет у поваров но останется в базе.`)) return;
+  STATE.tasksConfig[idx].isActive = false;
+  const url = SHEETS_URL + '?action=updateTask&name=' + encodeURIComponent(t.name) + '&isActive=false';
+  fetch(url, {method:'GET', redirect:'follow'}).catch(()=>{});
+  renderATasks(); rebuildActiveTasks();
+  showToast(`"${t.name}" → архив`);
+}
+
+function restoreTask(idx) {
+  const t = STATE.tasksConfig[idx];
+  STATE.tasksConfig[idx].isActive = true;
+  const url = SHEETS_URL + '?action=updateTask&name=' + encodeURIComponent(t.name) + '&isActive=true';
+  fetch(url, {method:'GET', redirect:'follow'}).catch(()=>{});
+  renderATasks(); rebuildActiveTasks();
+  showToast(`"${t.name}" → восстановлена`);
+}
+
+function deleteTask(idx) {
+  const t = STATE.tasksConfig[idx];
+  if (!confirm(`Удалить "${t.name}" навсегда?`)) return;
+  STATE.tasksConfig.splice(idx, 1);
+  const url = SHEETS_URL + '?action=deleteTask&name=' + encodeURIComponent(t.name);
+  fetch(url, {method:'GET', redirect:'follow'}).catch(()=>{});
+  renderATasks(); rebuildActiveTasks();
+  showToast(`"${t.name}" удалена`);
+}
+
+// Rebuild TD/TB arrays from tasksConfig
+function rebuildActiveTasks() {
+  if (!STATE.tasksConfig || !STATE.tasksConfig.length) return;
+  TD.length = 0;
+  TB.length = 0;
+  STATE.tasksConfig.filter(t => t.isActive !== false).forEach(t => {
+    const obj = {n: t.name, h: Number(t.normHours)||0.5, m: t.minBatch||null, c: t.category||''};
+    if (t.category === 'Завтраки') TB.push(obj);
+    else TD.push(obj);
+  });
+}
+
+
+function openAddTaskModal(){
+  const categories = STATE.tasksConfig
+    ? [...new Set(STATE.tasksConfig.map(t=>t.category||'').filter(Boolean))]
+    : ['Кексы','Чизкейки','Трюфели','Торты','Тарталетки','Муссовые','Кейк-попсы','Бенто','Завтраки'];
+  const catOpts = categories.map(c=>`<option>${c}</option>`).join('');
+
+  document.getElementById('mc').innerHTML=`
+    <div class="md-ttl">Новая задача</div>
+    <div class="fr"><label class="fl2">Название задачи</label>
+      <input class="fi2" id="nt-name" placeholder="Например: Замес нового крема"></div>
+    <div class="fr"><label class="fl2">Категория</label>
+      <select class="fs2" id="nt-cat">
+        ${catOpts}
+        <option value="__new">+ Новая категория...</option>
+      </select></div>
+    <div id="new-cat-wrap" style="display:none;margin-top:8px">
+      <input class="fi2" id="nt-newcat" placeholder="Название новой категории"></div>
+    <div class="f2">
+      <div class="fr"><label class="fl2">Норма часов за замес</label>
+        <input class="fi2" type="number" id="nt-norm" step="0.25" value="0.5" min="0.1"></div>
+      <div class="fr"><label class="fl2">Мин. замес (необяз.)</label>
+        <input class="fi2" id="nt-min" placeholder="4 шт"></div>
+    </div>
+    <div class="fr"><label class="fl2">Статус</label>
+      <select class="fs2" id="nt-active">
+        <option value="true">Активна (видна поварам)</option>
+        <option value="false">Архив (скрыта)</option>
+      </select></div>
+    <div class="mac">
+      <button class="btn btns" onclick="closeMo()">Отмена</button>
+      <button class="btn btnp" onclick="confirmAddTask()">Добавить</button>
+    </div>`;
+
+  // Show/hide new category input
+  document.getElementById('nt-cat').onchange = function(){
+    document.getElementById('new-cat-wrap').style.display =
+      this.value === '__new' ? 'block' : 'none';
+  };
+  document.getElementById('mo').classList.add('open');
+}
+
+function confirmAddTask(){
+  const name = document.getElementById('nt-name').value.trim();
+  const norm = parseFloat(document.getElementById('nt-norm').value) || 0.5;
+  const min  = document.getElementById('nt-min').value.trim() || null;
+  const isActive = document.getElementById('nt-active').value === 'true';
+  let cat = document.getElementById('nt-cat').value;
+  if (cat === '__new') cat = document.getElementById('nt-newcat').value.trim() || 'Общие';
+
+  if (!name) { showToast('Введите название задачи'); return; }
+  if (STATE.tasksConfig && STATE.tasksConfig.find(t=>t.name===name)) {
+    showToast('Задача с таким именем уже существует'); return;
+  }
+
+  const newTask = { name, normHours: norm, category: cat, minBatch: min, isActive };
+  if (!STATE.tasksConfig) STATE.tasksConfig = [];
+  STATE.tasksConfig.push(newTask);
+
+  // Save to Sheets
+  const url = SHEETS_URL + '?action=addTask&name=' + encodeURIComponent(name)
+    + '&normHours=' + norm + '&category=' + encodeURIComponent(cat)
+    + '&minBatch=' + encodeURIComponent(min||'')
+    + '&isActive=' + isActive;
+  fetch(url, {method:'GET', redirect:'follow'}).then(r=>r.json())
+    .then(d=>{ if(d&&d.ok) showToast(`"${name}" сохранена в TasksConfig`); })
+    .catch(()=>showToast(`"${name}" добавлена локально`));
+
+  closeMo();
+  renderATasks();
+  rebuildActiveTasks();
+  showToast(`Задача "${name}" добавлена!`);
+}
+
+
+function editTaskModal(t){
+  document.getElementById('mc').innerHTML=`<div class="md-ttl">Изменить задачу</div>
+    <div style="font-size:14px;font-weight:600;color:var(--br);margin-bottom:16px">${t.name}</div>
+    <div class="f2">
+      <div class="fr"><label class="fl2">Норма часов</label><input class="fi2" type="number" id="et-h" step="0.25" value="${t.normHours}" min="0.1"></div>
+      <div class="fr"><label class="fl2">Мин. замес</label><input class="fi2" id="et-m" value="${t.minBatch||''}"></div>
+    </div>
+    <p style="font-size:12px;color:var(--sf);margin-bottom:4px">Новая норма применяется только к <b>новым</b> отчётам. Старые сохранят историческую норму.</p>
+    <div class="mac"><button class="btn btns" onclick="closeMo()">Отмена</button><button class="btn btnp" onclick="updateTask(${JSON.stringify(t).replace(/"/g,'&quot;')})">Сохранить</button></div>`;
+  document.getElementById('mo').classList.add('open');
+}
+
+async function updateTask(t){
+  const norm  = parseFloat(document.getElementById('et-h').value)||t.normHours;
+  const batch = document.getElementById('et-m').value.trim();
+  closeMo();
+  showLd('Обновляем задачу...');
+  const url = SHEETS_URL+'?action=saveTask'
+    +'&taskName='+encodeURIComponent(t.name)
+    +'&category='+encodeURIComponent(t.category)
+    +'&normHours='+norm
+    +'&minBatch='+encodeURIComponent(batch)
+    +'&isActive='+(t.isActive?'true':'false');
+  try{await fetch(url,{method:'GET',redirect:'follow'}); await fetchData();}catch(e){}
+  hideLd(); renderATasks();
+  showToast('Задача обновлена!');
+}
+
+async function toggleTaskArchive(t){
+  const newActive = !t.isActive;
+  const action = newActive ? 'активировать' : 'архивировать';
+  if(!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} задачу "${t.name}"?`)) return;
+  showLd('Сохраняем...');
+  const url = SHEETS_URL+'?action=saveTask'
+    +'&taskName='+encodeURIComponent(t.name)
+    +'&category='+encodeURIComponent(t.category)
+    +'&normHours='+t.normHours
+    +'&minBatch='+encodeURIComponent(t.minBatch||'')
+    +'&isActive='+(newActive?'true':'false');
+  try{await fetch(url,{method:'GET',redirect:'follow'}); await fetchData();}catch(e){}
+  hideLd(); renderATasks();
+  showToast(newActive?`"${t.name}" активирована`:`"${t.name}" архивирована`);
+}
+
+// ── Plans / Settings ──
+function renderPlans(){
+  const cooks=STATE.users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+  document.getElementById('a-plans').innerHTML=cooks.map((u,i)=>`
+    <div class="pr">
+      <div><div style="font-size:15px;font-weight:700;color:var(--br)">${u.name}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="pi" type="number" min="1" max="24" step="0.5" value="${u.planPerShift||7}"
+          oninput="STATE.users.find(x=>x.name==='${u.name}').planPerShift=parseFloat(this.value)||7">
+        <span style="font-size:12px;color:var(--sf)">н/ч / смену</span>
+      </div></div>`).join('');
+}
+function savePlans(){ renderDash(); showToast('План сохранён!'); }
+
+function renderMonthlyPlanForm(){
+  const el=document.getElementById('monthly-plan-form'); if(!el)return;
+  el.innerHTML=MONTHS.map(m=>{
+    const val=monthPlans[m]||(STATE.users.find(u=>(u.role||'').toLowerCase()!=='admin')||{}).planPerShift||7;
+    const isFuture=MONTHS.indexOf(m)>MONTHS.indexOf(curMonth);
+    return `<div class="mplan-row">
+      <div><div class="mplan-month">${m}</div><div class="mplan-note">${isFuture?'Будущий месяц':m===curMonth?'Текущий':''}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="mplan-input" type="number" min="1" max="24" step="0.5" value="${val}"
+          oninput="monthPlans['${m}']=parseFloat(this.value)||7">
+        <span style="font-size:12px;color:var(--sf)">н/ч / смену</span>
+      </div></div>`;
+  }).join('');
+}
+
+// ── Reports ──
+function aRep(type){
+  const box=document.getElementById('rep-out'); box.style.display='block';
+  const ttl=document.getElementById('rep-ttl'), body=document.getElementById('rep-body');
+  const cooks=STATE.users.filter(u=>(u.role||'').toLowerCase()!=='admin');
+
+  if(type==='eff'){
+    ttl.textContent=`Эффективность — ${curMonth}`;
+    const rows=cooks.map(u=>{
+      const plan=(monthPlans[curMonth]||u.planPerShift||7)*12;
+      const total=calcTotalNorm(u.name,curMonth);
+      const pct=plan?Math.round(total/plan*100):0;
+      const cls=pct>=100?'bg-g':pct>=60?'bg-n':'bg-r';
+      return `<tr><td><b>${u.name}</b></td><td>${plan}</td><td>${total}</td><td><span class="badge ${cls}">${pct}%</span></td></tr>`;
+    }).join('');
+    body.innerHTML=`<table class="dt"><thead><tr><th>Сотрудник</th><th>План н/ч</th><th>Факт н/ч</th><th>Выполнение</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  } else if(type==='hrs'){
+    ttl.textContent=`Нормо-часы план vs факт — ${curMonth}`;
+    const maxV=Math.max(...cooks.map(u=>(monthPlans[curMonth]||u.planPerShift||7)*12),1);
+    let h='<div style="padding:20px">';
+    cooks.forEach(u=>{
+      const plan=(monthPlans[curMonth]||u.planPerShift||7)*12;
+      const total=calcTotalNorm(u.name,curMonth);
+      const pct=plan?Math.round(total/plan*100):0;
+      h+=`<div class="chart-rw"><div class="chart-nr"><span class="chart-nm">${u.name}</span><span class="chart-pc">${pct}% от плана</span></div>
+        <div class="chart-bg"><div class="chart-pl" style="width:${plan/maxV*100}%"></div>
+        <div class="chart-fa" style="width:${Math.max(total/maxV*100,4)}%"><span class="chart-lb">${total} ч</span></div></div></div>`;
+    });
+    body.innerHTML=h+'</div>';
+
+  } else if(type==='top'){
+    ttl.textContent=`Топ задач — ${curMonth}`;
+    const rows=allT().map(t=>{
+      const tot=cooks.reduce((s,u)=>{
+        const d=(STATE.DB[curMonth]&&STATE.DB[curMonth][t.n]&&STATE.DB[curMonth][t.n][u.name]&&STATE.DB[curMonth][t.n][u.name].done)||0;
+        return s+d;
+      },0);
+      return {n:t.n,tot,hrs:+(tot*t.h).toFixed(2)};
+    }).filter(x=>x.tot>0).sort((a,b)=>b.hrs-a.hrs).slice(0,10);
+    body.innerHTML=`<table class="dt"><thead><tr><th>Задача</th><th style="text-align:center">Выполнено</th><th style="text-align:center">Нормо-часов</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r.n}</td><td style="text-align:center;font-weight:700">${r.tot}</td><td style="text-align:center;color:var(--pkd);font-weight:700">${r.hrs} ч</td></tr>`).join('')}</tbody></table>`;
+  }
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth'}),50);
+}
+
+// ════════════════════════════════════════════════════════════
+//  BREAKFAST ADMIN
+// ════════════════════════════════════════════════════════════
+function initBfastDate(){
+  const el=document.getElementById('bf-date');
+  if(el&&!el.value) el.value=new Date().toISOString().slice(0,10);
+}
+
+function renderBfastView(){
+  const now=new Date();
+  const btnsCont=document.getElementById('bf-month-btns');
+  if(btnsCont){
+    btnsCont.innerHTML=MONTHS.slice(0,now.getMonth()+2).map((m,i)=>{
+      const active=i===now.getMonth();
+      return `<button class="bsm ${active?'bpk':'bgh'}" onclick="renderBfastMonth(${i},${now.getFullYear()})">${m}</button>`;
+    }).join('');
+  }
+  renderBfastMonth(now.getMonth(), now.getFullYear());
+}
+
+function renderBfastMonth(monthIdx, year){
+  const daysInMonth=new Date(year,monthIdx+1,0).getDate();
+  const monthName=MONTHS[monthIdx];
+  const titleEl=document.getElementById('bf-cal-title');
+  if(titleEl) titleEl.textContent=`${monthName} ${year}`;
+
+  let html='<div class="bf-grid">';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cnt = STATE.dailyStats[dateStr] || 0;
+    const hasData = cnt > 0;
+    html+=`<div class="bf-cell${hasData?' has-data':''}" onclick="quickFillBfast('${dateStr}',${cnt})">
+      <div class="bf-day">${d} ${monthName.slice(0,3).toUpperCase()}</div>
+      <div class="bf-count">${hasData?cnt:'—'}</div>
+      <div class="bf-unit">${hasData?'шт':''}</div>
+    </div>`;
+  }
+  html+='</div>';
+  document.getElementById('bf-cal-grid').innerHTML=html;
+}
+
+function quickFillBfast(date, current){
+  document.getElementById('bf-date').value=date;
+  document.getElementById('bf-count').value=current||'';
+  document.getElementById('bf-count').focus();
+}
+
+async function saveBfastDay(){
+  const date  = document.getElementById('bf-date').value;
+  const count = parseInt(document.getElementById('bf-count').value)||0;
+  if(!date){showToast('Выберите дату');return;}
+
+  // Update local state immediately
+  STATE.dailyStats[date] = count;
+  renderBfastView();
+
+  const btns=document.querySelectorAll('[onclick="saveBfastDay()"]');
+  btns.forEach(b=>{b.disabled=true;b.textContent='Сохраняем...';});
+
+  const url=SHEETS_URL+'?action=saveDailyStats&date='+encodeURIComponent(date)+'&bfastCount='+count;
+  let sent=false;
+  try{const r=await fetch(url,{method:'GET',redirect:'follow'});const d=await r.json();if(d&&d.ok)sent=true;}catch(e){}
+  if(!sent){try{await fetch(url,{method:'GET',mode:'no-cors',redirect:'follow'});sent=true;}catch(e){}}
+
+  btns.forEach(b=>{b.disabled=false;b.textContent='Сохранить';});
+  if(sent){
+    document.getElementById('bf-count').value='';
+    renderBfastView(); // just re-render from STATE (already updated above)
+    showToast(`${count} завтраков за ${formatDateRu(date)} — сохранено`);
+  } else {
+    renderBfastView();
+    showToast('Сохранено локально');
+  }
+}
+
+function formatDateRu(s){
+  return new Date(s).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+}
+
+// ════════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════════
+const LS_SHIFTS='burry_shifts';
+function loadCookShiftsFromLS(n){try{return JSON.parse(localStorage.getItem(LS_SHIFTS)||'{}')[n]||[];}catch(e){return [];}}
+function saveCookShiftLocally(staff,shift){try{const a=JSON.parse(localStorage.getItem(LS_SHIFTS)||'{}');if(!a[staff])a[staff]=[];const idx=a[staff].findIndex(s=>s.date===shift.date);if(idx>=0){a[staff][idx].normH=Math.round((a[staff][idx].normH+shift.normH)*100)/100;}else{a[staff].push(shift);}localStorage.setItem(LS_SHIFTS,JSON.stringify(a));}catch(e){}}
+
+function showLd(t){
+  // Never show blocking overlay on login screen
+  if(document.getElementById('s-login').classList.contains('active')) return;
+  document.getElementById('ldtx').textContent=t||'Загрузка...';
+  document.getElementById('ldo').classList.add('show');
+}
+function hideLd(){document.getElementById('ldo').classList.remove('show');}
+let _tt;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3500);}
+function closeMo(){document.getElementById('mo').classList.remove('open');}
+
+function toggleSidebar(){
+  const sb  = document.getElementById('a-sidebar');
+  const btn = document.getElementById('burger-btn');
+  const ov  = document.getElementById('sidebar-overlay');
+  if(!sb) return;
+  if(sb.classList.contains('open')){ closeSidebar(); }
+  else { sb.classList.add('open'); btn && btn.classList.add('open'); ov && ov.classList.add('show'); }
+}
+function closeSidebar(){
+  const sb  = document.getElementById('a-sidebar');
+  const btn = document.getElementById('burger-btn');
+  const ov  = document.getElementById('sidebar-overlay');
+  if(sb)  sb.classList.remove('open');
+  if(btn) btn.classList.remove('open');
+  if(ov)  ov.classList.remove('show');
+}
+
+//══════════
+//  TASKS CONFIG MANAGEMENT
+// ════════════════════════════════════════════════════════════
+
+async function _asyncInit(){
+  // Сначала грузим кэш — мгновенно
+  const cached = loadCache();
+  if (cached && cached.users && cached.users.length) {
+    STATE.users = cached.users;
+  }
+
+  // Обновляем пользователей из Sheets (3 сек лимит)
+  try{
+    const ctrl=new AbortController();
+    setTimeout(()=>ctrl.abort(),3000);
+    const r=await fetch(SHEETS_URL+'?action=getUsers',{method:'GET',redirect:'follow',signal:ctrl.signal});
+    const d=await r.json();
+    if(d&&d.users&&d.users.length) STATE.users=d.users;
+  }catch(e){ /* используем дефолт */ }
+
+  // Автологин если есть сессия
+  const sess=getSession();
+  if(sess){
+    const u=STATE.users.find(x=>String(x.pin).trim()===String(sess.pin).trim());
+    if(u){ curUser=u; enterApp(); fetchData().catch(()=>{}); }
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SESSION
+// ════════════════════════════════════════════════════════════
+function saveSession(u){ localStorage.setItem(SESS_KEY, JSON.stringify({...u, ts:Date.now()})); }
+function getSession(){
+  try {
+    const d = JSON.parse(localStorage.getItem(SESS_KEY)||'null');
+    if (!d) return null;
+    if (Date.now() - d.ts > SESS_TTL) { localStorage.removeItem(SESS_KEY); return null; }
+    return d;
+  } catch(e){ return null; }
+}
+function clearSession(){ localStorage.removeItem(SESS_KEY); }
+
+// ════════════════════════════════════════════════════════════
+//  PIN PAD
+// ════════════════════════════════════════════════════════════
+let pinV = '';
+function pp(d){ if(pinV.length>=4)return; pinV+=d; updDots(); if(pinV.length===4)setTimeout(pe,150); }
+function pd(){ pinV=pinV.slice(0,-1); updDots(); document.getElementById('l-err').textContent=''; }
+function updDots(){ for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('on', i<pinV.length); }
+
+(function(){
+  // Сброс по ?clear=1
+  if(new URLSearchParams(location.search).get('clear')==='1'){
+    localStorage.clear(); location.href=location.pathname; return;
+  }
+  // Сбрасываем кэш если там старые дефолтные пины (1111, 2222)
+  try {
+    const raw = JSON.parse(localStorage.getItem('burry_data_cache')||'null');
+    if (raw) {
+      const users = (raw.data||raw).users||[];
+      const hasOldPins = users.some(u=>u.pin==='1111'||u.pin==='2222');
+      if (hasOldPins) {
+        localStorage.removeItem('burry_data_cache');
+        localStorage.removeItem('burry_sess');
+        console.log('Cleared old cache with wrong PINs');
+      }
+    }
+  } catch(e) {}
+  STATE.users=[
+    {name:'Margo',     pin:'3334',role:'Admin', planPerShift:8},
+    {name:'Светлана',  pin:'3493',role:'Povar', planPerShift:7},
+    {name:'Екатерина', pin:'9237',role:'Povar', planPerShift:7},
+    {name:'Катя',      pin:'4444',role:'Povar', planPerShift:7},
+    {name:'Вика',      pin:'3333',role:'Povar', planPerShift:7},
+  ];
+  document.getElementById('l-load').textContent='';
+  showScr('login'); // СРАЗУ — до любых сетевых запросов
+  setTimeout(_asyncInit, 50); // всё остальное — через 50мс
+})();
+</script>
+</body>
+</html>
