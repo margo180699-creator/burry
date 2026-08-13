@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>BURRY — Заказы</title>
+<style>
+:root {
+  --pink: #FF3881;
+  --pink-light: #FFE8F3;
+  --black: #0A0A0A;
+  --white: #FFFFFF;
+  --gray-50: #F7F7F7;
+  --gray-100: #EFEFEF;
+  --gray-200: #E0E0E0;
+  --gray-400: #9E9E9E;
+  --gray-600: #5C5C5C;
+  --gray-800: #1A1A1A;
+  --green: #00A36C;
+  --green-light: #E6F7F2;
+  --red: #E53935;
+  --red-light: #FFEBEE;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); }
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--black); height: 52px;
+  display: flex; align-items: center; padding: 0 1rem;
+}
+.nav-logo { font-size: 16px; font-weight: 700; color: var(--white); letter-spacing: .05em; flex: 1; }
+.nav-btn {
+  background: none; border: none; color: var(--gray-400);
+  font-size: 13px; cursor: pointer; padding: 6px 10px;
+  border-radius: var(--radius-sm);
+}
+.nav-btn:hover { color: var(--white); }
+.nav-badge {
+  background: var(--pink); color: var(--white);
+  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  border-radius: 20px; margin-left: auto; margin-right: .5rem;
+}
+
+/* ── SCREENS ── */
+.screens { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+.screen {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  display: none; background: var(--gray-50);
+}
+.screen.active { display: block; }
+
+/* ── PIN SCREEN ── */
+.pin-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100%; padding: 2rem 1.5rem;
+  background: var(--black);
+}
+.pin-logo { font-size: 28px; font-weight: 700; color: var(--white); letter-spacing: .08em; margin-bottom: .5rem; }
+.pin-sub { font-size: 13px; color: var(--gray-400); margin-bottom: 2.5rem; }
+.pin-dots { display: flex; gap: 12px; margin-bottom: 2rem; }
+.pin-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--gray-600); background: transparent;
+  transition: background .15s, border-color .15s;
+}
+.pin-dot.filled { background: var(--pink); border-color: var(--pink); }
+.pin-error { font-size: 13px; color: var(--red); min-height: 18px; margin-bottom: 1rem; text-align: center; }
+.pin-grid { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+.pin-key {
+  width: 72px; height: 72px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.08); color: var(--white);
+  font-size: 22px; font-weight: 500; cursor: pointer;
+  transition: background .12s; display: flex; align-items: center; justify-content: center;
+}
+.pin-key:active { background: rgba(255,255,255,.18); }
+.pin-key.del { font-size: 18px; color: var(--gray-400); }
+.pin-key.empty { background: transparent; pointer-events: none; }
+
+/* ── HEADER ── */
+.page-header {
+  padding: 1.25rem 1rem .75rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+}
+.page-header-back {
+  font-size: 13px; color: var(--gray-400); background: none; border: none;
+  cursor: pointer; padding: 0; margin-bottom: .5rem; display: block;
+}
+.page-title { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+.page-sub { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
+
+/* ── MODE SELECT ── */
+.mode-grid { padding: 1rem; display: flex; flex-direction: column; gap: .75rem; }
+.mode-card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+  cursor: pointer; box-shadow: var(--shadow); border: 1.5px solid transparent;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mode-card:active { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-light); }
+.mode-icon {
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.mode-card-title { font-size: 15px; font-weight: 600; }
+.mode-card-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+/* ── CHIPS / TABS ── */
+.chips { display: flex; gap: .5rem; padding: .75rem 1rem; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 500; cursor: pointer; border: none;
+  background: var(--gray-100); color: var(--gray-600); transition: all .15s;
+}
+.chip.active { background: var(--black); color: var(--white); }
+
+.subtabs { display: flex; border-bottom: 1px solid var(--gray-100); background: var(--white); }
+.subtab {
+  flex: 1; padding: .75rem .5rem; font-size: 13px; font-weight: 500;
+  color: var(--gray-400); text-align: center; cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; transition: all .15s;
+}
+.subtab.active { color: var(--gray-800); border-bottom-color: var(--pink); }
+
+/* ── SUMMARY CHIPS ── */
+.summary { display: flex; gap: .5rem; padding: .75rem 1rem; background: var(--white); border-bottom: 1px solid var(--gray-100); }
+.sum-chip {
+  padding: 4px 10px; border-radius: 20px; font-size: 12px;
+  background: var(--gray-100); color: var(--gray-600);
+}
+.sum-chip b { color: var(--gray-800); }
+
+/* ── ORDER ITEMS ── */
+.section-label {
+  padding: .5rem 1rem .25rem; font-size: 11px; font-weight: 600;
+  color: var(--gray-400); letter-spacing: .06em; text-transform: uppercase;
+  background: var(--gray-50);
+}
+.product-row {
+  background: var(--white); padding: .75rem 1rem;
+  border-bottom: 1px solid var(--gray-100); display: flex; align-items: flex-start; gap: .75rem;
+}
+.product-row.has-qty { border-left: 3px solid var(--pink); }
+.product-row.critical { border-left: 3px solid var(--amber); }
+.product-info { flex: 1; min-width: 0; }
+.product-name { font-size: 14px; font-weight: 500; }
+.product-unit { font-size: 12px; color: var(--gray-400); }
+.product-controls { display: flex; align-items: center; gap: .35rem; flex-shrink: 0; }
+.qty-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-size: 18px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: var(--gray-800);
+  transition: all .12s;
+}
+.qty-btn:active { background: var(--gray-100); }
+.qty-input {
+  width: 52px; height: 32px; text-align: center; border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+  font-family: inherit; color: var(--gray-800);
+}
+.qty-input:focus { outline: none; border-color: var(--pink); }
+.comment-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: var(--gray-100); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.comment-box {
+  margin-top: .5rem; padding: .5rem .75rem;
+  background: var(--gray-50); border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+}
+.comment-box textarea {
+  width: 100%; border: none; background: none; font-size: 13px;
+  font-family: inherit; resize: none; outline: none; color: var(--gray-800);
+}
+.stock-row {
+  background: var(--amber-light); border: 1px solid var(--amber);
+  border-radius: var(--radius-sm); padding: .5rem .75rem; margin: .25rem 1rem .5rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.stock-label { font-size: 12px; color: var(--amber); flex: 1; font-weight: 500; }
+.stock-input {
+  width: 80px; border: 1px solid var(--amber); border-radius: 6px;
+  padding: 4px 8px; font-size: 13px; font-family: inherit; text-align: center;
+}
+
+/* ── MGR ITEMS ── */
+.mgr-item {
+  background: var(--white); padding: .85rem 1rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.mgr-item-top { display: flex; align-items: flex-start; gap: .5rem; }
+.mgr-item-name { font-size: 15px; font-weight: 500; flex: 1; }
+.mgr-item-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.mgr-item-bottom { display: flex; align-items: center; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+.tag {
+  font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px;
+}
+.tag-bar { background: #E8F1FB; color: var(--blue); }
+.tag-kitchen { background: var(--green-light); color: var(--green); }
+.tag-emergency { background: var(--red-light); color: var(--red); }
+.tag-weekly { background: var(--gray-100); color: var(--gray-600); }
+.qty-field {
+  display: flex; align-items: center; gap: .3rem; font-size: 13px; color: var(--gray-600);
+}
+.qty-field input {
+  width: 52px; border: 1px solid var(--gray-200); border-radius: 6px;
+  padding: 3px 6px; font-size: 13px; font-family: inherit; text-align: center;
+}
+.status-btn {
+  padding: 5px 12px; border-radius: 20px; border: none; font-size: 12px;
+  font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .12s;
+}
+.btn-done { background: var(--green-light); color: var(--green); }
+.btn-later { background: var(--amber-light); color: var(--amber); }
+.btn-restore { background: var(--gray-100); color: var(--gray-600); }
+.supplier-select {
+  border: 1px solid var(--gray-200); border-radius: 6px; padding: 3px 6px;
+  font-size: 12px; font-family: inherit; color: var(--gray-600); background: var(--white);
+}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--gray-100);
+  padding: .75rem 1rem; display: flex; gap: .75rem;
+  box-shadow: 0 -4px 12px rgba(0,0,0,.06);
+}
+.btn-primary {
+  flex: 1; height: 48px; background: var(--pink); color: var(--white);
+  border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: opacity .15s;
+}
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.btn-secondary {
+  height: 48px; padding: 0 1.25rem; background: var(--gray-100); color: var(--gray-800);
+  border: none; border-radius: var(--radius); font-size: 15px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+}
+.spacer { height: 80px; }
+
+/* ── EMERGENCY ── */
+.emerg-row {
+  background: var(--white); padding: .75rem 1rem;
+  border-bottom: 1px solid var(--gray-100); display: flex; gap: .5rem; align-items: flex-start;
+}
+.emerg-input {
+  flex: 1; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 8px 10px; font-size: 14px; font-family: inherit;
+}
+.emerg-input:focus { outline: none; border-color: var(--pink); }
+.emerg-del {
+  width: 36px; height: 36px; border: none; background: var(--red-light);
+  color: var(--red); border-radius: 50%; cursor: pointer; font-size: 18px; flex-shrink: 0;
+}
+.emerg-reason { margin: 0 1rem .75rem; }
+.emerg-reason input {
+  width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 8px 10px; font-size: 14px; font-family: inherit;
+}
+.add-row-btn {
+  margin: .75rem 1rem; padding: 10px; border: 1.5px dashed var(--gray-200);
+  border-radius: var(--radius-sm); background: none; width: calc(100% - 2rem);
+  font-size: 14px; color: var(--gray-400); cursor: pointer;
+}
+.autocomplete {
+  position: absolute; background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+  z-index: 50; max-height: 200px; overflow-y: auto; width: calc(100% - 2rem - 52px);
+}
+.autocomplete-item { padding: 10px 12px; font-size: 14px; cursor: pointer; }
+.autocomplete-item:hover { background: var(--gray-50); }
+
+/* ── DESSERTS / SVETA ── */
+.dessert-row {
+  background: var(--white); padding: .75rem 1rem;
+  border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; gap: .75rem;
+}
+.dessert-name { flex: 1; font-size: 15px; font-weight: 500; }
+.dessert-input {
+  width: 72px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 6px 8px; text-align: center; font-size: 15px; font-family: inherit;
+}
+.dessert-unit { font-size: 12px; color: var(--gray-400); width: 24px; }
+.sveta-item {
+  background: var(--white); padding: .85rem 1rem;
+  border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; gap: .75rem;
+}
+.sveta-item.urgent { border-left: 3px solid var(--red); }
+.sveta-info { flex: 1; }
+.sveta-name { font-size: 15px; font-weight: 500; }
+.sveta-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.sveta-stock { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.sveta-stock.urgent { color: var(--red); }
+.sveta-stock.ok { color: var(--blue); }
+.urgent-badge {
+  background: var(--red); color: var(--white);
+  font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px;
+}
+
+/* ── INV ── */
+.inv-item {
+  background: var(--white); padding: .75rem 1rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+.inv-item-header { display: flex; align-items: center; gap: .5rem; }
+.inv-item-check { width: 20px; height: 20px; accent-color: var(--pink); flex-shrink: 0; }
+.inv-item-name { font-size: 14px; flex: 1; }
+.inv-item-unit { font-size: 12px; color: var(--gray-400); }
+.inv-item-input { display: flex; align-items: center; gap: .5rem; margin-top: .5rem; padding-left: 28px; }
+.inv-weight {
+  width: 80px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 6px 8px; text-align: center; font-size: 14px; font-family: inherit;
+}
+.inv-weight:focus { outline: none; border-color: var(--pink); }
+.inv-tare-info { font-size: 12px; color: var(--gray-400); }
+.inv-net { font-size: 12px; color: var(--green); font-weight: 600; }
+.tare-toggle { display: flex; gap: .3rem; }
+.tare-btn {
+  padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gray-200);
+  font-size: 12px; cursor: pointer; background: var(--white); color: var(--gray-600);
+}
+.tare-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+/* ── SUCCESS ── */
+.success-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100%; padding: 2rem; text-align: center;
+}
+.success-icon {
+  width: 72px; height: 72px; background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; color: var(--white); margin-bottom: 1.5rem;
+}
+.success-title { font-size: 22px; font-weight: 700; margin-bottom: .5rem; }
+.success-sub { font-size: 14px; color: var(--gray-400); margin-bottom: 2rem; }
+.success-actions { display: flex; flex-direction: column; gap: .75rem; width: 100%; max-width: 280px; }
+
+/* ── EMPTY ── */
+.empty { padding: 3rem 1rem; text-align: center; color: var(--gray-400); font-size: 14px; }
+.loading { padding: 2rem 1rem; text-align: center; color: var(--gray-400); font-size: 14px; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 1.25rem; right: 1.25rem;
+  width: 52px; height: 52px; border-radius: 50%; border: none;
+  background: var(--pink); color: var(--white); font-size: 26px;
+  cursor: pointer; box-shadow: var(--shadow-lg); display: flex;
+  align-items: center; justify-content: center; z-index: 50;
+}
+.fab-inv {
+  position: fixed; bottom: 1.25rem; left: 1rem; right: 1rem;
+  justify-content: center;
+  height: 44px; padding: 0 1.25rem; border-radius: 22px; border: none;
+  background: var(--black); color: var(--white); font-size: 13px; font-weight: 600;
+  cursor: pointer; box-shadow: var(--shadow-lg); display: flex;
+  align-items: center; gap: .4rem; z-index: 50;
+}
+
+/* ── REFRESH ── */
+.refresh-btn {
+  position: fixed; bottom: 5rem; right: 1.25rem;
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--gray-200);
+  background: var(--white); font-size: 18px; cursor: pointer;
+  box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center;
+  z-index: 50;
+}
+
+/* ── MODAL / OVERLAY ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200;
+  display: none; align-items: flex-end;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%; padding: 1.5rem 1rem; max-height: 80vh; overflow-y: auto;
+}
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 1rem; }
+.modal-actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+
+/* ── CONFIRM ── */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300;
+  display: none; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.confirm-overlay.open { display: flex; }
+.confirm-box {
+  background: var(--white); border-radius: var(--radius); padding: 1.5rem;
+  width: 100%; max-width: 320px;
+}
+.confirm-title { font-size: 17px; font-weight: 700; margin-bottom: .5rem; }
+.confirm-sub { font-size: 14px; color: var(--gray-600); margin-bottom: 1.5rem; }
+.confirm-btns { display: flex; gap: .75rem; }
+.confirm-btns button { flex: 1; height: 44px; border-radius: var(--radius-sm); border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+  background: var(--gray-800); color: var(--white); padding: 10px 20px;
+  border-radius: 20px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 500; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── FORM FIELDS ── */
+.field-group { margin-bottom: 1rem; }
+.field-label { font-size: 13px; color: var(--gray-600); margin-bottom: .35rem; display: block; }
+.field-input {
+  width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--gray-800);
+}
+.field-input:focus { outline: none; border-color: var(--pink); }
+.field-select {
+  width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--gray-800);
+  background: var(--white);
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <span class="nav-logo">BURRY</span>
+  <span class="nav-badge" id="modeBadge" style="display:none"></span>
+  <button class="nav-btn" id="logoutBtn" style="display:none" onclick="logout()">Выйти</button>
+</div>
+
+<div class="screens">
+
+<!-- PIN -->
+<div class="screen active" id="sPin" style="background:var(--black)">
+  <div class="pin-screen">
+    <div class="pin-logo">BURRY</div>
+    <div class="pin-sub">Введи PIN для входа</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinKey(1)">1</button>
+      <button class="pin-key" onclick="pinKey(2)">2</button>
+      <button class="pin-key" onclick="pinKey(3)">3</button>
+      <button class="pin-key" onclick="pinKey(4)">4</button>
+      <button class="pin-key" onclick="pinKey(5)">5</button>
+      <button class="pin-key" onclick="pinKey(6)">6</button>
+      <button class="pin-key" onclick="pinKey(7)">7</button>
+      <button class="pin-key" onclick="pinKey(8)">8</button>
+      <button class="pin-key" onclick="pinKey(9)">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinKey(0)">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGER MODE SELECT (менеджер выбирает что делать) -->
+<div class="screen" id="sMgrMode">
+  <div class="page-header">
+    <div class="page-title" id="mgrModeTitle"></div>
+    <div class="page-sub">Что хочешь сделать?</div>
+  </div>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="enterMgr()">
+      <div class="mode-icon" style="background:#EFF6FF">📋</div>
+      <div><div class="mode-card-title">Смотреть заказы</div><div class="mode-card-sub">Дашборд менеджера</div></div>
+    </div>
+    <div class="mode-card" onclick="enterMgrOrderSelect()">
+      <div class="mode-icon" style="background:#E6F7F2">🛒</div>
+      <div><div class="mode-card-title">Сделать заказ</div><div class="mode-card-sub">Бар или кухня</div></div>
+    </div>
+    <div class="mode-card" id="mgrInvCard" style="display:none" onclick="enterFillInv()">
+      <div class="mode-icon" style="background:#FEF3C7">📦</div>
+      <div><div class="mode-card-title">Инвентаризация</div><div class="mode-card-sub" id="mgrInvSub">Активное задание</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MGR ORDER ROLE SELECT -->
+<div class="screen" id="sMgrOrderRole">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">Сделать заказ</div>
+    <div class="page-sub">Выбери роль</div>
+  </div>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="enterStaffMode('bar',false)">
+      <div class="mode-icon" style="background:#EFF6FF">☕</div>
+      <div><div class="mode-card-title">Бар</div><div class="mode-card-sub">Заказ для бара</div></div>
+    </div>
+    <div class="mode-card" onclick="enterStaffMode('kitchen',false)">
+      <div class="mode-icon" style="background:#E6F7F2">🍳</div>
+      <div><div class="mode-card-title">Кухня</div><div class="mode-card-sub">Заказ для кухни</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF MODE SELECT -->
+<div class="screen" id="sMode">
+  <div class="page-header">
+    <div class="page-title" id="modeName"></div>
+    <div class="page-sub" id="modeLoc"></div>
+  </div>
+  <div class="mode-grid" id="modeCards">
+    <div class="mode-card" onclick="startOrder('weekly')">
+      <div class="mode-icon" style="background:#F7F7F7">📋</div>
+      <div><div class="mode-card-title">Еженедельный заказ</div><div class="mode-card-sub">Понедельник — полный список</div></div>
+    </div>
+    <div class="mode-card" onclick="startOrder('urgent')">
+      <div class="mode-icon" style="background:#FEF3C7">⚡</div>
+      <div><div class="mode-card-title">Срочный заказ</div><div class="mode-card-sub">Четверг — сокращённый список</div></div>
+    </div>
+    <div class="mode-card" onclick="startOrder('biweekly')">
+      <div class="mode-icon" style="background:#EFF6FF">📅</div>
+      <div><div class="mode-card-title">Заказ 1 и 3 понедельник</div><div class="mode-card-sub">Раз в две недели</div></div>
+    </div>
+    <div class="mode-card" onclick="startOrder('emergency')">
+      <div class="mode-icon" style="background:#FFEBEE">🚨</div>
+      <div><div class="mode-card-title">Срочная заявка</div><div class="mode-card-sub">Не приехало, забыли...</div></div>
+    </div>
+    <div class="mode-card" onclick="showMyOrders()">
+      <div class="mode-icon" style="background:#F7F7F7">📦</div>
+      <div><div class="mode-card-title">Мои заказы</div><div class="mode-card-sub">Статус текущих заявок</div></div>
+    </div>
+    <div class="mode-card" id="dessertCard" style="display:none" onclick="enterDessertScreen()">
+      <div class="mode-icon" style="background:#FFE8F3">🍰</div>
+      <div><div class="mode-card-title">Остатки десертов</div><div class="mode-card-sub" id="dessertCardSub">Десерты</div></div>
+    </div>
+    <div class="mode-card" id="invCard" style="display:none" onclick="enterFillInv()">
+      <div class="mode-icon" style="background:#FEF3C7">📋</div>
+      <div><div class="mode-card-title">Инвентаризация</div><div class="mode-card-sub" id="invCardSub">Активное задание</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER SCREEN -->
+<div class="screen" id="sOrder">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title" id="orderTitle"></div>
+    <div class="page-sub" id="orderSub"></div>
+  </div>
+  <div id="productList"></div>
+  <div class="spacer"></div>
+</div>
+<div class="bottom-bar" id="orderBar" style="display:none">
+  <button class="btn-secondary" onclick="resetAll()">Сбросить</button>
+  <button class="btn-primary" id="btnSend" onclick="sendOrder()" disabled>Укажи количество</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="screen" id="sSuccess">
+  <div class="success-screen">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Отправлено!</div>
+    <div class="success-sub" id="successSub"></div>
+    <div class="success-actions">
+      <button class="btn-primary" onclick="goBack()">Сделать ещё заказ</button>
+      <button class="btn-secondary" onclick="logout()">На главный экран</button>
+    </div>
+  </div>
+</div>
+
+<!-- MY ORDERS -->
+<div class="screen" id="sMyOrders">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title" id="myOrdersTitle">Мои заказы</div>
+    <div class="page-sub" id="myOrdersSub"></div>
+  </div>
+  <div class="summary" id="myOrdersSummary"></div>
+  <div id="myOrdersList"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- MANAGER DASHBOARD -->
+<div class="screen" id="sMgr">
+  <div id="mgrTabs" style="display:flex;background:var(--white);border-bottom:1px solid var(--gray-100);overflow-x:auto">
+    <button class="subtab" id="tabFar" onclick="switchTab('Фарфоровская')" style="display:none">Фарфоровская</button>
+    <button class="subtab" id="tabObu" onclick="switchTab('Обуховская')" style="display:none">Обуховская</button>
+    <button class="subtab" id="tabKub" onclick="switchTab('Кубинская')" style="display:none">Кубинская</button>
+    <button class="subtab" id="tabProds" onclick="switchToProducts()">📦 Продукты</button>
+  </div>
+  <div class="subtabs">
+    <button class="subtab active" id="stNew" onclick="switchSubTab('new')">📋 Заявки</button>
+    <button class="subtab" id="stDone" onclick="switchSubTab('done')">✅ Заказано</button>
+    <button class="subtab" id="stLater" onclick="switchSubTab('later')">🕐 Позже</button>
+  </div>
+  <div class="summary" id="mgrSummary"></div>
+  <div id="mgrList"></div>
+  <div class="spacer"></div>
+  <button class="refresh-btn" onclick="loadMgrData()" id="mgrRefreshBtn" style="bottom:6rem">↻</button>
+  <button class="fab-inv" onclick="enterInv()">📋 Инвентаризация</button>
+</div>
+
+<!-- PRODUCTS ADMIN -->
+<div class="screen" id="sProducts">
+  <div class="page-header">
+    <button class="page-header-back" onclick="showScreen('sMgr')">← Назад</button>
+    <div class="page-title">Продукты</div>
+  </div>
+  <div class="chips" id="prodRoleChips">
+    <button class="chip active" onclick="switchProdTab('bar')">☕ Бар</button>
+    <button class="chip" onclick="switchProdTab('kitchen')">🍳 Кухня</button>
+  </div>
+  <div id="prodList"></div>
+  <div class="spacer"></div>
+  <button class="fab" onclick="openAddProduct()">+</button>
+</div>
+
+<!-- SVETA (dessert manager) -->
+<div class="screen" id="sSveta">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">🍰 Остатки десертов</div>
+  </div>
+  <div class="subtabs">
+    <button class="subtab active" id="svetaTabActive" onclick="switchSvetaTab('active')">📋 Остатки</button>
+    <button class="subtab" id="svetaTabDone" onclick="switchSvetaTab('done')">✅ Готово</button>
+  </div>
+  <div class="summary" id="svetaSummary"></div>
+  <div id="svetaList"></div>
+  <div class="spacer"></div>
+  <button class="refresh-btn" onclick="loadDessertStock()">↻</button>
+  <div class="bottom-bar" id="svetaArchiveBar" style="display:none">
+    <button class="btn-primary" style="background:var(--red)" onclick="archiveDesserts()">🗂 Архивировать готовое</button>
+  </div>
+</div>
+
+<!-- DESSERT INPUT (staff) -->
+<div class="screen" id="sDessertInput">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">🍰 Остатки десертов</div>
+    <div class="page-sub">Укажи сколько осталось</div>
+  </div>
+  <div id="dessertList"></div>
+  <div class="spacer"></div>
+  <div class="bottom-bar">
+    <button class="btn-secondary" onclick="resetDesserts()">Сбросить</button>
+    <button class="btn-primary" id="btnSendDesserts" onclick="sendDesserts()">Отправить</button>
+  </div>
+</div>
+
+<!-- INV LIST (manager) -->
+<div class="screen" id="sInv">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">📋 Инвентаризации</div>
+    <div class="page-sub" id="invLocLabel"></div>
+  </div>
+  <div class="summary" id="invSummary"></div>
+  <div id="invTasksList"></div>
+  <div class="spacer"></div>
+  <button class="fab" onclick="showCreateInv()">+</button>
+</div>
+
+<!-- INV CREATE -->
+<div class="screen" id="sInvCreate">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">Новая инвентаризация</div>
+  </div>
+  <div style="padding:1rem;display:flex;flex-direction:column;gap:1rem">
+    <div class="field-group">
+      <label class="field-label">Дата</label>
+      <input type="date" class="field-input" id="invDate">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Категория</label>
+      <div class="chips" style="padding:0;flex-wrap:wrap;gap:.4rem">
+        <button class="chip active" id="invCatAll" onclick="selectInvCat('all')">Всё</button>
+        <button class="chip" id="invCatХозка" onclick="selectInvCat('Хозка')">Хозка</button>
+        <button class="chip" id="invCatПродукты" onclick="selectInvCat('Продукты')">Продукты</button>
+        <button class="chip" id="invCatПФ" onclick="selectInvCat('ПФ')">ПФ</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Позиции <span id="invSelectedCount" style="color:var(--pink)"></span></label>
+      <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
+        <input type="text" class="field-input" id="invSearch" placeholder="Поиск..." oninput="renderInvItemsList()" style="flex:1">
+        <button class="btn-secondary" onclick="selectAllInvItems()" style="height:42px;padding:0 .75rem;font-size:13px">Все</button>
+        <button class="btn-secondary" onclick="clearAllInvItems()" style="height:42px;padding:0 .75rem;font-size:13px">Сброс</button>
+      </div>
+      <div id="invItemsList" style="border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);max-height:45vh;overflow-y:auto"></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="bottom-bar">
+    <button class="btn-primary" onclick="createInvTask()" id="btnCreateInv">Создать и уведомить</button>
+  </div>
+</div>
+
+<!-- INV FILL (staff) -->
+<div class="screen" id="sInvFill">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title" id="fillInvTitle">Инвентаризация</div>
+    <div class="page-sub" id="fillInvSub"></div>
+  </div>
+  <div id="fillInvList"></div>
+  <div class="spacer"></div>
+  <div class="bottom-bar">
+    <button class="btn-primary" onclick="submitInventory()" id="btnSubmitInv">Отправить результаты</button>
+  </div>
+</div>
+
+<!-- INV RESULTS (manager) -->
+<div class="screen" id="sInvResults">
+  <div class="page-header">
+    <button class="page-header-back" onclick="goBack()">← Назад</button>
+    <div class="page-title">Итоги инвентаризации</div>
+    <div class="page-sub" id="invResultsSub"></div>
+  </div>
+  <div id="invResultsList"></div>
+  <div class="spacer"></div>
+</div>
+
+</div><!-- /screens -->
+
+<!-- OVERLAYS -->
+<div class="overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Новый продукт</div>
+    <div class="field-group"><label class="field-label">Название</label><input class="field-input" id="newProdName" placeholder="Молоко ЭКОНИВА"></div>
+    <div class="field-group"><label class="field-label">Поставщик</label><select class="field-select" id="newProdSupplier"></select></div>
+    <div class="field-group"><label class="field-label">Единица</label><input class="field-input" id="newProdUnit" placeholder="л"></div>
+    <div style="display:flex;gap:.75rem">
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:14px"><input type="checkbox" id="newProdThu"> Срочный (чт)</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:14px"><input type="checkbox" id="newProdBiweekly"> 1 и 3 пн</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Отмена</button>
+      <button class="btn-primary" onclick="saveNewProduct()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title">Закрыть заказ?</div>
+    <div class="confirm-sub">Все заказанные позиции уйдут в архив. Это действие нельзя отменить.</div>
+    <div class="confirm-btns">
+      <button style="background:var(--gray-100);color:var(--gray-800)" onclick="closeConfirm()">Отмена</button>
+      <button style="background:var(--red);color:var(--white)" onclick="archiveOrders()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3ug8q2OuK62jtXWL842Jz5K_4BIB5riK3n8lkvWXxA9T89OYyyua9XYI5SajnVj6MDw/exec";
+const BOT_TOKEN = "8803013416:AAFLIifjKo8d75du3JOt0IivUysS1yypL-s";
+const SUPPLIERS_LIST = ["Метро","Смарт Лайф","Гудвин","Озон","Сибаристика","Futura","ВВ","Кантата","Склад","Рынок","Сиропы","Поставщик авокадо","Смарт Лайф / Гудвин","Другой"];
+const CRITICAL = ["авокадо","шоколад","зерно","кофе зерн"];
+
+// ── STATE ──
+let users = [], currentUser = null, currentUserRole = '';
+let currentLocation = '', currentRole = '';
+let currentMode = '';
+let allProducts = [], suppliers = SUPPLIERS_LIST;
+let quantities = {}, stocks = {}, comments = {};
+let mgrData = [], currentMgrTab = 'Фарфоровская', currentSubTab = 'new';
+let desserts = [], dessertStock = [], currentSvetaTab = 'active';
+let invItems = [], invSelectedItems = [], invCat = 'all', activeInvTask = null;
+let screenStack = [];
+let settingsLoaded = false;
+let currentProdTab = 'bar';
+
+// ── PIN ──
+let pinInput = '';
+function pinKey(n) {
+  if (pinInput.length >= 4) return;
+  pinInput += n;
+  updatePinDots();
+  if (pinInput.length === 4) setTimeout(checkPin, 100);
+}
+function pinDel() { pinInput = pinInput.slice(0,-1); updatePinDots(); }
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('dot'+i).classList.toggle('filled', i < pinInput.length);
+  }
+}
+
+async function checkPin() {
+  if (!settingsLoaded || users.length === 0) {
+    document.getElementById('pinError').textContent = 'Загрузка...';
+    for (let i = 0; i < 80; i++) {
+      await new Promise(r => setTimeout(r, 100));
+      if (settingsLoaded && users.length > 0) break;
+    }
+    document.getElementById('pinError').textContent = '';
+  }
+  const user = users.find(u => String(u.pin) === String(pinInput));
+  if (!user) {
+    document.getElementById('pinError').textContent = 'Неверный PIN-код';
+    pinInput = ''; updatePinDots(); return;
+  }
+  currentUser = user;
+  currentLocation = user.location.trim();
+  currentUserRole = user.role.toLowerCase().trim();
+  document.getElementById('logoutBtn').style.display = 'block';
+  routeUser();
+}
+
+function routeUser() {
+  const role = currentUserRole;
+  loadMgrData();
+  loadAllProducts();
+
+  if (role === 'владелец') {
+    currentLocation = 'Фарфоровская';
+    enterMgr();
+  } else if (role === 'менеджер') {
+    document.getElementById('mgrModeTitle').textContent = currentUser.name + ' · ' + currentLocation;
+    setTimeout(() => {
+      checkActiveInvTask();
+      const ic = document.getElementById('mgrInvCard');
+      if (activeInvTask && ic) { ic.style.display = 'flex'; document.getElementById('mgrInvSub').textContent = activeInvTask.date; }
+    }, 800);
+    showScreen('sMgrMode');
+  } else if (role === 'шеф') {
+    currentRole = 'kitchen';
+    enterStaffMode('kitchen', true);
+  } else if (role === 'бариста') {
+    enterStaffMode('bar', false);
+  } else if (role === 'повар') {
+    enterStaffMode('kitchen', false);
+  } else {
+    enterMgr();
+  }
+}
+
+// ── NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function pushScreen(id) {
+  const cur = document.querySelector('.screen.active');
+  if (cur) screenStack.push(cur.id);
+  showScreen(id);
+}
+function goBack() {
+  if (screenStack.length) showScreen(screenStack.pop());
+  else showScreen('sMode');
+}
+function logout() {
+  currentUser = null; currentUserRole = ''; currentLocation = ''; currentRole = '';
+  currentMode = ''; quantities = {}; stocks = {}; comments = {};
+  mgrData = []; activeInvTask = null; screenStack = [];
+  pinInput = ''; updatePinDots();
+  document.getElementById('pinError').textContent = '';
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('modeBadge').style.display = 'none';
+  document.getElementById('orderBar').style.display = 'none';
+  ['tabFar','tabObu','tabKub'].forEach(id => {
+    const t = document.getElementById(id);
+    if (t) { t.style.display = 'none'; t.classList.remove('active'); }
+  });
+  showScreen('sPin');
+}
+
+// ── MANAGER ──
+function enterMgr() {
+  const isOwner = currentUserRole === 'владелец';
+  const loc = currentLocation;
+  currentMgrTab = isOwner ? 'Фарфоровская' : loc;
+
+  ['tabFar','tabObu','tabKub'].forEach(id => {
+    const t = document.getElementById(id);
+    if (!t) return;
+    const tloc = id === 'tabFar' ? 'Фарфоровская' : id === 'tabObu' ? 'Обуховская' : 'Кубинская';
+    t.style.display = (isOwner || tloc === loc) ? 'block' : 'none';
+    t.classList.toggle('active', tloc === currentMgrTab);
+  });
+  document.getElementById('stNew').classList.add('active');
+  document.getElementById('stDone').classList.remove('active');
+  document.getElementById('stLater').classList.remove('active');
+  currentSubTab = 'new';
+  showScreen('sMgr');
+  renderMgrList();
+}
+
+function enterMgrOrderSelect() {
+  pushScreen('sMgrOrderRole');
+}
+
+function enterStaffMode(role, showDesserts) {
+  currentRole = role;
+  document.getElementById('modeName').textContent = (role === 'bar' ? '☕ Бар' : '🍳 Кухня') + ' · ' + (currentUser?.name || '');
+  document.getElementById('modeLoc').textContent = currentLocation;
+  // десерты: шеф видит дашборд, повар/бариста кухни обуховской/кубинской вводят остатки
+  const showDessertInput = currentRole === 'kitchen' && (currentLocation === 'Обуховская' || currentLocation === 'Кубинская');
+  const showDessertBtn = showDesserts || showDessertInput;
+  document.getElementById('dessertCard').style.display = showDessertBtn ? 'flex' : 'none';
+  if (showDesserts) document.getElementById('dessertCardSub').textContent = 'Дашборд остатков';
+  else if (showDessertInput) document.getElementById('dessertCardSub').textContent = 'Заполнить остатки';
+  document.getElementById('invCard').style.display = 'none';
+  document.getElementById('orderBar').style.display = 'none';
+  document.getElementById('modeBadge').style.display = 'none';
+  setTimeout(checkActiveInvTask, 600);
+  showScreen('sMode');
+}
+
+function switchTab(loc) {
+  currentMgrTab = loc;
+  ['tabFar','tabObu','tabKub'].forEach(id => {
+    const t = document.getElementById(id);
+    if (!t || t.style.display === 'none') return;
+    const tloc = id === 'tabFar' ? 'Фарфоровская' : id === 'tabObu' ? 'Обуховская' : 'Кубинская';
+    t.classList.toggle('active', tloc === loc);
+  });
+  renderMgrList();
+}
+
+function switchSubTab(tab) {
+  currentSubTab = tab;
+  ['new','done','later'].forEach(t => {
+    document.getElementById('st'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t === tab);
+  });
+  renderMgrList();
+}
+
+async function loadMgrData() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getOrders&t=' + Date.now());
+    const json = await res.json();
+    mgrData = json.rows || [];
+    renderMgrList();
+  } catch(e) {}
+}
+
+function renderMgrList() {
+  const el = document.getElementById('mgrList');
+  if (!el) return;
+
+  const locData = mgrData.filter(r => r.location === currentMgrTab);
+  const newItems = locData.filter(r => r.status === '⏳ Заявка');
+  const doneItems = locData.filter(r => r.status === '✅ Заказано');
+  const laterItems = locData.filter(r => r.status === '🕐 Позже');
+
+  document.getElementById('mgrSummary').innerHTML = `
+    <div class="sum-chip">Всего: <b>${locData.length}</b></div>
+    <div class="sum-chip">⏳ <b>${newItems.length}</b></div>
+    <div class="sum-chip">✅ <b>${doneItems.length}</b></div>
+    <div class="sum-chip">🕐 <b>${laterItems.length}</b></div>`;
+
+  let data;
+  if (currentSubTab === 'new') data = newItems;
+  else if (currentSubTab === 'done') data = doneItems;
+  else data = laterItems;
+
+  if (!data.length) { el.innerHTML = '<div class="empty">Нет позиций</div>'; return; }
+
+  const bySupplier = {};
+  data.forEach(r => { if (!bySupplier[r.supplier]) bySupplier[r.supplier] = []; bySupplier[r.supplier].push(r); });
+
+  let h = '';
+  for (const [sup, items] of Object.entries(bySupplier)) {
+    h += `<div class="section-label">${sup}</div>`;
+    items.forEach((r, i) => {
+      const idx = mgrData.indexOf(r);
+      const roleTag = r.role === 'Бар' ? '<span class="tag tag-bar">Бар</span>' : '<span class="tag tag-kitchen">Кухня</span>';
+      const typeTag = r.orderType?.includes('Срочн') ? '<span class="tag tag-emergency">Срочно</span>' : '';
+      const dateStr = formatDate(r.date, r.time);
+      h += `<div class="mgr-item">
+        <div class="mgr-item-top">
+          <div style="flex:1">
+            <div class="mgr-item-name">${r.product}</div>
+            <div class="mgr-item-meta">${dateStr}${r.stock && r.stock !== '—' ? ' · остаток: '+r.stock : ''}${r.reason && r.reason !== '—' ? ' · '+r.reason : ''}</div>
+          </div>
+        </div>
+        <div class="mgr-item-bottom">
+          ${roleTag}${typeTag}
+          <div class="qty-field">Кол-во: <input type="text" inputmode="decimal" value="${r.qty||''}" onchange="changeQtyMgr(${idx},this.value)" onclick="this.select()" style="width:52px;border:1px solid var(--gray-200);border-radius:6px;padding:3px 6px;font-size:13px;font-family:inherit;text-align:center"> ${r.unit||''}</div>
+          <select class="supplier-select" onchange="changeSupplier(${idx},this.value)">${suppliers.map(s=>`<option ${s===r.supplier?'selected':''}>${s}</option>`).join('')}</select>
+          ${currentSubTab==='new' ? `<button class="status-btn btn-done" onclick="setStatus(${idx},'✅ Заказано')">✅ Заказано</button><button class="status-btn btn-later" onclick="setStatus(${idx},'🕐 Позже')">🕐 Позже</button>` : ''}
+          ${currentSubTab==='done' ? `<button class="status-btn btn-restore" onclick="setStatus(${idx},'⏳ Заявка')">↩ Вернуть</button>` : ''}
+          ${currentSubTab==='later' ? `<button class="status-btn btn-done" onclick="setStatus(${idx},'✅ Заказано')">✅ Заказано</button><button class="status-btn btn-restore" onclick="setStatus(${idx},'⏳ Заявка')">↩ Вернуть</button>` : ''}
+        </div>
+      </div>`;
+    });
+  }
+
+  if (currentSubTab === 'done' && doneItems.length) {
+    h += `<div style="padding:1rem"><button class="btn-primary" style="background:var(--red)" onclick="openConfirmArchive()">🗂 Закрыть заказ</button></div>`;
+  }
+  el.innerHTML = h;
+}
+
+async function setStatus(idx, status) {
+  mgrData[idx].status = status;
+  renderMgrList();
+  await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'updateStatus', rowId:mgrData[idx].rowId, status}), mode:'no-cors'});
+}
+
+async function changeSupplier(idx, supplier) {
+  mgrData[idx].supplier = supplier;
+  await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'updateSupplier', rowId:mgrData[idx].rowId, supplier}), mode:'no-cors'});
+}
+
+async function changeQtyMgr(idx, qty) {
+  mgrData[idx].qty = qty;
+  await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'updateQty', rowId:mgrData[idx].rowId, qty}), mode:'no-cors'});
+  showToast('Количество обновлено');
+}
+
+function openConfirmArchive() { document.getElementById('confirmOverlay').classList.add('open'); }
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
+async function archiveOrders() {
+  closeConfirm();
+  const toArchive = mgrData.filter(r => r.location === currentMgrTab && r.status === '✅ Заказано');
+  const d = new Date().toLocaleDateString('ru-RU');
+  for (const r of toArchive) {
+    const idx = mgrData.indexOf(r);
+    mgrData[idx].status = '🗂 Архив ' + d;
+    await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'updateStatus', rowId:r.rowId, status:'🗂 Архив '+d}), mode:'no-cors'});
+  }
+  renderMgrList();
+  showToast('Заказ закрыт');
+}
+
+// ── PRODUCTS ADMIN ──
+function switchToProducts() {
+  document.querySelectorAll('#mgrTabs .subtab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tabProds').classList.add('active');
+  switchProdTab('bar');
+  showScreen('sProducts');
+}
+function switchProdTab(role) {
+  currentProdTab = role;
+  document.querySelectorAll('#prodRoleChips .chip').forEach((c,i) => c.classList.toggle('active', (i===0&&role==='bar')||(i===1&&role==='kitchen')));
+  renderProdList();
+}
+function renderProdList() {
+  const prods = allProducts.filter(p => p.role === currentProdTab);
+  const bySupplier = {};
+  prods.forEach(p => { if (!bySupplier[p.supplier]) bySupplier[p.supplier] = []; bySupplier[p.supplier].push(p); });
+  let h = '';
+  for (const [sup, items] of Object.entries(bySupplier)) {
+    h += `<div class="section-label">${sup}</div>`;
+    items.forEach(p => {
+      const on = p.active === '1';
+      h += `<div class="mgr-item">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div style="flex:1">
+            <div class="mgr-item-name" style="${on?'':'color:var(--gray-400)'}">${p.name}</div>
+            <div class="mgr-item-meta">${p.unit||''} · ${p.thu==='1'?'чт ':''}${p.active==='1'?'активен':''}</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+            <input type="checkbox" ${on?'checked':''} onchange="toggleProduct('${p.id}',this.checked)" style="width:18px;height:18px;accent-color:var(--pink)">
+          </label>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('prodList').innerHTML = h || '<div class="empty">Нет продуктов</div>';
+}
+async function toggleProduct(id, active) {
+  const p = allProducts.find(p => p.id === id);
+  if (p) p.active = active ? '1' : '0';
+  await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'toggleProduct', id, active, location:currentLocation}), mode:'no-cors'});
+  showToast(active ? 'Включён' : 'Выключен');
+}
+function openAddProduct() {
+  document.getElementById('newProdName').value = '';
+  document.getElementById('newProdUnit').value = '';
+  document.getElementById('newProdThu').checked = false;
+  document.getElementById('newProdBiweekly').checked = false;
+  const sel = document.getElementById('newProdSupplier');
+  sel.innerHTML = suppliers.map(s => `<option>${s}</option>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+async function saveNewProduct() {
+  const name = document.getElementById('newProdName').value.trim();
+  if (!name) { showToast('Укажи название'); return; }
+  const data = {
+    action: 'addProduct', name,
+    supplier: document.getElementById('newProdSupplier').value,
+    unit: document.getElementById('newProdUnit').value.trim(),
+    role: currentProdTab,
+    thu: document.getElementById('newProdThu').checked,
+    biweekly: document.getElementById('newProdBiweekly').checked,
+    location: currentLocation
+  };
+  await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(data), mode:'no-cors'});
+  closeModal();
+  showToast('Продукт добавлен');
+  await loadAllProducts();
+  renderProdList();
+}
+
+// ── ORDER ──
+async function loadAllProducts() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getProducts&location=' + encodeURIComponent(currentLocation) + '&t=' + Date.now());
+    const json = await res.json();
+    allProducts = json.products || [];
+    if (json.suppliers) suppliers = json.suppliers;
+  } catch(e) {}
+}
+
+async function startOrder(mode) {
+  currentMode = mode;
+  quantities = {}; stocks = {}; comments = {};
+  if (!allProducts.length) {
+    showToast('Загружаю продукты...');
+    for (let i = 0; i < 50; i++) { await new Promise(r => setTimeout(r,100)); if (allProducts.length) break; }
+  }
+  const modeNames = {weekly:'📋 Еженедельный заказ', urgent:'⚡ Срочный заказ', biweekly:'📅 Заказ 1 и 3 пн', emergency:'🚨 Срочная заявка'};
+  document.getElementById('orderTitle').textContent = modeNames[mode] || 'Заказ';
+  document.getElementById('orderSub').textContent = currentLocation + ' · ' + (currentRole === 'bar' ? 'Бар' : 'Кухня');
+  document.getElementById('modeBadge').textContent = mode === 'weekly' ? 'Еженедельный' : mode === 'urgent' ? 'Срочный' : mode === 'biweekly' ? '1 и 3 пн' : 'Срочная';
+  document.getElementById('modeBadge').style.display = 'block';
+  document.getElementById('orderBar').style.display = 'flex';
+  buildProductList();
+  pushScreen('sOrder');
+}
+
+function buildProductList() {
+  const list = document.getElementById('productList');
+  const prods = allProducts.filter(p => {
+    if (p.role !== currentRole) return false;
+    if (currentMode === 'urgent') return p.thu === '1';
+    if (currentMode === 'weekly') return p.active === '1';
+    if (currentMode === 'biweekly') return p.biweekly === '1';
+    return true; // emergency - all
+  });
+
+  if (currentMode === 'emergency') {
+    buildEmergencyList();
+    return;
+  }
+
+  if (!prods.length) { list.innerHTML = '<div class="empty">Нет продуктов для этого режима</div>'; return; }
+
+  const bySupplier = {};
+  prods.forEach(p => { if (!bySupplier[p.supplier]) bySupplier[p.supplier] = []; bySupplier[p.supplier].push(p); });
+
+  let h = '';
+  for (const [sup, items] of Object.entries(bySupplier)) {
+    h += `<div class="section-label">${sup}</div>`;
+    items.forEach(p => {
+      const isCrit = CRITICAL.some(k => p.name.toLowerCase().includes(k));
+      const min = parseFloat(p.min) || 0;
+      const step = parseFloat(p.step) || 1;
+      h += `<div class="product-row" id="row-${p.id}">
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-unit">${p.unit||''}${min?' · мин '+min:''}</div>
+        </div>
+        <div class="product-controls">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1,${min},${step})">−</button>
+          <input class="qty-input" type="number" inputmode="decimal" id="q-${p.id}" value="${quantities[p.id]||''}" placeholder="0" onchange="setQtyDirect('${p.id}',this.value,${min},${step})" oninput="onQtyInput('${p.id}',this.value)">
+          <button class="qty-btn" onclick="changeQty('${p.id}',1,${min},${step})">+</button>
+          <button class="comment-btn" onclick="toggleComment('${p.id}')">💬</button>
+        </div>
+      </div>
+      <div id="comment-${p.id}" style="display:none;padding:0 1rem .5rem">
+        <div class="comment-box"><textarea rows="2" placeholder="Комментарий..." onchange="onCommentInput('${p.id}',this.value)">${comments[p.id]||''}</textarea></div>
+      </div>
+      ${isCrit ? `<div class="stock-row" id="stock-${p.id}"><span class="stock-label">⚠️ Укажи остаток (обязательно)</span><input class="stock-input" type="number" inputmode="decimal" placeholder="0" id="s-${p.id}" oninput="onStockInput('${p.id}',this.value)"> ${p.unit||'кг'}</div>` : ''}`;
+    });
+  }
+  list.innerHTML = h;
+  updateBottomBar();
+}
+
+function buildEmergencyList() {
+  const list = document.getElementById('productList');
+  let h = `<div style="padding:.75rem 1rem .25rem"><div style="font-size:13px;color:var(--gray-400)">Причина</div></div>
+    <div style="padding:0 1rem .75rem"><input class="field-input" id="emergReason" placeholder="Не приехало, забыли..."></div>
+    <div id="emergRows"></div>
+    <button class="add-row-btn" onclick="addEmergRow()">+ Добавить позицию</button>`;
+  list.innerHTML = h;
+  addEmergRow();
+  updateBottomBar();
+}
+
+let emergIdx = 0;
+function addEmergRow() {
+  const idx = emergIdx++;
+  const div = document.createElement('div');
+  div.className = 'emerg-row'; div.id = 'erow-'+idx;
+  div.innerHTML = `<div style="flex:1;position:relative">
+    <input class="emerg-input" id="ename-${idx}" placeholder="Название продукта" oninput="showAutocomplete(${idx},this.value)" onblur="setTimeout(()=>hideAutocomplete(${idx}),200)">
+    <div class="autocomplete" id="ac-${idx}" style="display:none"></div>
+  </div>
+  <input class="emerg-input" id="eqty-${idx}" placeholder="Кол-во" style="width:80px">
+  <button class="emerg-del" onclick="delEmergRow(${idx})">×</button>`;
+  document.getElementById('emergRows').appendChild(div);
+  updateBottomBar();
+}
+function delEmergRow(idx) { const el = document.getElementById('erow-'+idx); if(el) el.remove(); updateBottomBar(); }
+function showAutocomplete(idx, val) {
+  const ac = document.getElementById('ac-'+idx);
+  if (!val || val.length < 2) { ac.style.display='none'; return; }
+  const matches = allProducts.filter(p => p.name.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if (!matches.length) { ac.style.display='none'; return; }
+  ac.innerHTML = matches.map(p => `<div class="autocomplete-item" onmousedown="selectProduct(${idx},'${p.name.replace(/'/g,"\\'")}','${p.unit||''}')">${p.name}</div>`).join('');
+  ac.style.display = 'block';
+}
+function hideAutocomplete(idx) { const ac = document.getElementById('ac-'+idx); if(ac) ac.style.display='none'; }
+function selectProduct(idx, name, unit) {
+  document.getElementById('ename-'+idx).value = name;
+  hideAutocomplete(idx);
+  updateBottomBar();
+}
+
+function changeQty(id, delta, min, step) {
+  const inp = document.getElementById('q-'+id);
+  let v = parseFloat(inp.value) || 0;
+  if (delta > 0) v = v === 0 ? (min||step) : v + step;
+  else { v = v - step; if (v < 0) v = 0; if (v > 0 && v < min) v = 0; }
+  v = Math.round(v * 100) / 100;
+  inp.value = v || '';
+  quantities[id] = v ? String(v) : '';
+  updateRowStyle(id); updateBottomBar();
+}
+function setQtyDirect(id, val, min, step) {
+  let v = parseFloat(val) || 0;
+  if (v && min && v < min) v = min;
+  document.getElementById('q-'+id).value = v || '';
+  quantities[id] = v ? String(v) : '';
+  updateRowStyle(id); updateBottomBar();
+}
+function onQtyInput(id, val) { quantities[id] = val.trim(); updateRowStyle(id); updateBottomBar(); }
+function onStockInput(id, val) { stocks[id] = val.trim(); updateBottomBar(); }
+function onCommentInput(id, val) { comments[id] = val; }
+function toggleComment(id) {
+  const el = document.getElementById('comment-'+id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function updateRowStyle(id) {
+  const row = document.getElementById('row-'+id);
+  if (row) row.classList.toggle('has-qty', !!(quantities[id] && parseFloat(quantities[id]) > 0));
+}
+function updateBottomBar() {
+  const btn = document.getElementById('btnSend');
+  if (!btn) return;
+  if (currentMode === 'emergency') {
+    const hasAny = document.querySelectorAll('[id^="ename-"]').length > 0;
+    btn.disabled = false; btn.textContent = 'Отправить заявку';
+    return;
+  }
+  const filled = Object.values(quantities).filter(v => v && parseFloat(v) > 0);
+  const critIds = allProducts.filter(p => CRITICAL.some(k => p.name.toLowerCase().includes(k)) && quantities[p.id] && parseFloat(quantities[p.id]) > 0).map(p => p.id);
+  const missingStock = critIds.some(id => !stocks[id]);
+  if (!filled.length) { btn.disabled = true; btn.textContent = 'Укажи количество'; }
+  else if (missingStock) { btn.disabled = true; btn.textContent = 'Укажи остатки ⚠️'; }
+  else { btn.disabled = false; btn.textContent = `Отправить (${filled.length})`; }
+}
+function resetAll() {
+  quantities = {}; stocks = {}; comments = {};
+  buildProductList();
+}
+
+async function sendOrder() {
+  const btn = document.getElementById('btnSend');
+  btn.disabled = true; btn.textContent = 'Отправляю...';
+  const now = new Date();
+  const date = now.toLocaleDateString('ru-RU');
+  const time = now.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+  const roleLabel = currentRole === 'bar' ? 'Бар' : 'Кухня';
+  const modeNames = {weekly:'Еженедельный (пн)', urgent:'Срочный (чт)', biweekly:'1 и 3 пн', emergency:'Срочная заявка'};
+  const orderType = modeNames[currentMode];
+  let rows = [];
+
+  if (currentMode === 'emergency') {
+    const reason = document.getElementById('emergReason')?.value.trim() || '';
+    document.querySelectorAll('[id^="ename-"]').forEach(inp => {
+      const idx = inp.id.replace('ename-','');
+      const name = inp.value.trim();
+      const qty = document.getElementById('eqty-'+idx)?.value.trim() || '';
+      if (name) rows.push({date,time,location:currentLocation,role:roleLabel,orderType,supplier:'Срочная заявка',product:name,unit:'',qty,stock:'—',reason,status:'⏳ Заявка'});
+    });
+    if (!rows.length) { btn.disabled=false; btn.textContent='Отправить заявку'; return; }
+    // TG notification
+    sendTgNotification(rows, reason);
+  } else {
+    allProducts.forEach(p => {
+      if (!quantities[p.id] || !parseFloat(quantities[p.id])) return;
+      const isCrit = CRITICAL.some(k => p.name.toLowerCase().includes(k));
+      rows.push({date,time,location:currentLocation,role:roleLabel,orderType,supplier:p.supplier,product:p.name,unit:p.unit||'',qty:quantities[p.id],stock:isCrit?(stocks[p.id]||'—'):'—',reason:comments[p.id]||'',status:'⏳ Заявка'});
+    });
+  }
+
+  try {
+    await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action:'addOrder', rows}), mode:'no-cors'});
+    document.getElementById('successSub').textContent = rows.length + ' позиций отправлено';
+    document.getElementById('orderBar').style.display = 'none';
+    document.getElementById('modeBadge').style.display = 'none';
+    showScreen('sSuccess');
+  } catch(e) { showToast('Ошибка отправки'); btn.disabled=false; btn.textContent='Повторить'; }
+}
+
+async function sendTgNotification(rows, reason) {
+  try {
+    const recipients = users.filter(u => (u.role==='менеджер'&&u.location===currentLocation)||u.role==='владелец').map(u=>u.tg).filter(id=>id&&id.length>5);
+    const who = currentUser?.name || 'Сотрудник';
+    const items = rows.map(r=>`• ${r.product}${r.qty?' — '+r.qty:''}`).join('\n');
+    const text = `🚨 *СРОЧНАЯ ЗАЯВКА*\n📍 ${currentLocation}\n👤 ${who}${reason?'\n💬 '+reason:''}\n\n${items}`;
+    for (const chatId of recipients) {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chatId,text,parse_mode:'Markdown'})}).catch(()=>{});
+    }
+  } catch(e) {}
+}
+
+// ── MY ORDERS ──
+async function showMyOrders() {
+  const roleLabel = currentRole === 'bar' ? 'Бар' : 'Кухня';
+  // грузим заказы если ещё не загружены
+  if (!mgrData.length) await loadMgrData();
+  const data = mgrData.filter(r => r.location === currentLocation && r.role === roleLabel);
+  document.getElementById('myOrdersTitle').textContent = 'Мои заказы';
+  document.getElementById('myOrdersSub').textContent = currentLocation + ' · ' + roleLabel;
+
+  const counts = {wait:0,done:0,later:0};
+  data.forEach(r => { if(r.status==='⏳ Заявка')counts.wait++; else if(r.status==='✅ Заказано')counts.done++; else if(r.status==='🕐 Позже')counts.later++; });
+  document.getElementById('myOrdersSummary').innerHTML = `
+    <div class="sum-chip">Всего: <b>${data.length}</b></div>
+    <div class="sum-chip">⏳ <b>${counts.wait}</b></div>
+    <div class="sum-chip">✅ <b>${counts.done}</b></div>
+    <div class="sum-chip">🕐 <b>${counts.later}</b></div>`;
+
+  const bySupplier = {};
+  data.forEach(r => { if(!bySupplier[r.supplier])bySupplier[r.supplier]=[]; bySupplier[r.supplier].push(r); });
+  let h = '';
+  for (const [sup,items] of Object.entries(bySupplier)) {
+    h += `<div class="section-label">${sup}</div>`;
+    items.forEach(r => {
+      const sc = r.status==='✅ Заказано'?'btn-done':r.status==='🕐 Позже'?'btn-later':'';
+      h += `<div class="mgr-item">
+        <div class="mgr-item-name">${r.product}</div>
+        <div class="mgr-item-meta">${formatDate(r.date,r.time)}${r.qty?' · '+r.qty+' '+(r.unit||''):''}</div>
+        <div class="mgr-item-bottom"><span class="status-btn ${sc}">${r.status}</span></div>
+      </div>`;
+    });
+  }
+  document.getElementById('myOrdersList').innerHTML = h || '<div class="empty">Заявок пока нет</div>';
+  pushScreen('sMyOrders');
+}
+
+// ── DESSERTS / SVETA ──
+function enterDessertScreen() {
+  if (currentUserRole === 'шеф') enterSveta();
+  else { loadDesserts(); pushScreen('sDessertInput'); }
+}
+function enterSveta() { loadDessertStock(); pushScreen('sSveta'); }
+
+async function loadDessertStock() {
+  document.getElementById('svetaList').innerHTML = '<div class="loading">Загружаю...</div>';
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getDessertStock&t=' + Date.now());
+    const json = await res.json();
+    dessertStock = json.rows || [];
+    renderSvetaList();
+  } catch(e) { document.getElementById('svetaList').innerHTML = '<div class="empty">Ошибка загрузки</div>'; }
+}
+
+function switchSvetaTab(tab) {
+  currentSvetaTab = tab;
+  document.getElementById('svetaTabActive').classList.toggle('active', tab==='active');
+  document.getElementById('svetaTabDone').classList.toggle('active', tab==='done');
+  renderSvetaList();
+}
+
+function renderSvetaList() {
+  const data = dessertStock.filter(r => currentSvetaTab==='active' ? r.status!=='✅ Готово' : r.status==='✅ Готово');
+  const done = dessertStock.filter(r=>r.status==='✅ Готово').length;
+  const total = dessertStock.filter(r=>!String(r.status).startsWith('🗂')).length;
+
+  document.getElementById('svetaSummary').innerHTML = `
+    <div class="sum-chip">Всего: <b>${total}</b></div>
+    <div class="sum-chip">Новых: <b>${total-done}</b></div>
+    <div class="sum-chip" style="background:var(--green-light);color:var(--green)">Готово: <b>${done}</b></div>`;
+
+  const archBar = document.getElementById('svetaArchiveBar');
+  archBar.style.display = currentSvetaTab==='done'&&data.length ? 'flex' : 'none';
+
+  if (!data.length) { document.getElementById('svetaList').innerHTML = `<div class="empty">${currentSvetaTab==='active'?'Нет новых остатков 🎉':'Нет в разделе Готово'}</div>`; return; }
+
+  let h = '';
+  data.forEach(r => {
+    const isZero = r.stock==='0'||r.isEmpty==='1';
+    h += `<div class="sveta-item${isZero?' urgent':''}">
+      <div class="sveta-info">
+        <div class="sveta-name">${r.dessert}${isZero?`<span class="urgent-badge">0 — СРОЧНО!</span>`:''}</div>
+        <div class="sveta-meta">${formatDate(r.date,r.time)}</div>
+        <div class="sveta-stock ${isZero?'urgent':'ok'}">Остаток: ${r.stock||'0'} ${r.unit||''}</div>
+      </div>
+      <div>
+        ${currentSvetaTab==='active'
+          ?`<button class="status-btn btn-done sveta-action-btn" data-rowid="${r.rowId}" data-act="done">✅ Готово</button>`
+          :`<button class="status-btn btn-restore sveta-action-btn" data-rowid="${r.rowId}" data-act="back">↩ Вернуть</button>`}
+      </div>
+    </div>`;
+  });
+  document.getElementById('svetaList').innerHTML = h;
+  document.getElementById('svetaList').onclick = function(e) {
+    const btn = e.target.closest('.sveta-action-btn');
+    if (!btn) return;
+    const rid = btn.getAttribute('data-rowid');
+    const act = btn.getAttribute('data-act');
+    const realStatus = act==='done' ? '✅ Готово' : '⏳ Новый';
+    const item = dessertStock.find(r => String(r.rowId)===String(rid));
+    if (!item) return;
+    item.status = realStatus;
+    renderSvetaList();
+    fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateDessertStatus',rowId:rid,status:realStatus}),mode:'no-cors'});
+    showToast(act==='done'?'✅ Готово':'↩ Возвращено');
+  };
+}
+
+async function archiveDesserts() {
+  const done = dessertStock.filter(r=>r.status==='✅ Готово');
+  const d = new Date().toLocaleDateString('ru-RU');
+  for (const r of done) {
+    const idx = dessertStock.indexOf(r);
+    dessertStock[idx].status = '🗂 Архив '+d;
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateDessertStatus',rowId:r.rowId,status:'🗂 Архив '+d}),mode:'no-cors'}).catch(()=>{});
+  }
+  renderSvetaList();
+  showToast(`Архивировано ${done.length} позиций`);
+}
+
+async function loadDesserts() {
+  try {
+    const res = await fetch(SCRIPT_URL+'?action=getDesserts&t='+Date.now());
+    const json = await res.json();
+    desserts = (json.desserts||[]).filter(d=>d.active==='1');
+    renderDessertList();
+  } catch(e) {}
+}
+function renderDessertList() {
+  const list = document.getElementById('dessertList');
+  if (!desserts.length) { list.innerHTML = '<div class="empty">Список пуст</div>'; return; }
+  list.innerHTML = desserts.map(d => `
+    <div class="dessert-row">
+      <div class="dessert-name">${d.name}</div>
+      <input class="dessert-input" type="number" inputmode="decimal" id="dqty-${d.id}" placeholder="—">
+      <div class="dessert-unit">${d.unit||''}</div>
+    </div>`).join('');
+}
+function resetDesserts() { document.querySelectorAll('[id^="dqty-"]').forEach(i=>i.value=''); }
+async function sendDesserts() {
+  const btn = document.getElementById('btnSendDesserts');
+  btn.disabled=true; btn.textContent='Отправляю...';
+  const now=new Date();
+  const date=now.toLocaleDateString('ru-RU');
+  const time=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const rows=[];
+  desserts.forEach(d=>{
+    const val=document.getElementById('dqty-'+d.id)?.value.trim();
+    if(!val) return;
+    rows.push({date,time,dessert:d.name,unit:d.unit||'',stock:val,isEmpty:val==='0'?'1':''});
+  });
+  if(!rows.length){btn.disabled=false;btn.textContent='Отправить';showToast('Заполни хотя бы одно поле');return;}
+  await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addDessertStock',rows}),mode:'no-cors'});
+  showToast('Отправлено!');
+  resetDesserts();
+  btn.disabled=false; btn.textContent='Отправить';
+  goBack();
+}
+
+// ── INVENTORY ──
+function enterInv() {
+  document.getElementById('invLocLabel').textContent = currentLocation;
+  loadInvTasks();
+  pushScreen('sInv');
+}
+async function loadInvTasks() {
+  document.getElementById('invTasksList').innerHTML='<div class="loading">Загружаю...</div>';
+  try {
+    const res=await fetch(SCRIPT_URL+'?action=getInvTasks&location='+encodeURIComponent(currentLocation)+'&t='+Date.now());
+    const json=await res.json();
+    renderInvTasks(json.tasks||[]);
+  } catch(e){document.getElementById('invTasksList').innerHTML='<div class="empty">Ошибка</div>';}
+}
+function renderInvTasks(tasks) {
+  const active=tasks.filter(t=>t.status!=='завершена');
+  const done=tasks.filter(t=>t.status==='завершена');
+  document.getElementById('invSummary').innerHTML=`
+    <div class="sum-chip">Активных: <b>${active.length}</b></div>
+    <div class="sum-chip" style="background:var(--green-light);color:var(--green)">Завершённых: <b>${done.length}</b></div>`;
+  if(!tasks.length){document.getElementById('invTasksList').innerHTML='<div class="empty">Заданий нет. Нажми +</div>';return;}
+  let h='';
+  tasks.forEach(t=>{
+    const items=t.items?t.items.split(',').length:0;
+    const dateFormatted=t.date?new Date(t.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long'}):t.date;
+    h+=`<div class="mgr-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+        <div style="flex:1">
+          <div class="mgr-item-name">${dateFormatted} · ${t.type==='all'?'Полная':t.type}</div>
+          <div class="mgr-item-meta">${items} позиций · ${t.status} · ${t.createdBy||''}</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-shrink:0">
+          <button class="status-btn btn-restore" onclick="viewInvResults('${t.taskId}')">👁 Итоги</button>
+          ${t.status!=='завершена'?`<button class="status-btn btn-done" onclick="closeInvTask('${t.taskId}')">✓ Завершить</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('invTasksList').innerHTML=h;
+}
+
+async function showCreateInv() {
+  document.getElementById('invDate').value=new Date().toISOString().split('T')[0];
+  invSelectedItems=[]; invCat='all';
+  ['all','Хозка','Продукты','ПФ'].forEach(c=>{
+    const btn=document.getElementById('invCat'+c);
+    if(btn) btn.classList.toggle('active',c==='all');
+  });
+  try {
+    const res=await fetch(SCRIPT_URL+'?action=getInvItems&location='+encodeURIComponent(currentLocation)+'&t='+Date.now());
+    const json=await res.json();
+    invItems=json.items||[];
+    renderInvItemsList();
+  } catch(e){invItems=[];}
+  pushScreen('sInvCreate');
+}
+function selectInvCat(cat) {
+  invCat=cat;
+  ['all','Хозка','Продукты','ПФ'].forEach(c=>{
+    const btn=document.getElementById('invCat'+c);
+    if(btn) btn.classList.toggle('active',c===cat);
+  });
+  invSelectedItems=[]; renderInvItemsList();
+}
+function renderInvItemsList() {
+  const search=document.getElementById('invSearch')?.value.toLowerCase()||'';
+  const filtered=invItems.filter(it=>{
+    if(invCat!=='all'&&(it.category||'').trim()!==invCat) return false;
+    if(search&&!it.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  let h='',lastCat='';
+  filtered.forEach(it=>{
+    const cat=(it.category||it.role||'').trim();
+    if(cat!==lastCat){h+=`<div class="section-label">${cat}</div>`;lastCat=cat;}
+    const checked=invSelectedItems.includes(it.id);
+    const roleTag=it.role==='Бар'?'<span class="tag tag-bar" style="font-size:10px">Бар</span>':'<span class="tag tag-kitchen" style="font-size:10px">Кухня</span>';
+    h+=`<div class="inv-item">
+      <div class="inv-item-header">
+        <input type="checkbox" class="inv-item-check" id="chk-${it.id}" ${checked?'checked':''} onchange="toggleInvItem('${it.id}')">
+        <label for="chk-${it.id}" class="inv-item-name">${it.name} ${roleTag}</label>
+        <span class="inv-item-unit">${it.unit||''}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('invItemsList').innerHTML=h||'<div class="empty">Нет позиций</div>';
+  document.getElementById('invSelectedCount').textContent=invSelectedItems.length?`(${invSelectedItems.length})`:'' ;
+}
+function toggleInvItem(id) {
+  const idx=invSelectedItems.indexOf(id);
+  if(idx>=0) invSelectedItems.splice(idx,1); else invSelectedItems.push(id);
+  document.getElementById('invSelectedCount').textContent=invSelectedItems.length?`(${invSelectedItems.length})`:'';
+}
+function selectAllInvItems() { invSelectedItems=invItems.filter(it=>invCat==='all'||(it.category||'').trim()===invCat).map(it=>it.id); renderInvItemsList(); }
+function clearAllInvItems() { invSelectedItems=[]; renderInvItemsList(); }
+
+async function createInvTask() {
+  if(!invSelectedItems.length){showToast('Выбери позиции');return;}
+  const date=document.getElementById('invDate').value;
+  if(!date){showToast('Укажи дату');return;}
+  const btn=document.getElementById('btnCreateInv');
+  btn.disabled=true;btn.textContent='Создаю...';
+  const taskId='inv'+Date.now();
+  await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addInvTask',taskId,date,location:currentLocation,type:invCat,items:invSelectedItems.join(','),status:'активна',createdBy:currentUser?.name||''}),mode:'no-cors'});
+  // TG уведомление
+  const recipients=users.filter(u=>u.location===currentLocation&&u.tg&&u.tg.length>5).map(u=>u.tg);
+  const d=new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const text=`📋 *ИНВЕНТАРИЗАЦИЯ*\n📍 ${currentLocation}\n📅 ${d}\n${invSelectedItems.length} позиций\n\nЗайди в приложение и заполни!`;
+  for(const chatId of recipients){
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chatId,text,parse_mode:'Markdown'})}).catch(()=>{});
+  }
+  showToast('Инвентаризация создана!');
+  btn.disabled=false;btn.textContent='Создать и уведомить';
+  goBack();
+  loadInvTasks();
+}
+async function closeInvTask(taskId) {
+  await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateInvTaskStatus',taskId,status:'завершена'}),mode:'no-cors'});
+  showToast('Задание завершено');
+  loadInvTasks();
+}
+
+async function checkActiveInvTask() {
+  try {
+    const res=await fetch(SCRIPT_URL+'?action=getInvTasks&location='+encodeURIComponent(currentLocation)+'&t='+Date.now());
+    const json=await res.json();
+    const activeTasks=(json.tasks||[]).filter(t=>t.status==='активна');
+    activeInvTask=activeTasks.length?activeTasks[activeTasks.length-1]:null;
+    const card=document.getElementById('invCard');
+    if(activeInvTask&&card){
+      card.style.display='flex';
+      document.getElementById('invCardSub').textContent=activeInvTask.date+' · '+activeInvTask.items.split(',').length+' позиций';
+    } else if(card){ card.style.display='none'; }
+  } catch(e){}
+}
+
+async function enterFillInv() {
+  if(!activeInvTask){showToast('Нет активных заданий');return;}
+  const d=activeInvTask.date?new Date(activeInvTask.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long'}):activeInvTask.date;
+  document.getElementById('fillInvTitle').textContent='📋 '+d;
+  document.getElementById('fillInvSub').textContent=currentLocation+' · '+(currentRole==='bar'?'Бар':'Кухня');
+  try {
+    const res=await fetch(SCRIPT_URL+'?action=getInvItems&location='+encodeURIComponent(currentLocation)+'&t='+Date.now());
+    const json=await res.json();
+    const allItems=json.items||[];
+    const taskIds=activeInvTask.items?activeInvTask.items.split(',').map(s=>s.trim()):[];
+    const myRole=currentRole==='bar'?'Бар':'Кухня';
+    const myItems=allItems.filter(it=>{
+      if(it.role.trim()!==myRole) return false;
+      if(!taskIds.length||taskIds[0]==='') return true;
+      return taskIds.includes(String(it.id).trim());
+    });
+    renderFillInvList(myItems);
+  } catch(e){showToast('Ошибка загрузки');return;}
+  pushScreen('sInvFill');
+}
+
+function renderFillInvList(items) {
+  if(!items.length){document.getElementById('fillInvList').innerHTML='<div class="empty">Нет позиций для вашей роли</div>';return;}
+  let h='',lastCat='';
+  items.forEach(it=>{
+    const cat=(it.category||'').trim();
+    if(cat&&cat!==lastCat){h+=`<div class="section-label">${cat}</div>`;lastCat=cat;}
+    const tare=parseFloat(it.tare)||0;
+    const noTare=String(it.tare).trim()==='0';
+    const hasTare=tare>0;
+    const toggleTare=!hasTare&&!noTare;
+    h+=`<div class="inv-item">
+      <div class="inv-item-header">
+        <span class="inv-item-name">${it.name}</span>
+        <span class="inv-item-unit">${it.unit||''}</span>
+      </div>
+      <div class="inv-item-input">
+        <input type="number" step="0.01" class="inv-weight" id="invw-${it.id}" placeholder="0" oninput="${hasTare?`calcNet('${it.id}',${tare})`:''}">
+        <span class="inv-item-unit">${it.unit||''}</span>
+        ${hasTare?`<span class="inv-tare-info">тара: ${tare}</span>`:''}
+        ${toggleTare?`<div class="tare-toggle"><button class="tare-btn active" id="tb-g-${it.id}" onclick="setTareMode('${it.id}','gross')">с тарой</button><button class="tare-btn" id="tb-n-${it.id}" onclick="setTareMode('${it.id}','net')">чистый</button></div>`:''}
+      </div>
+      ${hasTare?`<div style="padding:.25rem 0 0 28px"><span class="inv-net" id="invnet-${it.id}">Нетто: —</span></div>`:''}
+    </div>`;
+  });
+  document.getElementById('fillInvList').innerHTML=h;
+}
+function calcNet(id,tare){
+  const gross=parseFloat(document.getElementById('invw-'+id)?.value)||0;
+  const net=Math.max(0,gross-tare);
+  const el=document.getElementById('invnet-'+id);
+  if(el) el.textContent='Нетто: '+net.toFixed(2);
+}
+function setTareMode(id,mode){
+  document.getElementById('tb-g-'+id)?.classList.toggle('active',mode==='gross');
+  document.getElementById('tb-n-'+id)?.classList.toggle('active',mode==='net');
+}
+async function submitInventory(){
+  const btn=document.getElementById('btnSubmitInv');
+  btn.disabled=true;btn.textContent='Отправляю...';
+  const now=new Date();
+  const date=now.toLocaleDateString('ru-RU');
+  const time=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const myRole=currentRole==='bar'?'Бар':'Кухня';
+  const rows=[];
+  document.querySelectorAll('[id^="invw-"]').forEach(inp=>{
+    const id=inp.id.replace('invw-','');
+    const gross=parseFloat(inp.value)||0;
+    const item=invItems.find(it=>String(it.id)===id)||{};
+    const tare=parseFloat(item.tare)||0;
+    const noTare=String(item.tare).trim()==='0';
+    const grossBtn=document.getElementById('tb-g-'+id);
+    const isWithTare=!noTare&&!tare&&grossBtn?.classList.contains('active');
+    const net=tare?Math.max(0,gross-tare):gross;
+    rows.push({resultId:'r'+Date.now()+Math.random().toString(36).slice(2,5),taskId:activeInvTask.taskId,date,time,location:currentLocation,role:myRole,itemId:id,itemName:item.name||'',weightGross:gross,tare:tare||'',weightNet:net,withTare:tare>0||isWithTare,filledBy:currentUser?.name||''});
+  });
+  await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addInvResults',rows}),mode:'no-cors'});
+  activeInvTask=null;
+  document.getElementById('invCard').style.display='none';
+  document.getElementById('mgrInvCard').style.display='none';
+  showToast('Результаты отправлены!');
+  btn.disabled=false;btn.textContent='Отправить результаты';
+  goBack();
+}
+async function viewInvResults(taskId){
+  document.getElementById('invResultsSub').textContent='Загружаю...';
+  document.getElementById('invResultsList').innerHTML='<div class="loading">Загружаю...</div>';
+  pushScreen('sInvResults');
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=getInvResults&taskId='+taskId+'&t='+Date.now());
+    const json=await res.json();
+    const rows=json.rows||[];
+    document.getElementById('invResultsSub').textContent=rows.length+' позиций заполнено';
+    if(!rows.length){document.getElementById('invResultsList').innerHTML='<div class="empty">Результатов пока нет</div>';return;}
+    const byRole={};
+    rows.forEach(r=>{if(!byRole[r.role])byRole[r.role]=[];byRole[r.role].push(r);});
+    let h='';
+    for(const [role,items] of Object.entries(byRole)){
+      h+=`<div class="section-label">${role} · ${items[0]?.filledBy||''}</div>`;
+      items.forEach(r=>{
+        const tare=parseFloat(r.tare)||0;
+        const gross=parseFloat(r.weightGross)||0;
+        const net=parseFloat(r.weightNet)||0;
+        h+=`<div class="mgr-item">
+          <div class="mgr-item-name">${r.itemName||r.itemId}</div>
+          <div class="mgr-item-meta">${r.time} · ${r.filledBy}</div>
+          <div class="mgr-item-meta">${tare?`Брутто: ${gross} · Тара: ${tare} · Нетто: ${net}`:`Кол-во: ${gross}`}</div>
+        </div>`;
+      });
+    }
+    document.getElementById('invResultsList').innerHTML=h;
+  }catch(e){document.getElementById('invResultsList').innerHTML='<div class="empty">Ошибка</div>';}
+}
+
+// ── UTILS ──
+function formatDate(date,time){
+  if(!date) return '';
+  let d=date;
+  if(d.includes('GMT')||d.includes('T')){try{d=new Date(d).toLocaleDateString('ru-RU');}catch(e){}}
+  let t=time||'';
+  if(t.includes('GMT')||t.includes('T')){try{t=new Date(t).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}catch(e){}}
+  return [d,t].filter(Boolean).join(' ');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── INIT ──
+async function loadSettings(){
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=getUsers&t='+Date.now());
+    const json=await res.json();
+    if(json.users) users=json.users;
+  }catch(e){users=[];}
+  settingsLoaded=true;
+}
+loadSettings();
+</script>
+</body>
+</html>
