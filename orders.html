@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<script>
+(function(){
+  var url = window.location.href;
+  if(url.indexOf('?r=') === -1 && url.indexOf('&r=') === -1){
+    var sep = url.indexOf('?') === -1 ? '?' : '&';
+    window.location.replace(url + sep + 'r=' + Date.now());
+  }
+})();
+</script>
+<title>BURRY</title>
+<style>
+:root {
+  --pink:#FF3881; --pink-light:#fff0f5; --pink-mid:#ffd6e8;
+  --bg:#F5F5F7; --white:#FFFFFF;
+  --gray-50:#F9F9F9; --gray-100:#F2F2F2; --gray-200:#E8E8E8;
+  --gray-400:#999; --gray-600:#555; --gray-800:#111;
+  --green:#00875A; --green-light:#E3F5EE;
+  --red:#D93025; --red-light:#FEECEB;
+  --amber:#C98000; --amber-light:#FEF9EC;
+  --blue:#1A56DB; --blue-light:#EEF4FF;
+  --r:12px; --r-sm:8px; --r-xs:5px;
+  --sh:0 1px 4px rgba(0,0,0,.06);
+  --sh-md:0 4px 16px rgba(0,0,0,.08);
+  --sh-lg:0 12px 36px rgba(0,0,0,.12);
+  --surface:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--gray-800);-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;background:rgba(10,10,10,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 1rem;gap:.6rem}
+.nav-logo{font-size:16px;font-weight:900;color:#fff;letter-spacing:.12em;flex:1}
+.nav-pill{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);background:rgba(255,255,255,.07);padding:4px 10px;border-radius:20px;letter-spacing:.02em}
+.nav-out{background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;padding:6px 8px;border-radius:8px;font-family:inherit}
+
+.wrap{position:fixed;top:52px;left:0;right:0;bottom:0;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;background:var(--gray-50)}
+.screen.active{display:block}
+
+/* PIN */
+.pin-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:2rem 1.5rem;background:#0A0A0A}
+.pin-logo{font-size:28px;font-weight:900;color:#fff;letter-spacing:.14em;margin-bottom:.35rem}
+.pin-hint{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:2.5rem;letter-spacing:.03em}
+.pin-dots{display:flex;gap:12px;margin-bottom:2rem}
+.pin-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.18);transition:all .15s}
+.pin-dot.on{background:var(--pink);border-color:var(--pink);transform:scale(1.15)}
+.pin-err{font-size:12px;color:#ff6b6b;min-height:16px;margin-bottom:1.25rem;text-align:center}
+.pin-grid{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+.pin-k{width:72px;height:72px;border-radius:50%;border:none;background:rgba(255,255,255,.06);color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s;font-family:inherit}
+.pin-k:active{background:rgba(255,255,255,.14)}
+.pin-k.del{font-size:17px;color:rgba(255,255,255,.35)}
+.pin-k.blank{background:transparent;pointer-events:none}
+
+/* CARDS */
+.card-grid{padding:1rem;display:flex;flex-direction:column;gap:.625rem}
+.card{background:#fff;border-radius:var(--r);padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;border:1px solid var(--gray-200);transition:all .12s}
+.card:active{border-color:var(--pink);background:var(--pink-light);transform:scale(.98)}
+.card-icon{width:40px;height:40px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-title{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.card-sub{font-size:11.5px;color:var(--gray-400);margin-top:1px}
+.card-arr{margin-left:auto;color:var(--gray-400);font-size:14px;flex-shrink:0;opacity:.5}
+
+/* PAGE HEADER */
+.ph{padding:.875rem 1rem .625rem;background:#fff;border-bottom:1px solid var(--gray-200)}
+.ph-back{font-size:12px;color:var(--gray-400);background:none;border:none;cursor:pointer;padding:0;margin-bottom:.35rem;display:flex;align-items:center;gap:.2rem;font-family:inherit}
+.ph-title{font-size:18px;font-weight:700;letter-spacing:-.025em}
+.ph-sub{font-size:11.5px;color:var(--gray-400);margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--gray-100);overflow-x:auto;padding:0 .375rem;gap:.125rem;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:.7rem .875rem;font-size:12px;font-weight:500;color:var(--gray-400);border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0;cursor:pointer;font-family:inherit;letter-spacing:.01em}
+.tab.on{color:var(--gray-800);border-bottom-color:var(--pink);font-weight:700}
+
+.subtabs{display:flex;background:#fff;border-bottom:1px solid var(--gray-100);padding:0 .375rem;gap:.125rem}
+.stab{flex:1;padding:.7rem .5rem;font-size:12px;font-weight:500;color:var(--gray-400);text-align:center;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;cursor:pointer;font-family:inherit}
+.stab.on{color:var(--gray-800);border-bottom-color:var(--pink);font-weight:700}
+
+.chips{display:flex;gap:.4rem;padding:.625rem 1rem;background:#fff;border-bottom:1px solid var(--gray-100);flex-wrap:wrap}
+.chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--gray-100);color:var(--gray-600)}
+.chip b{color:var(--gray-800)}
+
+.sec{padding:.45rem 1rem .15rem;font-size:9.5px;font-weight:700;color:var(--gray-400);letter-spacing:.1em;text-transform:uppercase;background:var(--gray-50);border-bottom:1px solid #efefef}
+
+/* ORDER ROWS */
+.prow{background:#fff;padding:.8rem 1.125rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:.625rem;transition:border-left .1s}
+.prow.lit{border-left:3px solid var(--pink)}
+.prow-info{flex:1;min-width:0}
+.prow-name{font-size:13px;font-weight:500}
+.prow-unit{font-size:11px;color:var(--gray-400);margin-top:1px}
+.prow-ctrls{display:flex;align-items:center;gap:.3rem;flex-shrink:0}
+.qbtn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--gray-200);background:#fff;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-600);transition:all .1s;flex-shrink:0}
+.qbtn:active{background:var(--pink-light);border-color:var(--pink);color:var(--pink)}
+.qinp{width:48px;height:32px;text-align:center;border:1.5px solid var(--gray-200);border-radius:var(--r-sm);font-size:14px;font-weight:700;font-family:inherit;color:var(--gray-800)}
+.qinp:focus{outline:none;border-color:var(--pink)}
+.cbtn{width:32px;height:32px;border-radius:50%;border:none;background:var(--gray-100);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cbox{margin-top:.4rem;background:var(--gray-50);border-radius:var(--r-sm);border:1px solid var(--gray-200);padding:.5rem .75rem}
+.cbox textarea{width:100%;border:none;background:none;font-size:12px;font-family:inherit;resize:none;outline:none;color:var(--gray-800)}
+.crit-row{background:var(--amber-light);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-sm);padding:.5rem .875rem;margin:.2rem 1.125rem .4rem;display:flex;align-items:center;gap:.5rem}
+.crit-lbl{font-size:11px;color:#92400E;flex:1;font-weight:600}
+.crit-inp{width:76px;border:1px solid rgba(245,158,11,.35);border-radius:6px;padding:5px 7px;font-size:13px;font-family:inherit;text-align:center;background:#fff}
+
+/* MGR ROWS */
+.mrow{background:#fff;padding:.7rem 1rem;border-bottom:1px solid #f0f0f0}
+.mrow-name{font-size:13.5px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.mrow-meta{font-size:11px;color:var(--gray-400);margin-top:2px}
+.mrow-bot{display:flex;align-items:center;gap:.35rem;margin-top:.5rem;flex-wrap:wrap}
+.tag{font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;letter-spacing:.02em}
+.tag-bar{background:#E8F1FB;color:#1D4ED8}
+.tag-kit{background:var(--green-light);color:var(--green)}
+.tag-prep{background:#FEF3C7;color:#92400E}
+.tag-urg{background:var(--red-light);color:var(--red)}
+.sbtn{padding:5px 12px;border-radius:20px;border:none;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .1s;font-family:inherit;letter-spacing:.02em}
+.s-done{background:var(--green-light);color:var(--green)}
+.s-later{background:var(--amber-light);color:#92400E}
+.s-back{background:var(--gray-100);color:var(--gray-600)}
+.sup-sel{border:1px solid var(--gray-200);border-radius:8px;padding:4px 7px;font-size:11px;font-family:inherit;color:var(--gray-600);background:#fff}
+
+/* EMERG */
+.erow{background:#fff;padding:.7rem 1rem;border-bottom:1px solid var(--gray-100);display:flex;gap:.4rem;align-items:center}
+.einp{flex:1;border:1.5px solid var(--gray-200);border-radius:var(--r-sm);padding:8px 10px;font-size:13px;font-family:inherit}
+.einp:focus{outline:none;border-color:var(--pink)}
+.edel{width:34px;height:34px;border:none;background:var(--red-light);color:var(--red);border-radius:50%;cursor:pointer;font-size:17px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.add-btn{margin:.6rem 1.125rem;padding:11px;border:1.5px dashed var(--gray-200);border-radius:var(--r-sm);background:none;width:calc(100% - 2.25rem);font-size:13px;color:var(--gray-400);cursor:pointer;transition:all .1s;font-family:inherit}
+.add-btn:active{background:var(--gray-100)}
+.ac{position:absolute;background:#fff;border:1px solid var(--gray-200);border-radius:var(--r-sm);box-shadow:var(--sh-lg);z-index:50;max-height:180px;overflow-y:auto;left:0;right:0}
+.ac-item{padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--gray-100)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:active{background:var(--gray-50)}
+
+/* BOTTOM BAR */
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--gray-100);padding:.75rem 1.125rem;display:flex;gap:.625rem;box-shadow:0 -4px 24px rgba(0,0,0,.06)}
+.btn{flex:1;height:48px;background:var(--pink);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;letter-spacing:.02em}
+.btn:active{opacity:.82}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-sec{height:48px;padding:0 1.125rem;background:var(--gray-100);color:var(--gray-800);border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-sec:active{background:var(--gray-200)}
+.spc{height:84px}
+
+/* SUCCESS */
+.succ{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:2rem;text-align:center}
+.succ-ico{width:72px;height:72px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;margin-bottom:1.25rem;box-shadow:0 8px 28px rgba(0,163,108,.25)}
+.succ-title{font-size:22px;font-weight:700;margin-bottom:.4rem;letter-spacing:-.02em}
+.succ-sub{font-size:13px;color:var(--gray-400);margin-bottom:1.75rem}
+.succ-acts{display:flex;flex-direction:column;gap:.625rem;width:100%;max-width:260px}
+
+/* STOCK SUMMARY */
+.stock-tbl{width:100%}
+.stock-thead{display:grid;grid-template-columns:1.6fr repeat(3,.8fr);background:#111;position:sticky;top:0;z-index:10}
+.stock-th{padding:.55rem .4rem;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.stock-th:first-child{text-align:left;padding-left:.875rem;color:rgba(255,255,255,.6)}
+.stock-cat{padding:.3rem .875rem;font-size:9.5px;font-weight:800;color:var(--gray-400);letter-spacing:.1em;text-transform:uppercase;background:var(--gray-50);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.stock-row{display:grid;grid-template-columns:1.6fr repeat(3,.8fr);background:#fff;border-bottom:1px solid #f0f0f0}
+.stock-namecell{padding:.55rem .875rem;font-size:12.5px;font-weight:500;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;justify-content:center;line-height:1.3}
+.stock-namecell span{font-size:9.5px;color:var(--gray-400);margin-top:1px}
+.stock-cell{padding:.55rem .25rem;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.stock-cell:last-child{border-right:none}
+.sv{font-size:13px;font-weight:700;color:var(--gray-800);line-height:1}
+.sv.stale{color:#bbb;font-weight:400}
+.sv.empty{color:#ddd}
+.sd{font-size:9px;color:#bbb;line-height:1}
+
+/* STOCK FILL */
+.sfrow{background:#fff;padding:.6rem 1rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:.625rem}
+.sfname{flex:1;min-width:0}
+.sfname-main{font-size:13px;font-weight:500;line-height:1.3}
+.sfname-prev{font-size:10.5px;color:var(--gray-400);margin-top:1px}
+.sfinp{width:76px;height:36px;border:1.5px solid var(--gray-200);border-radius:var(--r-sm);text-align:center;font-size:14px;font-weight:700;font-family:inherit;color:var(--gray-800);transition:all .12s;flex-shrink:0}
+.sfinp:focus{outline:none;border-color:var(--pink)}
+.sfinp.filled{border-color:var(--pink);background:var(--pink-light);color:var(--pink)}
+
+/* UTILS */
+.empty{padding:3rem 1rem;text-align:center;color:var(--gray-400);font-size:13px}
+.loading{padding:3rem 1rem;text-align:center;color:var(--gray-400);font-size:13px}
+.rfbtn{position:fixed;bottom:1.25rem;right:1.25rem;width:44px;height:44px;border-radius:50%;border:1px solid var(--gray-200);background:#fff;font-size:17px;cursor:pointer;box-shadow:var(--sh-md);display:flex;align-items:center;justify-content:center;z-index:50;transition:transform .2s}
+.rfbtn:active{transform:rotate(180deg)}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:flex-end}
+.ov.open{display:flex}
+.modal{background:#fff;border-radius:var(--r) var(--r) 0 0;width:100%;padding:1.375rem 1.125rem 2rem;max-height:88vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:1.125rem;letter-spacing:-.02em}
+.modal-row{margin-bottom:.875rem}
+.fl{display:block;font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:.35rem}
+.fi{width:100%;border:1.5px solid var(--gray-200);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;font-family:inherit;color:var(--gray-800)}
+.fi:focus{outline:none;border-color:var(--pink)}
+.fs{width:100%;border:1.5px solid var(--gray-200);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;font-family:inherit;background:#fff}
+.modal-acts{display:flex;gap:.625rem;margin-top:1.25rem}
+
+/* CONFIRM */
+.cov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none;align-items:center;justify-content:center;padding:1.25rem}
+.cov.open{display:flex}
+.cbox2{background:#fff;border-radius:var(--r);padding:1.375rem;width:100%;max-width:300px;box-shadow:var(--sh-lg)}
+.cbox2-title{font-size:17px;font-weight:700;margin-bottom:.4rem}
+.cbox2-sub{font-size:13px;color:var(--gray-600);margin-bottom:1.25rem;line-height:1.5}
+.cbox2-btns{display:flex;gap:.625rem}
+.cbox2-btns button{flex:1;height:44px;border-radius:var(--r-sm);border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* TOAST */
+.toast{position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%);background:var(--gray-800);color:#fff;padding:9px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:600;white-space:nowrap;box-shadow:var(--sh-md)}
+.toast.show{opacity:1}
+
+/* PROD ADMIN */
+.padmin-row{background:#fff;padding:.75rem 1.125rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:.75rem}
+
+/* DESKTOP CENTERING */
+@media(min-width:580px){
+  body{background:#1C1C1E}
+  .nav{max-width:430px;left:50%;transform:translateX(-50%);border-radius:0 0 10px 10px}
+  .wrap{max-width:430px;left:50%;transform:translateX(-50%);box-shadow:0 24px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04);border-radius:12px;overflow:hidden}
+  .bar{max-width:430px;left:50%;transform:translateX(-50%)}
+  .rfbtn{right:calc(50% - 400px)}
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <span class="nav-logo">BURRY</span>
+  <span class="nav-pill" id="navLoc" style="display:none"></span>
+  <button class="nav-out" id="logoutBtn" style="display:none" onclick="logout()">Выйти</button>
+</div>
+
+<div class="wrap">
+
+<!-- PIN -->
+<div class="screen active" id="sPin" style="background:#0A0A0A">
+  <div class="pin-wrap">
+    <div class="pin-logo">BURRY</div>
+    <div class="pin-hint">ВВЕДИ PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-err" id="pinErr"></div>
+    <div class="pin-grid">
+      <button class="pin-k" onclick="pk(1)">1</button><button class="pin-k" onclick="pk(2)">2</button><button class="pin-k" onclick="pk(3)">3</button>
+      <button class="pin-k" onclick="pk(4)">4</button><button class="pin-k" onclick="pk(5)">5</button><button class="pin-k" onclick="pk(6)">6</button>
+      <button class="pin-k" onclick="pk(7)">7</button><button class="pin-k" onclick="pk(8)">8</button><button class="pin-k" onclick="pk(9)">9</button>
+      <button class="pin-k blank"></button><button class="pin-k" onclick="pk(0)">0</button><button class="pin-k del" onclick="pd()">⌫</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGER MODE -->
+<div class="screen" id="sMgrMode">
+  <div class="ph"><div class="ph-title" id="mgrModeTitle"></div><div class="ph-sub">Что хочешь сделать?</div></div>
+  <div class="card-grid">
+    <div class="card" onclick="enterMgr()">
+      <div class="card-icon" style="background:#EFF6FF">📋</div>
+      <div style="flex:1"><div class="card-title">Смотреть заказы</div><div class="card-sub">Дашборд менеджера</div></div>
+      <span class="card-arr">›</span>
+    </div>
+    <div class="card" onclick="goTo('sMgrOrderRole')">
+      <div class="card-icon" style="background:var(--green-light)">🛒</div>
+      <div style="flex:1"><div class="card-title">Сделать заказ</div><div class="card-sub">Бар или кухня</div></div>
+      <span class="card-arr">›</span>
+    </div>
+    <div class="card" onclick="switchToStock()">
+      <div class="card-icon" style="background:var(--amber-light)">📊</div>
+      <div style="flex:1"><div class="card-title">Остатки</div><div class="card-sub">Сводная по всем точкам</div></div>
+      <span class="card-arr">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- MGR ORDER ROLE -->
+<div class="screen" id="sMgrOrderRole">
+  <div class="ph"><button class="ph-back" onclick="back()">← Назад</button><div class="ph-title">Сделать заказ</div><div class="ph-sub">Выбери роль</div></div>
+  <div class="card-grid">
+    <div class="card" onclick="enterStaff('bar')"><div class="card-icon" style="background:#EFF6FF">☕</div><div style="flex:1"><div class="card-title">Бар</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="enterStaff('kitchen')"><div class="card-icon" style="background:var(--green-light)">🍳</div><div style="flex:1"><div class="card-title">Кухня</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="enterStaff('заготовщик')"><div class="card-icon" style="background:#FEF3C7">📦</div><div style="flex:1"><div class="card-title">Заготовщик</div></div><span class="card-arr">›</span></div>
+  </div>
+</div>
+
+<!-- STAFF MODE -->
+<div class="screen" id="sMode">
+  <div class="ph"><div class="ph-title" id="modeName"></div><div class="ph-sub" id="modeLoc"></div></div>
+  <div class="card-grid">
+    <div class="card" onclick="startOrder('weekly')"><div class="card-icon" style="background:var(--gray-100)">📋</div><div style="flex:1"><div class="card-title">Заказ по понедельникам</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="startOrder('urgent')"><div class="card-icon" style="background:#FEF3C7">⚡</div><div style="flex:1"><div class="card-title">Заказ по четвергам</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="startOrder('biweekly')"><div class="card-icon" style="background:var(--blue-light)">📅</div><div style="flex:1"><div class="card-title">Полный заказ с хозтоварами</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="startOrder('emergency')"><div class="card-icon" style="background:var(--red-light)">🚨</div><div style="flex:1"><div class="card-title">Срочная заявка</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="showMyOrders()"><div class="card-icon" style="background:var(--gray-100)">📦</div><div style="flex:1"><div class="card-title">Мои заказы</div><div class="card-sub">Статус текущих заявок</div></div><span class="card-arr">›</span></div>
+    <div class="card" onclick="switchToStock()"><div class="card-icon" style="background:var(--amber-light)">📊</div><div style="flex:1"><div class="card-title">Остатки</div><div class="card-sub">Посмотреть и заполнить</div></div><span class="card-arr">›</span></div>
+  </div>
+</div>
+
+<!-- ORDER -->
+<div class="screen" id="sOrder">
+  <div class="ph"><button class="ph-back" onclick="back()">← Назад</button><div class="ph-title" id="orderTitle"></div><div class="ph-sub" id="orderSub"></div></div>
+  <div id="productList"></div>
+  <div class="spc"></div>
+</div>
+<div class="bar" id="orderBar" style="display:none">
+  <button class="btn-sec" onclick="resetAll()">Сбросить</button>
+  <button class="btn" id="btnSend" onclick="sendOrder()" disabled>Укажи количество</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="screen" id="sSuccess">
+  <div class="succ">
+    <div class="succ-ico">✓</div>
+    <div class="succ-title">Отправлено!</div>
+    <div class="succ-sub" id="succSub"></div>
+    <div class="succ-acts">
+      <button class="btn" onclick="back()">Ещё заказ</button>
+      <button class="btn-sec" onclick="logout()">На главный</button>
+    </div>
+  </div>
+</div>
+
+<!-- MY ORDERS -->
+<div class="screen" id="sMyOrders">
+  <div class="ph"><button class="ph-back" onclick="back()">← Назад</button><div class="ph-title">Мои заказы</div><div class="ph-sub" id="myOrdersSub"></div></div>
+  <div class="chips" id="myChips"></div>
+  <div id="myOrdersList"></div><div class="spc"></div>
+</div>
+
+<!-- MGR DASHBOARD -->
+<div class="screen" id="sMgr">
+  <div class="tabs" id="locTabs">
+    <button class="tab" id="tFar" onclick="switchTab('Фарфоровская')" style="display:none">Фарфоровская</button>
+    <button class="tab" id="tObu" onclick="switchTab('Обуховская')" style="display:none">Обуховская</button>
+    <button class="tab" id="tKub" onclick="switchTab('Кубинская')" style="display:none">Кубинская</button>
+    <button class="tab" id="tStock" onclick="switchToStock()">📊 Остатки</button>
+    <button class="tab" id="tProds" onclick="switchToProducts()">📦 Продукты</button>
+  </div>
+  <div class="subtabs">
+    <button class="stab on" id="st0" onclick="switchSub('new')">📋 Заявки</button>
+    <button class="stab" id="st1" onclick="switchSub('done')">✅ Заказано</button>
+    <button class="stab" id="st2" onclick="switchSub('later')">🕐 Позже</button>
+  </div>
+  <div class="chips" id="mgrChips"></div>
+  <div id="mgrList"></div><div class="spc"></div>
+  <button class="rfbtn" onclick="loadMgrData()">↻</button>
+</div>
+
+<!-- PRODUCTS ADMIN -->
+<div class="screen" id="sProducts">
+  <div class="ph"><button class="ph-back" onclick="showScreen('sMgr')">← Назад</button><div class="ph-title">Продукты</div><div class="ph-sub" id="prodLocLabel"></div></div>
+  <div style="display:flex;gap:.4rem;padding:.625rem 1.125rem;overflow-x:auto;background:#fff;border-bottom:1px solid var(--gray-100)">
+    <button class="sbtn s-done" id="ptBar" onclick="switchProdTab('bar')">☕ Бар</button>
+    <button class="sbtn s-back" id="ptKit" onclick="switchProdTab('kitchen')">🍳 Кухня</button>
+    <button class="sbtn s-back" id="ptPrep" onclick="switchProdTab('заготовщик')">📦 Заготовщик</button>
+  </div>
+  <div id="prodList"></div><div class="spc"></div>
+  <button style="position:fixed;bottom:1.25rem;right:1.25rem;width:52px;height:52px;border-radius:50%;border:none;background:var(--pink);color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(255,56,129,.35);z-index:50;display:flex;align-items:center;justify-content:center" onclick="openAddProd()">+</button>
+</div>
+
+<!-- ОСТАТКИ СВОДНАЯ -->
+<div class="screen" id="sStock" style="background:#f5f5f7">
+  <div style="background:#111;padding:.75rem 1rem;display:flex;align-items:center;gap:.625rem;position:sticky;top:0;z-index:20">
+    <button onclick="back()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:14px;cursor:pointer;padding:4px 6px;border-radius:6px;font-family:inherit">← Назад</button>
+    <div style="font-size:15px;font-weight:700;letter-spacing:-.01em;flex:1;color:#fff">Остатки</div>
+    <button class="sbtn" id="btnFill" onclick="openFillStock()" style="display:none;background:var(--pink);color:#fff;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit">✏ Заполнить</button>
+  </div>
+  <div class="stock-thead">
+    <div class="stock-th">Позиция</div>
+    <div class="stock-th">Обух.</div>
+    <div class="stock-th">Куб.</div>
+    <div class="stock-th">Фарф.</div>
+  </div>
+  <div id="stockList"><div class="loading">⏳ Загружаю...</div></div>
+  <div style="padding:.5rem 1rem .75rem;font-size:10px;color:#aaa;text-align:center" id="stockNote"></div>
+  <button class="rfbtn" onclick="loadStock()" style="bottom:1.25rem">↻</button>
+</div>
+
+<!-- ОСТАТКИ ЗАПОЛНИТЬ -->
+<div class="screen" id="sStockFill">
+  <div class="ph">
+    <button class="ph-back" onclick="back()">← Назад</button>
+    <div class="ph-title">Остатки · <span id="sfLoc"></span></div>
+    <div class="ph-sub" id="sfDate"></div>
+  </div>
+  <div id="sfList"></div>
+  <div class="spc"></div>
+</div>
+<div class="bar" id="sfBar" style="display:none">
+  <button class="btn" onclick="saveStock()">Сохранить остатки</button>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- ADD PRODUCT MODAL -->
+<div class="ov" id="addProdOv" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Новый продукт</div>
+    <div class="modal-row"><label class="fl">Название</label><input class="fi" id="npName" placeholder="Молоко ЭКОНИВА"></div>
+    <div class="modal-row"><label class="fl">Поставщик</label><select class="fs" id="npSup"></select></div>
+    <div class="modal-row"><label class="fl">Единица</label><input class="fi" id="npUnit" placeholder="л"></div>
+    <div style="display:flex;gap:1.25rem;margin-bottom:.875rem">
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:13px;cursor:pointer"><input type="checkbox" id="npThu" style="width:17px;height:17px;accent-color:var(--pink)"> По четвергам</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:13px;cursor:pointer"><input type="checkbox" id="npBi" style="width:17px;height:17px;accent-color:var(--pink)"> Полный заказ</label>
+    </div>
+    <div class="modal-acts">
+      <button class="btn-sec" onclick="closeModal()" style="height:44px">Отмена</button>
+      <button class="btn" onclick="saveProd()" style="height:44px">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM ARCHIVE -->
+<div class="cov" id="confOv">
+  <div class="cbox2">
+    <div class="cbox2-title">Закрыть заказ?</div>
+    <div class="cbox2-sub">Все заказанные позиции уйдут в архив.</div>
+    <div class="cbox2-btns">
+      <button style="background:var(--gray-100);color:var(--gray-800)" onclick="closeConf()">Отмена</button>
+      <button style="background:var(--red);color:#fff" onclick="archiveOrders()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvXLaugiTLQ7JcHrW3HjQ0itCpmlLz4-KcCT3Qed1Z1SEeT904RCYDPimlT9P7iC7AmQ/exec";
+const BOT_TOKEN = "8803013416:AAFLIifjKo8d75du3JOt0IivUysS1yypL-s";
+const CRITICAL = ["авокадо","шоколад","зерно кофе","кофе зерн"];
+const LOCS = ['Обуховская','Кубинская','Фарфоровская'];
+const STALE_H = 25;
+
+// STATE
+let users=[], curUser=null, curRole='', curLoc='';
+let curMode='', allProds=[], suppliers=[];
+let qty={}, stocks={}, cmts={};
+let mgrData=[], curMgrTab='Фарфоровская', curSub='new';
+let stack=[], curProdTab='bar', eIdx=0;
+let stockRef=[], latestStock={}, sfData={};
+let settingsLoaded=false;
+
+// PIN
+let pin='';
+function pk(n){if(pin.length>=4)return;pin+=n;updDots();if(pin.length===4)setTimeout(checkPin,100);}
+function pd(){pin=pin.slice(0,-1);updDots();}
+function updDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('on',i<pin.length);}
+
+async function checkPin(){
+  if(!settingsLoaded||!users.length){
+    document.getElementById('pinErr').textContent='Загрузка...';
+    for(let i=0;i<100;i++){await sleep(100);if(settingsLoaded&&users.length)break;}
+    document.getElementById('pinErr').textContent='';
+  }
+  const u=users.find(u=>String(u.pin)===String(pin));
+  if(!u){document.getElementById('pinErr').textContent='Неверный PIN';pin='';updDots();return;}
+  curUser=u; curLoc=u.location.trim(); curRole=u.role.toLowerCase().trim();
+  document.getElementById('logoutBtn').style.display='block';
+  const nl=document.getElementById('navLoc'); nl.textContent=curLoc; nl.style.display='block';
+  routeUser();
+}
+
+function routeUser(){
+  loadMgrData(); loadAllProds();
+  if(curRole==='владелец'){curLoc='Фарфоровская';document.getElementById('navLoc').textContent=curLoc;enterMgr();}
+  else if(curRole==='менеджер'){document.getElementById('mgrModeTitle').textContent=curUser.name+' · '+curLoc;showScreen('sMgrMode');}
+  else if(curRole==='шеф'||curRole==='повар')enterStaff('kitchen');
+  else if(curRole==='бариста')enterStaff('bar');
+  else if(curRole==='заготовщик')enterStaff('заготовщик');
+  else enterStaff('bar');
+}
+
+// NAV
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
+function goTo(id){const c=document.querySelector('.screen.active');if(c)stack.push(c.id);showScreen(id);}
+function back(){if(stack.length)showScreen(stack.pop());else showScreen('sMode');}
+function logout(){
+  curUser=null;curRole='';curLoc='';curMode='';qty={};stocks={};cmts={};mgrData=[];stack=[];allProds=[];
+  pin='';updDots();document.getElementById('pinErr').textContent='';
+  document.getElementById('logoutBtn').style.display='none';
+  document.getElementById('navLoc').style.display='none';
+  document.getElementById('orderBar').style.display='none';
+  document.getElementById('sfBar').style.display='none';
+  ['tFar','tObu','tKub'].forEach(id=>{const t=document.getElementById(id);if(t){t.style.display='none';t.classList.remove('on');}});
+  showScreen('sPin');
+}
+
+// MANAGER
+function enterMgr(){
+  const isOwner=curRole==='владелец';
+  curMgrTab=isOwner?'Фарфоровская':curLoc;
+  ['tFar','tObu','tKub'].forEach(id=>{
+    const t=document.getElementById(id); if(!t)return;
+    const loc=id==='tFar'?'Фарфоровская':id==='tObu'?'Обуховская':'Кубинская';
+    t.style.display=(isOwner||loc===curLoc)?'block':'none';
+    t.classList.toggle('on',loc===curMgrTab);
+  });
+  document.getElementById('tStock').classList.remove('on');
+  document.getElementById('tProds').classList.remove('on');
+  ['st0','st1','st2'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',i===0));
+  curSub='new'; showScreen('sMgr'); renderMgr();
+}
+
+function enterStaff(role){
+  curRole=role;
+  const lbl=role==='bar'?'☕ Бар':role==='заготовщик'?'📦 Заготовщик':'🍳 Кухня';
+  document.getElementById('modeName').textContent=lbl+' · '+(curUser?.name||'');
+  document.getElementById('modeLoc').textContent=curLoc;
+  document.getElementById('orderBar').style.display='none';
+  showScreen('sMode');
+}
+
+function switchTab(loc){
+  curMgrTab=loc;
+  ['tFar','tObu','tKub'].forEach(id=>{
+    const t=document.getElementById(id); if(!t||t.style.display==='none')return;
+    const tl=id==='tFar'?'Фарфоровская':id==='tObu'?'Обуховская':'Кубинская';
+    t.classList.toggle('on',tl===loc);
+  });
+  renderMgr();
+}
+
+function switchSub(tab){
+  curSub=tab;
+  ['new','done','later'].forEach((t,i)=>document.getElementById('st'+i).classList.toggle('on',t===tab));
+  renderMgr();
+}
+
+async function loadMgrData(){
+  try{const r=await fetch(SCRIPT_URL+'?action=getOrders&t='+Date.now(),{cache:'no-store'});const j=await r.json();mgrData=j.rows||[];if(curRole==='менеджер'||curRole==='владелец')renderMgr();}catch(e){}
+}
+
+function renderMgr(){
+  const el=document.getElementById('mgrList'); if(!el)return;
+  const loc=mgrData.filter(r=>r.location===curMgrTab);
+  const c={new:0,done:0,later:0};
+  loc.forEach(r=>{if(r.status==='⏳ Заявка')c.new++;else if(r.status==='✅ Заказано')c.done++;else if(r.status==='🕐 Позже')c.later++;});
+  document.getElementById('mgrChips').innerHTML=`<div class="chip">⏳ <b>${c.new}</b></div><div class="chip">✅ <b>${c.done}</b></div><div class="chip">🕐 <b>${c.later}</b></div>`;
+  const data=loc.filter(r=>curSub==='new'?r.status==='⏳ Заявка':curSub==='done'?r.status==='✅ Заказано':r.status==='🕐 Позже');
+  if(!data.length){el.innerHTML='<div class="empty">Нет позиций</div>';return;}
+  const bySup={};
+  data.forEach(r=>{if(!bySup[r.supplier])bySup[r.supplier]=[];bySup[r.supplier].push(r);});
+  let h='';
+  for(const[sup,items]of Object.entries(bySup)){
+    h+=`<div class="sec">${sup}</div>`;
+    items.forEach(r=>{
+      const idx=mgrData.indexOf(r);
+      const rt=r.role==='Бар'?'<span class="tag tag-bar">Бар</span>':r.role==='Заготовщик'?'<span class="tag tag-prep">Заготовщик</span>':'<span class="tag tag-kit">Кухня</span>';
+      const isEmerg=r.orderType?.includes('Срочн');
+      h+=`<div class="mrow">
+        <div class="mrow-name">${r.product}</div>
+        <div class="mrow-meta">${fmtDate(r.date,r.time)}${r.stock&&r.stock!=='—'?' · остаток: '+r.stock:''}${r.reason&&r.reason!=='—'?' · '+r.reason:''}</div>
+        <div class="mrow-bot">
+          ${rt}${isEmerg?'<span class="tag tag-urg">Срочно</span>':''}
+          <div style="display:flex;align-items:center;gap:.3rem;font-size:12px;color:var(--gray-600)">
+            <input type="text" inputmode="decimal" value="${r.qty||''}" onchange="chgQtyMgr(${idx},this.value)" onclick="this.select()" style="width:48px;border:1px solid var(--gray-200);border-radius:7px;padding:4px 7px;font-size:12px;font-family:inherit;text-align:center"> ${r.unit||''}
+          </div>
+          <select class="sup-sel" onchange="chgSup(${idx},this.value)">${suppliers.map(s=>`<option ${s===r.supplier?'selected':''}>${s}</option>`).join('')}</select>
+          ${curSub==='new'?`<button class="sbtn s-done" onclick="setSt(${idx},'✅ Заказано')">✅ Заказано</button><button class="sbtn s-later" onclick="setSt(${idx},'🕐 Позже')">🕐 Позже</button>`:''}
+          ${curSub==='done'?`<button class="sbtn s-back" onclick="setSt(${idx},'⏳ Заявка')">↩ Вернуть</button>`:''}
+          ${curSub==='later'?`<button class="sbtn s-done" onclick="setSt(${idx},'✅ Заказано')">✅</button><button class="sbtn s-back" onclick="setSt(${idx},'⏳ Заявка')">↩</button>`:''}
+        </div>
+      </div>`;
+    });
+  }
+  if(curSub==='done'&&c.done)h+=`<div style="padding:.875rem 1.125rem"><button class="btn" style="background:var(--red);width:100%;height:46px" onclick="document.getElementById('confOv').classList.add('open')">🗂 Закрыть заказ</button></div>`;
+  el.innerHTML=h;
+}
+
+async function setSt(idx,status){const rowId=mgrData[idx].rowId;mgrData[idx].status=status;renderMgr();await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateStatus',rowId,status}),mode:'no-cors'});}
+async function chgSup(idx,supplier){mgrData[idx].supplier=supplier;await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateSupplier',rowId:mgrData[idx].rowId,supplier}),mode:'no-cors'});}
+async function chgQtyMgr(idx,v){mgrData[idx].qty=v;await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateQty',rowId:mgrData[idx].rowId,qty:v}),mode:'no-cors'});showToast('Обновлено');}
+function closeConf(){document.getElementById('confOv').classList.remove('open');}
+async function archiveOrders(){
+  closeConf();const d=new Date().toLocaleDateString('ru-RU');
+  for(const r of mgrData.filter(r=>r.location===curMgrTab&&r.status==='✅ Заказано')){
+    const rowId=r.rowId;mgrData[mgrData.indexOf(r)].status='🗂 Архив '+d;
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'updateStatus',rowId,status:'🗂 Архив '+d}),mode:'no-cors'});
+  }
+  renderMgr();showToast('Заказ закрыт');
+}
+
+// PRODUCTS ADMIN
+function switchToProducts(){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tProds').classList.add('on');
+  document.getElementById('prodLocLabel').textContent=curMgrTab;
+  switchProdTab('bar');showScreen('sProducts');
+}
+function switchProdTab(role){
+  curProdTab=role;
+  ['bar','kitchen','заготовщик'].forEach(r=>{
+    const m={bar:'ptBar',kitchen:'ptKit','заготовщик':'ptPrep'};
+    document.getElementById(m[r])?.classList.toggle('s-done',r===role);
+    document.getElementById(m[r])?.classList.toggle('s-back',r!==role);
+  });renderProdList();
+}
+function renderProdList(){
+  const prods=allProds.filter(p=>{const n=p.role==='Бар'?'bar':p.role==='Кухня'?'kitchen':p.role.trim().toLowerCase();return n===curProdTab;});
+  const bySup={};prods.forEach(p=>{if(!bySup[p.supplier])bySup[p.supplier]=[];bySup[p.supplier].push(p);});
+  let h='';
+  for(const[sup,items]of Object.entries(bySup)){
+    h+=`<div class="sec">${sup}</div>`;
+    items.forEach(p=>{
+      h+=`<div class="padmin-row">
+        <div style="flex:1"><div style="font-size:13px;font-weight:500;${p.active!=='1'?'color:var(--gray-400)':''}">${p.name}</div><div style="font-size:11px;color:var(--gray-400)">${p.unit||''}</div></div>
+        <label style="cursor:pointer"><input type="checkbox" ${p.active==='1'?'checked':''} onchange="toggleProd('${p.id}',this.checked)" style="width:19px;height:19px;accent-color:var(--pink)"></label>
+      </div>`;
+    });
+  }
+  document.getElementById('prodList').innerHTML=h||'<div class="empty">Нет продуктов</div>';
+}
+async function toggleProd(id,active){const p=allProds.find(p=>p.id===id);if(p)p.active=active?'1':'0';await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'toggleProduct',id,active,location:curLoc}),mode:'no-cors'});showToast(active?'Включён':'Выключён');}
+function openAddProd(){
+  document.getElementById('npName').value='';document.getElementById('npUnit').value='';
+  document.getElementById('npThu').checked=false;document.getElementById('npBi').checked=false;
+  document.getElementById('npSup').innerHTML=suppliers.map(s=>`<option>${s}</option>`).join('');
+  document.getElementById('addProdOv').classList.add('open');
+}
+function closeModal(){document.getElementById('addProdOv').classList.remove('open');}
+async function saveProd(){
+  const name=document.getElementById('npName').value.trim();if(!name){showToast('Укажи название');return;}
+  await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addProduct',name,supplier:document.getElementById('npSup').value,unit:document.getElementById('npUnit').value.trim(),role:curProdTab,thu:document.getElementById('npThu').checked,biweekly:document.getElementById('npBi').checked,location:curLoc}),mode:'no-cors'});
+  closeModal();showToast('Добавлено');await loadAllProds();renderProdList();
+}
+
+// ORDERS
+async function loadAllProds(){
+  try{const r=await fetch(SCRIPT_URL+'?action=getProducts&location='+encodeURIComponent(curLoc)+'&t='+Date.now(),{cache:'no-store'});const j=await r.json();allProds=j.products||[];if(j.suppliers)suppliers=j.suppliers;}catch(e){}
+}
+
+async function startOrder(mode){
+  curMode=mode;qty={};stocks={};cmts={};eIdx=0;
+  const names={weekly:'Заказ по понедельникам',urgent:'Заказ по четвергам',biweekly:'Полный заказ с хозтоварами',emergency:'Срочная заявка'};
+  document.getElementById('orderTitle').textContent=names[mode];
+  document.getElementById('orderSub').textContent=curLoc+' · '+(curRole==='bar'?'Бар':curRole==='заготовщик'?'Заготовщик':'Кухня');
+  document.getElementById('orderBar').style.display='flex';
+  document.getElementById('productList').innerHTML='<div class="loading">⏳ Загружаю продукты...</div>';
+  allProds=[];await loadAllProds();
+  if(!allProds.length)for(let i=0;i<20;i++){await sleep(300);if(allProds.length)break;}
+  buildList();goTo('sOrder');
+}
+
+function buildList(){
+  if(curMode==='emergency'){buildEmerg();return;}
+  const prods=allProds.filter(p=>{
+    const n=p.role==='Бар'?'bar':p.role==='Кухня'?'kitchen':p.role.trim().toLowerCase();
+    if(n!==curRole)return false;
+    if(curMode==='urgent')return p.thu==='1';
+    if(curMode==='weekly')return p.active==='1';
+    if(curMode==='biweekly')return p.biweekly==='1';
+    return true;
+  });
+  if(!prods.length){document.getElementById('productList').innerHTML='<div class="empty">Нет продуктов</div>';updBar();return;}
+  const bySup={};prods.forEach(p=>{if(!bySup[p.supplier])bySup[p.supplier]=[];bySup[p.supplier].push(p);});
+  let h='';
+  for(const[sup,items]of Object.entries(bySup)){
+    h+=`<div class="sec">${sup}</div>`;
+    items.forEach(p=>{
+      const isCrit=CRITICAL.some(k=>p.name.toLowerCase().includes(k));
+      const min=parseFloat(p.min)||0,step=parseFloat(p.step)||1;
+      h+=`<div class="prow" id="row-${p.id}">
+        <div class="prow-info"><div class="prow-name">${p.name}</div><div class="prow-unit">${p.unit||''}${min?' · мин '+min:''}</div></div>
+        <div class="prow-ctrls">
+          <button class="qbtn" onclick="chgQ('${p.id}',-1,${min},${step})">−</button>
+          <input class="qinp" type="number" inputmode="decimal" id="q-${p.id}" value="" placeholder="0" onchange="setQ('${p.id}',this.value,${min},${step})" oninput="onQ('${p.id}',this.value)">
+          <button class="qbtn" onclick="chgQ('${p.id}',1,${min},${step})">+</button>
+          <button class="cbtn" onclick="togCmt('${p.id}')">💬</button>
+        </div>
+      </div>
+      <div id="cmt-${p.id}" style="display:none;padding:0 1.125rem .4rem"><div class="cbox"><textarea rows="2" placeholder="Комментарий..." onchange="cmts['${p.id}']=this.value"></textarea></div></div>
+      ${isCrit?`<div class="crit-row" id="crit-${p.id}"><span class="crit-lbl">⚠️ Укажи остаток</span><input class="crit-inp" type="number" inputmode="decimal" placeholder="0" id="s-${p.id}" oninput="onS('${p.id}',this.value)"> ${p.unit||'кг'}</div>`:''}`;
+    });
+  }
+  document.getElementById('productList').innerHTML=h;updBar();
+}
+
+function buildEmerg(){
+  document.getElementById('productList').innerHTML=`
+    <div style="padding:.8rem 1.125rem .2rem"><label class="fl">Причина</label></div>
+    <div style="padding:0 1.125rem .6rem;position:relative"><input class="fi" id="eReason" placeholder="Не приехало, забыли..."></div>
+    <div id="eRows"></div>
+    <button class="add-btn" onclick="addERow()">+ Добавить позицию</button>`;
+  addERow();updBar();
+}
+function addERow(){
+  const idx=eIdx++;const div=document.createElement('div');div.className='erow';div.id='er'+idx;
+  div.innerHTML=`<div style="flex:1;position:relative">
+    <input class="einp" id="en${idx}" placeholder="Название продукта" oninput="showAC(${idx},this.value)" onblur="setTimeout(()=>hideAC(${idx}),200)">
+    <div class="ac" id="ac${idx}" style="display:none"></div>
+  </div>
+  <input class="einp" id="eq${idx}" placeholder="Кол-во" style="width:76px">
+  <button class="edel" onclick="document.getElementById('er${idx}').remove();updBar()">×</button>`;
+  document.getElementById('eRows').appendChild(div);updBar();
+}
+function showAC(idx,val){
+  const ac=document.getElementById('ac'+idx);if(!val||val.length<2){ac.style.display='none';return;}
+  const m=allProds.filter(p=>p.name.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!m.length){ac.style.display='none';return;}
+  ac.innerHTML=m.map(p=>`<div class="ac-item" onmousedown="document.getElementById('en${idx}').value='${p.name.replace(/'/g,"\\'")}';hideAC(${idx})">${p.name}</div>`).join('');
+  ac.style.display='block';
+}
+function hideAC(idx){const ac=document.getElementById('ac'+idx);if(ac)ac.style.display='none';}
+
+function chgQ(id,d,min,step){
+  const inp=document.getElementById('q-'+id);let v=parseFloat(inp.value)||0;
+  if(d>0)v=v===0?(min||step):v+step;else{v-=step;if(v<0)v=0;if(v>0&&v<min)v=0;}
+  v=Math.round(v*100)/100;inp.value=v||'';qty[id]=v?String(v):'';
+  document.getElementById('row-'+id)?.classList.toggle('lit',v>0);updBar();
+}
+function setQ(id,val,min,step){let v=parseFloat(val)||0;if(v&&min&&v<min)v=min;document.getElementById('q-'+id).value=v||'';qty[id]=v?String(v):'';document.getElementById('row-'+id)?.classList.toggle('lit',v>0);updBar();}
+function onQ(id,val){qty[id]=val.trim();document.getElementById('row-'+id)?.classList.toggle('lit',parseFloat(val)>0);updBar();}
+function onS(id,val){stocks[id]=val.trim();updBar();}
+function togCmt(id){const el=document.getElementById('cmt-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function resetAll(){qty={};stocks={};cmts={};buildList();}
+
+function updBar(){
+  const btn=document.getElementById('btnSend');if(!btn)return;
+  if(curMode==='emergency'){btn.disabled=false;btn.textContent='Отправить заявку';return;}
+  const filled=Object.values(qty).filter(v=>v&&parseFloat(v)>0);
+  const critMiss=allProds.filter(p=>CRITICAL.some(k=>p.name.toLowerCase().includes(k))&&qty[p.id]&&parseFloat(qty[p.id])>0&&!stocks[p.id]);
+  if(!filled.length){btn.disabled=true;btn.textContent='Укажи количество';}
+  else if(critMiss.length){btn.disabled=true;btn.textContent='Укажи остатки ⚠️';}
+  else{btn.disabled=false;btn.textContent=`Отправить (${filled.length})`;}
+}
+
+async function sendOrder(){
+  const btn=document.getElementById('btnSend');btn.disabled=true;btn.textContent='Отправляю...';
+  const now=new Date(),date=now.toLocaleDateString('ru-RU'),time=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const names={weekly:'Заказ по понедельникам',urgent:'Заказ по четвергам',biweekly:'Полный заказ с хозтоварами',emergency:'Срочная заявка'};
+  const rl=curRole==='bar'?'Бар':curRole==='заготовщик'?'Заготовщик':'Кухня';
+  let rows=[];
+  if(curMode==='emergency'){
+    const reason=document.getElementById('eReason')?.value.trim()||'';
+    document.querySelectorAll('[id^="en"]').forEach(inp=>{
+      const idx=inp.id.replace('en','');const name=inp.value.trim();const q=document.getElementById('eq'+idx)?.value.trim()||'';
+      if(name)rows.push({date,time,location:curLoc,role:rl,orderType:'Срочная заявка',supplier:'Срочная заявка',product:name,unit:'',qty:q,stock:'—',reason,status:'⏳ Заявка'});
+    });
+    if(!rows.length){btn.disabled=false;btn.textContent='Отправить заявку';return;}
+    sendTg(rows);
+  }else{
+    allProds.forEach(p=>{
+      if(!qty[p.id]||!parseFloat(qty[p.id]))return;
+      const isCrit=CRITICAL.some(k=>p.name.toLowerCase().includes(k));
+      rows.push({date,time,location:curLoc,role:rl,orderType:names[curMode],supplier:p.supplier,product:p.name,unit:p.unit||'',qty:qty[p.id],stock:isCrit?(stocks[p.id]||'—'):'—',reason:cmts[p.id]||'',status:'⏳ Заявка'});
+    });
+  }
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addOrder',rows}),mode:'no-cors'});
+    document.getElementById('succSub').textContent=rows.length+' позиций отправлено';
+    document.getElementById('orderBar').style.display='none';showScreen('sSuccess');
+  }catch(e){showToast('Ошибка');btn.disabled=false;btn.textContent='Повторить';}
+}
+
+async function sendTg(rows){
+  try{
+    const to=users.filter(u=>(u.role==='менеджер'&&u.location===curLoc)||u.role==='владелец').map(u=>u.tg).filter(id=>id&&String(id).length>5);
+    if(!to.length)return;
+    const who=curUser?.name||'Сотрудник',reason=rows[0]?.reason||'';
+    const items=rows.map(r=>`• ${r.product}${r.qty?' — '+r.qty+' '+(r.unit||''):''}`).join('\n');
+    const text=`🚨 *СРОЧНАЯ ЗАЯВКА*\n📍 ${curLoc}\n👤 ${who}${reason?'\n💬 '+reason:''}\n\n${items}`;
+    for(const id of to)await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:String(id),text,parse_mode:'Markdown'})});
+  }catch(e){}
+}
+
+// MY ORDERS
+async function showMyOrders(){
+  const rl=curRole==='bar'?'Бар':curRole==='заготовщик'?'Заготовщик':'Кухня';
+  document.getElementById('myOrdersSub').textContent=curLoc+' · '+rl;
+  if(!mgrData.length)await loadMgrData();
+  const data=mgrData.filter(r=>r.location===curLoc&&r.role===rl);
+  const c={w:0,d:0,l:0};data.forEach(r=>{if(r.status==='⏳ Заявка')c.w++;else if(r.status==='✅ Заказано')c.d++;else if(r.status==='🕐 Позже')c.l++;});
+  document.getElementById('myChips').innerHTML=`<div class="chip">⏳ <b>${c.w}</b></div><div class="chip">✅ <b>${c.d}</b></div><div class="chip">🕐 <b>${c.l}</b></div>`;
+  const bySup={};data.forEach(r=>{if(!bySup[r.supplier])bySup[r.supplier]=[];bySup[r.supplier].push(r);});
+  let h='';
+  for(const[sup,items]of Object.entries(bySup)){
+    h+=`<div class="sec">${sup}</div>`;
+    items.forEach(r=>{
+      const sc=r.status==='✅ Заказано'?'s-done':r.status==='🕐 Позже'?'s-later':'';
+      h+=`<div class="mrow"><div class="mrow-name">${r.product}</div><div class="mrow-meta">${fmtDate(r.date,r.time)}${r.qty?' · '+r.qty+' '+(r.unit||''):''}</div><div class="mrow-bot"><span class="sbtn ${sc}">${r.status}</span></div></div>`;
+    });
+  }
+  document.getElementById('myOrdersList').innerHTML=h||'<div class="empty">Заявок нет</div>';
+  goTo('sMyOrders');
+}
+
+// ===== ОСТАТКИ =====
+function switchToStock(){
+  document.getElementById('btnFill').style.display=curRole?'block':'none';
+  if(stack.length===0||document.querySelector('.screen.active')?.id!=='sStock'){
+    const c=document.querySelector('.screen.active');if(c)stack.push(c.id);
+  }
+  showScreen('sStock');loadStock();
+}
+
+async function loadStock(){
+  document.getElementById('stockList').innerHTML='<div class="loading">⏳ Загружаю...</div>';
+  try{
+    const[rr,sr]=await Promise.all([
+      fetch(SCRIPT_URL+'?action=getStockRef&t='+Date.now(),{cache:'no-store'}),
+      fetch(SCRIPT_URL+'?action=getLatestStock&t='+Date.now(),{cache:'no-store'})
+    ]);
+    const rj=await rr.json(),sj=await sr.json();
+    stockRef=rj.items||[];
+    latestStock={};(sj.rows||[]).forEach(r=>latestStock[r.itemId+'|'+r.location]=r);
+  }catch(e){document.getElementById('stockList').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
+  renderStock();
+}
+
+function isStale(e){
+  if(!e||!e.date)return true;
+  try{const p=e.date.split('.');const dt=new Date(p[2],p[1]-1,p[0],...(e.time||'00:00').split(':').map(Number));return(Date.now()-dt.getTime())>STALE_H*3600000;}catch{return true;}
+}
+
+function renderStock(){
+  if(!stockRef.length){document.getElementById('stockList').innerHTML='<div class="empty">Справочник пуст</div>';return;}
+  const byCat={};
+  stockRef.forEach(item=>{const cat=item['Категория']||'—';if(!byCat[cat])byCat[cat]=[];byCat[cat].push(item);});
+  let h='';
+  for(const[cat,items]of Object.entries(byCat)){
+    h+=`<div class="stock-cat">${cat}</div>`;
+    items.forEach(item=>{
+      const id=String(item['ID']||'');
+      const name=item['Номенклатура']||'—';
+      const unit=item['Ед. изм.']||'';
+      h+=`<div class="stock-row">
+        <div class="stock-namecell">${name}<span>${unit}</span></div>`;
+      LOCS.forEach(loc=>{
+        const e=latestStock[id+'|'+loc];
+        if(!e){h+=`<div class="stock-cell"><span class="sv empty">—</span></div>`;}
+        else{const st=isStale(e);h+=`<div class="stock-cell"><span class="sv${st?' stale':''}">${e.qty}</span><span class="sd">${e.date||''}</span></div>`;}
+      });
+      h+=`</div>`;
+    });
+  }
+  document.getElementById('stockList').innerHTML=h;
+  // Дата обновления
+  const all=Object.values(latestStock);
+  if(all.length){
+    const lat=all.reduce((a,b)=>((a.date||'')+' '+(a.time||''))>((b.date||'')+' '+(b.time||''))?a:b);
+    document.getElementById('stockNote').textContent='Обновлено: '+lat.date+' '+lat.time+(lat.filledBy?' · '+lat.filledBy:'');
+  }
+}
+
+function openFillStock(){
+  sfData={};
+  document.getElementById('sfLoc').textContent=curLoc;
+  const now=new Date();
+  document.getElementById('sfDate').textContent=now.toLocaleDateString('ru-RU')+' · '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+
+  // Фильтрация: показываем только позиции где в колонке "Мин [точка]" есть значение
+  const minCol='Мин '+curLoc;
+  const myItems=curRole==='владелец'
+    ? stockRef
+    : stockRef.filter(item=>{
+        const v=item[minCol];
+        return v!==undefined && v!=='' && v!=='0' && v!==null;
+      });
+
+  const byCat={};myItems.forEach(item=>{const cat=item['Категория']||'—';if(!byCat[cat])byCat[cat]=[];byCat[cat].push(item);});
+  let h='';
+  for(const[cat,items]of Object.entries(byCat)){
+    h+=`<div class="sec">${cat}</div>`;
+    items.forEach(item=>{
+      const id=String(item['ID']||'');
+      const name=item['Номенклатура']||'—';
+      const unit=item['Ед. изм.']||'';
+      const prev=latestStock[id+'|'+curLoc];
+      h+=`<div class="sfrow">
+        <div class="sfname">
+          <div class="sfname-main">${name}</div>
+          ${prev?`<div class="sfname-prev">прошлый: ${prev.qty} ${unit} · ${prev.date}</div>`:`<div class="sfname-prev">${unit}</div>`}
+        </div>
+        <input class="sfinp" type="number" inputmode="decimal" placeholder="0"
+          id="sf-${id}" oninput="onSF('${id}',this.value)" onfocus="this.select()">
+      </div>`;
+    });
+  }
+  document.getElementById('sfList').innerHTML=h||'<div class="empty">Нет позиций для заполнения</div>';
+  document.getElementById('sfBar').style.display='flex';
+  goTo('sStockFill');
+}
+
+function onSF(id,val){
+  sfData[id]=val.trim();
+  document.getElementById('sf-'+id)?.classList.toggle('filled',!!val.trim());
+}
+
+async function saveStock(){
+  const rows=[];
+  stockRef.forEach(item=>{
+    const id=String(item['ID']||'');
+    const val=sfData[id];
+    if(val===undefined||val==='')return;
+    rows.push({itemId:id,itemName:item['Номенклатура']||'',unit:item['Ед. изм.']||'',qty:val});
+  });
+  if(!rows.length){showToast('Ничего не заполнено');return;}
+  const btn=document.querySelector('#sfBar .btn');
+  btn.disabled=true;btn.textContent='Сохраняю...';
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'addStockEntries',location:curLoc,filledBy:curUser?.name||'',rows}),mode:'no-cors'});
+    showToast('Остатки сохранены ✓');
+    document.getElementById('sfBar').style.display='none';
+    back();await loadStock();
+  }catch(e){showToast('Ошибка');btn.disabled=false;btn.textContent='Сохранить остатки';}
+}
+
+// UTILS
+function fmtDate(d,t){
+  if(!d)return'';
+  try{if(d.includes('GMT')||d.includes('T'))d=new Date(d).toLocaleDateString('ru-RU');}catch(e){}
+  try{if(t&&(t.includes('GMT')||t.includes('T')))t=new Date(t).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}catch(e){}
+  return[d,t].filter(Boolean).join(' ');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function init(){
+  try{const r=await fetch(SCRIPT_URL+'?action=getUsers&t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.users)users=j.users;}catch(e){}
+  settingsLoaded=true;
+}
+init();
+</script>
+</body>
+</html>
